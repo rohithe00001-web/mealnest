@@ -12,6 +12,30 @@ import { toast } from "sonner";
 import { listDishReviews } from "@/lib/customer.functions";
 
 export const Route = createFileRoute("/dish/$id")({
+  loader: async ({ context, params }) => {
+    await context.queryClient.ensureQueryData(dishByIdQuery(params.id));
+    return context.queryClient.getQueryData(dishByIdQuery(params.id).queryKey) as any;
+  },
+  head: ({ loaderData }) => {
+    const d: any = loaderData;
+    if (!d) return { meta: [{ title: "Dish — HomeBite" }] };
+    const title = `${d.name} from ${d.sellers?.kitchen_name ?? "HomeBite"}`;
+    const desc = d.description?.slice(0, 155) ?? `Order ${d.name} fresh from a neighborhood kitchen on HomeBite.`;
+    return {
+      meta: [
+        { title: `${title} — HomeBite` },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "product" },
+        ...(d.image_url ? [
+          { property: "og:image", content: d.image_url },
+          { name: "twitter:image", content: d.image_url },
+          { name: "twitter:card", content: "summary_large_image" },
+        ] : []),
+      ],
+    };
+  },
   component: DishPage,
 });
 

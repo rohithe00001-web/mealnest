@@ -6,6 +6,7 @@ import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsAdmin } from "@/lib/admin.functions";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -61,6 +62,8 @@ export function Header() {
           <Search className="h-4 w-4" />
           <span>Search dishes or kitchens</span>
         </Link>
+
+        {user && <NotificationBell />}
 
         <Link
           to="/cart"
