@@ -24,6 +24,7 @@ import { Route as AuthenticatedSellerRouteRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedSellerIndexRouteImport } from './routes/_authenticated/seller/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedSellerDishesRouteImport } from './routes/_authenticated/seller/dishes'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin/sellers'
@@ -106,6 +107,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedSellerDishesRoute =
+  AuthenticatedSellerDishesRouteImport.update({
+    id: '/dishes',
+    path: '/dishes',
+    getParentRoute: () => AuthenticatedSellerRouteRoute,
+  } as any)
 const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -146,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/seller/': typeof AuthenticatedSellerIndexRoute
 }
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/seller': typeof AuthenticatedSellerIndexRoute
 }
@@ -186,6 +195,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
+  '/_authenticated/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
 }
@@ -208,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/sellers'
     | '/admin/users'
     | '/orders/$id'
+    | '/seller/dishes'
     | '/admin/'
     | '/seller/'
   fileRoutesByTo: FileRoutesByTo
@@ -226,6 +237,7 @@ export interface FileRouteTypes {
     | '/admin/sellers'
     | '/admin/users'
     | '/orders/$id'
+    | '/seller/dishes'
     | '/admin'
     | '/seller'
   id:
@@ -247,6 +259,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/users'
     | '/_authenticated/orders/$id'
+    | '/_authenticated/seller/dishes'
     | '/_authenticated/admin/'
     | '/_authenticated/seller/'
   fileRoutesById: FileRoutesById
@@ -367,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/seller/dishes': {
+      id: '/_authenticated/seller/dishes'
+      path: '/dishes'
+      fullPath: '/seller/dishes'
+      preLoaderRoute: typeof AuthenticatedSellerDishesRouteImport
+      parentRoute: typeof AuthenticatedSellerRouteRoute
+    }
     '/_authenticated/orders/$id': {
       id: '/_authenticated/orders/$id'
       path: '/$id'
@@ -419,11 +439,13 @@ const AuthenticatedAdminRouteRouteWithChildren =
   )
 
 interface AuthenticatedSellerRouteRouteChildren {
+  AuthenticatedSellerDishesRoute: typeof AuthenticatedSellerDishesRoute
   AuthenticatedSellerIndexRoute: typeof AuthenticatedSellerIndexRoute
 }
 
 const AuthenticatedSellerRouteRouteChildren: AuthenticatedSellerRouteRouteChildren =
   {
+    AuthenticatedSellerDishesRoute: AuthenticatedSellerDishesRoute,
     AuthenticatedSellerIndexRoute: AuthenticatedSellerIndexRoute,
   }
 
