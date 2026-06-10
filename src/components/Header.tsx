@@ -89,6 +89,15 @@ export function Header() {
                 <Link to="/orders"><ClipboardList className="mr-2 h-4 w-4" />My Orders</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
+                <Link to="/wishlist"><Heart className="mr-2 h-4 w-4" />Wishlist</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/addresses"><MapPin className="mr-2 h-4 w-4" />Addresses</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/seller"><Store className="mr-2 h-4 w-4" />Seller dashboard</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link to="/become-seller"><ChefHat className="mr-2 h-4 w-4" />Become a seller</Link>
               </DropdownMenuItem>
               {isAdmin && (
