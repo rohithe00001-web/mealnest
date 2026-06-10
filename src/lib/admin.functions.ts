@@ -134,7 +134,7 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     let q = supabaseAdmin
       .from("orders")
       .select(
-        "id, order_number, total, subtotal, delivery_fee, status, payment_status, payment_method, created_at, customer_id, sellers(kitchen_name, city), profiles:customer_id(full_name)",
+        "id, order_number, total, subtotal, delivery_fee, status, payment_status, payment_method, created_at, customer_id, sellers(kitchen_name, city)",
       )
       .order("created_at", { ascending: false })
       .limit(200);
@@ -142,7 +142,13 @@ export const listAdminOrders = createServerFn({ method: "GET" })
     if (data.search) q = q.ilike("order_number", `%${data.search}%`);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    const ids = Array.from(new Set((rows ?? []).map((r: any) => r.customer_id)));
+    const { data: profs } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, full_name").in("id", ids)
+      : { data: [] as any[] };
+    const nameMap = new Map<string, string>();
+    for (const p of profs ?? []) nameMap.set(p.id, p.full_name ?? "");
+    return (rows ?? []).map((r: any) => ({ ...r, customer_name: nameMap.get(r.customer_id) ?? null }));
   });
 
 export const updateOrderStatusAdmin = createServerFn({ method: "POST" })
