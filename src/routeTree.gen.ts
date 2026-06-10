@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DishIdRouteImport } from './routes/dish.$id'
+import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedBecomeSellerRouteImport } from './routes/_authenticated/become-seller'
@@ -53,6 +54,11 @@ const DishIdRoute = DishIdRouteImport.update({
   id: '/dish/$id',
   path: '/dish/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
@@ -128,6 +135,7 @@ export interface FileRoutesByTo {
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
@@ -146,6 +154,7 @@ export interface FileRoutesById {
   '/_authenticated/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
@@ -164,6 +173,7 @@ export interface FileRouteTypes {
     | '/become-seller'
     | '/checkout'
     | '/orders'
+    | '/wishlist'
     | '/dish/$id'
     | '/admin/orders'
     | '/admin/sellers'
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/become-seller'
     | '/checkout'
     | '/orders'
+    | '/wishlist'
     | '/dish/$id'
     | '/admin/orders'
     | '/admin/sellers'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/_authenticated/become-seller'
     | '/_authenticated/checkout'
     | '/_authenticated/orders'
+    | '/_authenticated/wishlist'
     | '/dish/$id'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/sellers'
@@ -255,6 +267,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dish/$id'
       preLoaderRoute: typeof DishIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/wishlist': {
+      id: '/_authenticated/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof AuthenticatedWishlistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/orders': {
       id: '/_authenticated/orders'
@@ -348,6 +367,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBecomeSellerRoute: typeof AuthenticatedBecomeSellerRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
+  AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -356,6 +376,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBecomeSellerRoute: AuthenticatedBecomeSellerRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
+  AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
