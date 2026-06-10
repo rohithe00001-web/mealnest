@@ -140,20 +140,27 @@ function OrderDetailPage() {
           <aside className="space-y-4">
             <div className="rounded-2xl border border-border bg-surface p-5 text-sm">
               <h3 className="font-display text-base font-semibold">Delivery</h3>
-              <p className="mt-2 inline-flex items-start gap-2 text-muted-foreground">
-                <MapPin className="mt-0.5 h-4 w-4" />
-                <span>
-                  {order.delivery_address?.addressLine}
-                  <br />
-                  {order.delivery_address?.city}
-                  {order.delivery_address?.pincode ? ` · ${order.delivery_address.pincode}` : ""}
-                </span>
-              </p>
-              {order.delivery_address?.phone && (
-                <p className="mt-2 inline-flex items-center gap-2 text-muted-foreground">
-                  <Phone className="h-4 w-4" /> {order.delivery_address.phone}
-                </p>
-              )}
+              {(() => {
+                const a = (order.delivery_address ?? {}) as Record<string, string>;
+                return (
+                  <>
+                    <p className="mt-2 inline-flex items-start gap-2 text-muted-foreground">
+                      <MapPin className="mt-0.5 h-4 w-4" />
+                      <span>
+                        {a.addressLine}
+                        <br />
+                        {a.city}
+                        {a.pincode ? ` · ${a.pincode}` : ""}
+                      </span>
+                    </p>
+                    {a.phone && (
+                      <p className="mt-2 inline-flex items-center gap-2 text-muted-foreground">
+                        <Phone className="h-4 w-4" /> {a.phone}
+                      </p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
             <div className="rounded-2xl border border-border bg-surface p-5 text-sm">
               <h3 className="font-display text-base font-semibold">Kitchen</h3>
