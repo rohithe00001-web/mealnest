@@ -19,6 +19,14 @@ export function Header() {
   const { user } = useAuth();
   const { count } = useCart();
   const router = useRouter();
+  const checkAdmin = useServerFn(checkIsAdmin);
+  const { data: adminData } = useQuery({
+    queryKey: ["me", "is-admin", user?.id ?? "anon"],
+    queryFn: () => checkAdmin(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const isAdmin = !!adminData?.isAdmin;
 
   const signOut = async () => {
     await supabase.auth.signOut();
