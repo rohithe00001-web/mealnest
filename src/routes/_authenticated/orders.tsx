@@ -37,24 +37,26 @@ function OrdersPage() {
         ) : (
           <ul className="mt-6 space-y-4">
             {orders.map((o: any) => (
-              <li key={o.id} className="rounded-2xl border border-border bg-card p-5">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-medium">{o.order_number}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString()} · {o.sellers?.kitchen_name}</p>
+              <li key={o.id}>
+                <Link to="/orders/$id" params={{ id: o.id }} className="block rounded-2xl border border-border bg-card p-5 hover:border-primary/40 transition-colors">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <p className="font-medium">{o.order_number}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString()} · {o.sellers?.kitchen_name}</p>
+                    </div>
+                    <span className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${STATUS_COLORS[o.status] ?? "bg-muted text-muted-foreground"}`}>
+                      {String(o.status).replace(/_/g, " ")}
+                    </span>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${STATUS_COLORS[o.status] ?? "bg-muted text-muted-foreground"}`}>
-                    {String(o.status).replace(/_/g, " ")}
-                  </span>
-                </div>
-                <ul className="mt-3 text-sm text-muted-foreground">
-                  {o.order_items.map((it: any) => (
-                    <li key={it.id} className="flex justify-between"><span>{it.dish_name} × {it.quantity}</span><span>{inr(it.line_total)}</span></li>
-                  ))}
-                </ul>
-                <div className="mt-3 flex justify-between border-t border-border pt-3 font-semibold">
-                  <span>Total</span><span>{inr(o.total)}</span>
-                </div>
+                  <ul className="mt-3 text-sm text-muted-foreground">
+                    {o.order_items.map((it: any) => (
+                      <li key={it.id} className="flex justify-between"><span>{it.dish_name} × {it.quantity}</span><span>{inr(it.line_total)}</span></li>
+                    ))}
+                  </ul>
+                  <div className="mt-3 flex justify-between border-t border-border pt-3 font-semibold">
+                    <span>Total</span><span>{inr(o.total)}</span>
+                  </div>
+                </Link>
               </li>
             ))}
           </ul>

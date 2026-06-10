@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck } from "lucide-react";
+import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck, Heart, MapPin, Store } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
@@ -87,6 +87,15 @@ export function Header() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/orders"><ClipboardList className="mr-2 h-4 w-4" />My Orders</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/wishlist"><Heart className="mr-2 h-4 w-4" />Wishlist</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/addresses"><MapPin className="mr-2 h-4 w-4" />Addresses</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/seller"><Store className="mr-2 h-4 w-4" />Seller dashboard</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/become-seller"><ChefHat className="mr-2 h-4 w-4" />Become a seller</Link>
