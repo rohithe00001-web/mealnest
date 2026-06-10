@@ -14,25 +14,67 @@ export const categoriesQuery = queryOptions({
   staleTime: 1000 * 60 * 5,
 });
 
-export const dishesQuery = (filters?: { categorySlug?: string; search?: string }) =>
+export interface DishFilters {
+  categorySlug?: string;
+  search?: string;
+  veg?: "veg" | "nonveg" | "all";
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  openNow?: boolean;
+  sort?: "newest" | "price_asc" | "price_desc" | "rating";
+}
+
+export const dishesQuery = (filters?: DishFilters) =>
   queryOptions({
-    queryKey: ["dishes", filters?.categorySlug ?? null, filters?.search ?? ""],
+    queryKey: [
+      "dishes",
+      filters?.categorySlug ?? null,
+      filters?.search ?? "",
+      filters?.veg ?? "all",
+      filters?.minPrice ?? null,
+      filters?.maxPrice ?? null,
+      filters?.minRating ?? null,
+      filters?.openNow ?? false,
+      filters?.sort ?? "newest",
+    ],
     queryFn: async () => {
       let q = supabase
         .from("dishes")
         .select(
-          "id, name, description, price, prep_time_min, image_url, is_veg, rating_avg, rating_count, seller_id, category_id, categories(slug, name), sellers!inner(id, kitchen_name, city, status)",
+          "id, name, description, price, prep_time_min, image_url, is_veg, rating_avg, rating_count, seller_id, category_id, categories(slug, name), sellers!inner(id, kitchen_name, city, status, is_open)",
         )
         .eq("is_available", true)
         .eq("sellers.status", "approved")
-        .order("created_at", { ascending: false })
-        .limit(60);
-      if (filters?.search) q = q.ilike("name", `%${filters.search}%`);
+        .limit(200);
+
+      if (filters?.veg === "veg") q = q.eq("is_veg", true);
+      if (filters?.veg === "nonveg") q = q.eq("is_veg", false);
+      if (typeof filters?.minPrice === "number") q = q.gte("price", filters.minPrice);
+      if (typeof filters?.maxPrice === "number") q = q.lte("price", filters.maxPrice);
+      if (typeof filters?.minRating === "number" && filters.minRating > 0)
+        q = q.gte("rating_avg", filters.minRating);
+      if (filters?.openNow) q = q.eq("sellers.is_open", true);
+
+      switch (filters?.sort) {
+        case "price_asc": q = q.order("price", { ascending: true }); break;
+        case "price_desc": q = q.order("price", { ascending: false }); break;
+        case "rating": q = q.order("rating_avg", { ascending: false }); break;
+        default: q = q.order("created_at", { ascending: false });
+      }
+
       const { data, error } = await q;
       if (error) throw error;
       let rows = data ?? [];
-      if (filters?.categorySlug) {
-        rows = rows.filter((d: any) => d.categories?.slug === filters.categorySlug);
+      if (filters?.categorySlug) rows = rows.filter((d: any) => d.categories?.slug === filters.categorySlug);
+      if (filters?.search) {
+        const s = filters.search.toLowerCase();
+        rows = rows.filter(
+          (d: any) =>
+            d.name.toLowerCase().includes(s) ||
+            d.sellers?.kitchen_name?.toLowerCase().includes(s) ||
+            d.description?.toLowerCase().includes(s),
+        );
       }
       return rows;
     },
