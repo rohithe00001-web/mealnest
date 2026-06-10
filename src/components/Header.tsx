@@ -91,6 +91,11 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link to="/become-seller"><ChefHat className="mr-2 h-4 w-4" />Become a seller</Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin panel</Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
                 <LogOut className="mr-2 h-4 w-4" />Sign out
