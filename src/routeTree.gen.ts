@@ -21,6 +21,7 @@ import { Route as AuthenticatedBecomeSellerRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin/sellers'
+import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 
 const CartRoute = CartRouteImport.update({
   id: '/cart',
@@ -83,6 +84,12 @@ const AuthenticatedAdminSellersRoute =
     path: '/sellers',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminOrdersRoute =
+  AuthenticatedAdminOrdersRouteImport.update({
+    id: '/orders',
+    path: '/orders',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/dish/$id': typeof DishIdRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -106,6 +114,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/dish/$id': typeof DishIdRoute
+  '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -121,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/dish/$id': typeof DishIdRoute
+  '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/dish/$id'
+    | '/admin/orders'
     | '/admin/sellers'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/orders'
     | '/dish/$id'
+    | '/admin/orders'
     | '/admin/sellers'
     | '/admin'
   id:
@@ -162,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/checkout'
     | '/_authenticated/orders'
     | '/dish/$id'
+    | '/_authenticated/admin/orders'
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -261,16 +274,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSellersRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/orders': {
+      id: '/_authenticated/admin/orders'
+      path: '/orders'
+      fullPath: '/admin/orders'
+      preLoaderRoute: typeof AuthenticatedAdminOrdersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
     AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
