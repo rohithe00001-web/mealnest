@@ -87,12 +87,18 @@ export const listAdminSellers = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     let q = supabaseAdmin
       .from("sellers")
-      .select("id, user_id, kitchen_name, city, phone, email, status, rating_avg, rating_count, created_at, profiles:user_id(full_name)")
+      .select("id, user_id, kitchen_name, city, phone, email, status, rating_avg, rating_count, created_at")
       .order("created_at", { ascending: false });
     if (data.status && data.status !== "all") q = q.eq("status", data.status as any);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    const ids = Array.from(new Set((rows ?? []).map((r: any) => r.user_id)));
+    const { data: profs } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, full_name").in("id", ids)
+      : { data: [] as any[] };
+    const nameMap = new Map<string, string>();
+    for (const p of profs ?? []) nameMap.set(p.id, p.full_name ?? "");
+    return (rows ?? []).map((r: any) => ({ ...r, profiles: { full_name: nameMap.get(r.user_id) ?? null } }));
   });
 
 export const updateSellerStatus = createServerFn({ method: "POST" })
