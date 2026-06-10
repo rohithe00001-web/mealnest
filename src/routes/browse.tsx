@@ -41,7 +41,7 @@ function BrowsePage() {
 
   useEffect(() => {
     const t = setTimeout(() => {
-      if (search !== s.q) navigate({ search: (p) => ({ ...p, q: search }) });
+      if (search !== s.q) navigate({ search: (p: any) => ({ ...p, q: search }) });
     }, 250);
     return () => clearTimeout(t);
   }, [search]);
@@ -95,7 +95,7 @@ function BrowsePage() {
           </div>
           <select
             value={s.sort}
-            onChange={(e) => navigate({ search: (p) => ({ ...p, sort: e.target.value as any }) })}
+            onChange={(e) => navigate({ search: (p: any) => ({ ...p, sort: e.target.value as any }) })}
             className="h-11 rounded-full border border-border bg-surface px-4 text-sm outline-none"
           >
             <option value="newest">Newest</option>
@@ -126,7 +126,7 @@ function BrowsePage() {
                   {(["all", "veg", "nonveg"] as const).map((v) => (
                     <button
                       key={v}
-                      onClick={() => navigate({ search: (p) => ({ ...p, veg: v }) })}
+                      onClick={() => navigate({ search: (p: any) => ({ ...p, veg: v }) })}
                       className={`rounded-full px-3 py-1.5 text-xs font-medium border ${s.veg === v ? "bg-foreground text-background border-foreground" : "bg-surface border-border hover:bg-muted"}`}
                     >
                       {v === "all" ? "All" : v === "veg" ? "Veg" : "Non-veg"}
@@ -140,7 +140,7 @@ function BrowsePage() {
                   {[0, 3, 3.5, 4, 4.5].map((r) => (
                     <button
                       key={r}
-                      onClick={() => navigate({ search: (p) => ({ ...p, minRating: r }) })}
+                      onClick={() => navigate({ search: (p: any) => ({ ...p, minRating: r }) })}
                       className={`inline-flex items-center gap-0.5 rounded-full px-2.5 py-1.5 text-xs font-medium border ${s.minRating === r ? "bg-foreground text-background border-foreground" : "bg-surface border-border hover:bg-muted"}`}
                     >
                       {r === 0 ? "Any" : <>{r}<Star className="h-3 w-3 fill-current" /></>}
@@ -153,13 +153,13 @@ function BrowsePage() {
                 <div className="flex items-center gap-2">
                   <input
                     type="number" min={0} max={s.maxPrice} value={s.minPrice}
-                    onChange={(e) => navigate({ search: (p) => ({ ...p, minPrice: Number(e.target.value) || 0 }) })}
+                    onChange={(e) => navigate({ search: (p: any) => ({ ...p, minPrice: Number(e.target.value) || 0 }) })}
                     className="h-9 w-20 rounded-lg border border-input bg-background px-2 text-sm outline-none focus:border-ring"
                   />
                   <span className="text-muted-foreground text-sm">–</span>
                   <input
                     type="number" min={s.minPrice} value={s.maxPrice}
-                    onChange={(e) => navigate({ search: (p) => ({ ...p, maxPrice: Number(e.target.value) || 0 }) })}
+                    onChange={(e) => navigate({ search: (p: any) => ({ ...p, maxPrice: Number(e.target.value) || 0 }) })}
                     className="h-9 w-20 rounded-lg border border-input bg-background px-2 text-sm outline-none focus:border-ring"
                   />
                 </div>
@@ -168,7 +168,7 @@ function BrowsePage() {
                 <label className="inline-flex items-center gap-2 text-sm">
                   <input
                     type="checkbox" checked={s.openNow}
-                    onChange={(e) => navigate({ search: (p) => ({ ...p, openNow: e.target.checked }) })}
+                    onChange={(e) => navigate({ search: (p: any) => ({ ...p, openNow: e.target.checked }) })}
                     className="h-4 w-4 accent-[var(--color-primary)]"
                   />
                   Open now
@@ -183,7 +183,7 @@ function BrowsePage() {
 
         <div className="mt-5 flex flex-wrap gap-2">
           <button
-            onClick={() => navigate({ search: (p) => ({ ...p, category: "" }) })}
+            onClick={() => navigate({ search: (p: any) => ({ ...p, category: "" }) })}
             className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors ${!s.category ? "bg-foreground text-background border-foreground" : "bg-card border-border hover:bg-muted"}`}
           >
             All
@@ -191,7 +191,7 @@ function BrowsePage() {
           {cats.map((c) => (
             <button
               key={c.id}
-              onClick={() => navigate({ search: (p) => ({ ...p, category: c.slug }) })}
+              onClick={() => navigate({ search: (p: any) => ({ ...p, category: c.slug }) })}
               className={`rounded-full px-4 py-1.5 text-sm font-medium border transition-colors ${s.category === c.slug ? "bg-foreground text-background border-foreground" : "bg-card border-border hover:bg-muted"}`}
             >
               {c.name}
