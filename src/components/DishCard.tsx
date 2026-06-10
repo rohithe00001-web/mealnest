@@ -3,6 +3,7 @@ import { Clock, Star, Plus } from "lucide-react";
 import { inr } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
+import { WishlistButton } from "@/components/WishlistButton";
 
 export interface DishCardData {
   id: string;
@@ -43,6 +44,9 @@ export function DishCard({ dish }: { dish: DishCardData }) {
         <span className={`absolute left-3 top-3 grid h-5 w-5 place-items-center rounded-sm border-2 ${dish.is_veg ? "border-success" : "border-destructive"} bg-card`}>
           <span className={`h-2 w-2 rounded-full ${dish.is_veg ? "bg-success" : "bg-destructive"}`} />
         </span>
+        <div className="absolute right-3 top-3">
+          <WishlistButton dishId={dish.id} />
+        </div>
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start gap-2">
