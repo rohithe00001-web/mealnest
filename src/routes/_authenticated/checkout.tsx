@@ -1,11 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/lib/cart";
 import { inr } from "@/lib/format";
 import { placeOrder } from "@/lib/orders.functions";
+import { listAddresses } from "@/lib/customer.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
@@ -16,10 +18,24 @@ function CheckoutPage() {
   const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const placeOrderFn = useServerFn(placeOrder);
+  const listAddressesFn = useServerFn(listAddresses);
   const [loading, setLoading] = useState(false);
+  const [selectedId, setSelectedId] = useState<string | "new">("new");
   const [form, setForm] = useState({
     label: "Home", addressLine: "", city: "", pincode: "", phone: "", instructions: "",
   });
+
+  const { data: addresses } = useQuery({
+    queryKey: ["addresses"],
+    queryFn: () => listAddressesFn(),
+  });
+
+  useEffect(() => {
+    if (addresses && addresses.length > 0 && selectedId === "new") {
+      const def = addresses.find((a: any) => a.is_default) ?? addresses[0];
+      setSelectedId(def.id);
+    }
+  }, [addresses]);
 
   const deliveryFee = subtotal >= 500 || subtotal === 0 ? 0 : 29;
   const total = subtotal + deliveryFee;
@@ -41,14 +57,26 @@ function CheckoutPage() {
     e.preventDefault();
     setLoading(true);
     try {
+      let deliveryAddress;
+      if (selectedId !== "new" && addresses) {
+        const a: any = addresses.find((x: any) => x.id === selectedId);
+        if (!a) throw new Error("Address not found");
+        if (!form.phone) throw new Error("Phone is required");
+        deliveryAddress = {
+          label: a.label, addressLine: a.address_line, city: a.city,
+          pincode: a.pincode || undefined, phone: form.phone,
+        };
+      } else {
+        deliveryAddress = {
+          label: form.label, addressLine: form.addressLine, city: form.city,
+          pincode: form.pincode || undefined, phone: form.phone,
+        };
+      }
       const res = await placeOrderFn({
         data: {
           sellerId: items[0].sellerId,
           items: items.map((i) => ({ dishId: i.dishId, quantity: i.quantity })),
-          deliveryAddress: {
-            label: form.label, addressLine: form.addressLine, city: form.city,
-            pincode: form.pincode || undefined, phone: form.phone,
-          },
+          deliveryAddress,
           deliveryInstructions: form.instructions || undefined,
           paymentMethod: "cod",
         },
@@ -63,6 +91,8 @@ function CheckoutPage() {
     }
   }
 
+  const usingSaved = selectedId !== "new";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -71,19 +101,63 @@ function CheckoutPage() {
         <form onSubmit={submit} className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
           <div className="space-y-6">
             <section className="rounded-2xl border border-border bg-card p-6">
-              <h2 className="font-display text-xl font-semibold">Delivery address</h2>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <Field label="Label" value={form.label} onChange={(v) => setForm({ ...form, label: v })} />
-                <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required />
-                <div className="sm:col-span-2">
-                  <Field label="Address" value={form.addressLine} onChange={(v) => setForm({ ...form, addressLine: v })} required />
-                </div>
-                <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} required />
-                <Field label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} />
-                <div className="sm:col-span-2">
-                  <Field label="Delivery instructions (optional)" value={form.instructions} onChange={(v) => setForm({ ...form, instructions: v })} />
-                </div>
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-xl font-semibold">Delivery address</h2>
+                <Link to="/addresses" className="text-xs text-primary hover:underline">Manage</Link>
               </div>
+
+              {addresses && addresses.length > 0 && (
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  {addresses.map((a: any) => (
+                    <button
+                      type="button"
+                      key={a.id}
+                      onClick={() => setSelectedId(a.id)}
+                      className={`text-left rounded-xl border p-3 transition-colors ${
+                        selectedId === a.id ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{a.label}</span>
+                        {a.is_default && <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Default</span>}
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{a.address_line}, {a.city}{a.pincode ? ` · ${a.pincode}` : ""}</p>
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId("new")}
+                    className={`text-left rounded-xl border border-dashed p-3 transition-colors ${
+                      selectedId === "new" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
+                    }`}
+                  >
+                    <span className="text-sm font-medium">+ Use a new address</span>
+                    <p className="mt-1 text-xs text-muted-foreground">Enter details below</p>
+                  </button>
+                </div>
+              )}
+
+              {usingSaved ? (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required />
+                  <div className="sm:col-span-2">
+                    <Field label="Delivery instructions (optional)" value={form.instructions} onChange={(v) => setForm({ ...form, instructions: v })} />
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <Field label="Label" value={form.label} onChange={(v) => setForm({ ...form, label: v })} />
+                  <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required />
+                  <div className="sm:col-span-2">
+                    <Field label="Address" value={form.addressLine} onChange={(v) => setForm({ ...form, addressLine: v })} required />
+                  </div>
+                  <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} required />
+                  <Field label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} />
+                  <div className="sm:col-span-2">
+                    <Field label="Delivery instructions (optional)" value={form.instructions} onChange={(v) => setForm({ ...form, instructions: v })} />
+                  </div>
+                </div>
+              )}
             </section>
             <section className="rounded-2xl border border-border bg-card p-6">
               <h2 className="font-display text-xl font-semibold">Payment</h2>
