@@ -211,3 +211,73 @@ export const updateSellerOpen = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const getSellerAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ days: z.number().int().min(7).max(180).default(30) }).parse(d ?? { days: 30 }))
+  .handler(async ({ context, data }) => {
+    const me = await getMySeller(context.supabase, context.userId, false);
+    const since = new Date(Date.now() - data.days * 86400_000).toISOString();
+    const { data: orders, error } = await context.supabase
+      .from("orders")
+      .select("id, total, status, created_at, customer_id, order_items(dish_id, dish_name, quantity, line_total)")
+      .eq("seller_id", me.id)
+      .gte("created_at", since);
+    if (error) throw new Error(error.message);
+
+    const rows = orders ?? [];
+    const counted = rows.filter((o: any) => o.status !== "cancelled" && o.status !== "rejected");
+
+    // Revenue per day
+    const byDay = new Map<string, { revenue: number; orders: number }>();
+    for (let i = data.days - 1; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 86400_000).toISOString().slice(0, 10);
+      byDay.set(d, { revenue: 0, orders: 0 });
+    }
+    for (const o of counted) {
+      const d = new Date(o.created_at).toISOString().slice(0, 10);
+      const cur = byDay.get(d) ?? { revenue: 0, orders: 0 };
+      cur.revenue += Number(o.total);
+      cur.orders += 1;
+      byDay.set(d, cur);
+    }
+    const daily = Array.from(byDay.entries()).map(([date, v]) => ({ date, ...v }));
+
+    // Top dishes
+    const dishMap = new Map<string, { name: string; qty: number; revenue: number }>();
+    for (const o of counted) {
+      for (const it of (o as any).order_items ?? []) {
+        const cur = dishMap.get(it.dish_id) ?? { name: it.dish_name, qty: 0, revenue: 0 };
+        cur.qty += it.quantity;
+        cur.revenue += Number(it.line_total);
+        dishMap.set(it.dish_id, cur);
+      }
+    }
+    const topDishes = Array.from(dishMap.values()).sort((a, b) => b.qty - a.qty).slice(0, 8);
+
+    // Repeat customers
+    const customerCounts = new Map<string, number>();
+    for (const o of counted) {
+      customerCounts.set(o.customer_id, (customerCounts.get(o.customer_id) ?? 0) + 1);
+    }
+    const totalCustomers = customerCounts.size;
+    const repeatCustomers = Array.from(customerCounts.values()).filter((n) => n > 1).length;
+    const repeatRate = totalCustomers === 0 ? 0 : Math.round((repeatCustomers / totalCustomers) * 100);
+
+    const revenue = counted.reduce((s: number, o: any) => s + Number(o.total), 0);
+    const aov = counted.length === 0 ? 0 : revenue / counted.length;
+
+    return {
+      days: data.days,
+      totals: {
+        revenue,
+        orders: counted.length,
+        aov,
+        customers: totalCustomers,
+        repeatCustomers,
+        repeatRate,
+      },
+      daily,
+      topDishes,
+    };
+  });

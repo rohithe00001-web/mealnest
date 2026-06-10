@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft, BarChart3 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { getSellerMe, updateSellerOpen } from "@/lib/seller.functions";
 
@@ -13,6 +13,7 @@ const NAV = [
   { to: "/seller", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/seller/dishes", label: "Dishes", icon: UtensilsCrossed },
   { to: "/seller/orders", label: "Orders", icon: ShoppingBag },
+  { to: "/seller/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
 function SellerLayout() {
