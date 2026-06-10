@@ -18,6 +18,7 @@ import { Route as DishIdRouteImport } from './routes/dish.$id'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedBecomeSellerRouteImport } from './routes/_authenticated/become-seller'
+import { Route as AuthenticatedAddressesRouteImport } from './routes/_authenticated/addresses'
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
@@ -69,6 +70,11 @@ const AuthenticatedBecomeSellerRoute =
     path: '/become-seller',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedAddressesRoute = AuthenticatedAddressesRouteImport.update({
+  id: '/addresses',
+  path: '/addresses',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminRouteRoute = AuthenticatedAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -103,6 +109,7 @@ export interface FileRoutesByFullPath {
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
+  '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/orders': typeof AuthenticatedOrdersRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
+  '/_authenticated/addresses': typeof AuthenticatedAddressesRoute
   '/_authenticated/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
@@ -151,6 +160,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/cart'
     | '/admin'
+    | '/addresses'
     | '/become-seller'
     | '/checkout'
     | '/orders'
@@ -165,6 +175,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/cart'
+    | '/addresses'
     | '/become-seller'
     | '/checkout'
     | '/orders'
@@ -181,6 +192,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/cart'
     | '/_authenticated/admin'
+    | '/_authenticated/addresses'
     | '/_authenticated/become-seller'
     | '/_authenticated/checkout'
     | '/_authenticated/orders'
@@ -265,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedBecomeSellerRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/addresses': {
+      id: '/_authenticated/addresses'
+      path: '/addresses'
+      fullPath: '/addresses'
+      preLoaderRoute: typeof AuthenticatedAddressesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin': {
       id: '/_authenticated/admin'
       path: '/admin'
@@ -325,6 +344,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRouteRoute: typeof AuthenticatedAdminRouteRouteWithChildren
+  AuthenticatedAddressesRoute: typeof AuthenticatedAddressesRoute
   AuthenticatedBecomeSellerRoute: typeof AuthenticatedBecomeSellerRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
@@ -332,6 +352,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRouteRoute: AuthenticatedAdminRouteRouteWithChildren,
+  AuthenticatedAddressesRoute: AuthenticatedAddressesRoute,
   AuthenticatedBecomeSellerRoute: AuthenticatedBecomeSellerRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
@@ -351,3 +372,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
