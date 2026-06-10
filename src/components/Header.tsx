@@ -1,8 +1,11 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat } from "lucide-react";
+import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
+import { checkIsAdmin } from "@/lib/admin.functions";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -16,6 +19,14 @@ export function Header() {
   const { user } = useAuth();
   const { count } = useCart();
   const router = useRouter();
+  const checkAdmin = useServerFn(checkIsAdmin);
+  const { data: adminData } = useQuery({
+    queryKey: ["me", "is-admin", user?.id ?? "anon"],
+    queryFn: () => checkAdmin(),
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+  const isAdmin = !!adminData?.isAdmin;
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -80,6 +91,11 @@ export function Header() {
               <DropdownMenuItem asChild>
                 <Link to="/become-seller"><ChefHat className="mr-2 h-4 w-4" />Become a seller</Link>
               </DropdownMenuItem>
+              {isAdmin && (
+                <DropdownMenuItem asChild>
+                  <Link to="/admin"><ShieldCheck className="mr-2 h-4 w-4" />Admin panel</Link>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut}>
                 <LogOut className="mr-2 h-4 w-4" />Sign out
