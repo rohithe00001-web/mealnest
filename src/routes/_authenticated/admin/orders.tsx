@@ -87,7 +87,7 @@ function AdminOrders() {
                 <div className="min-w-0">
                   <p className="font-medium">{o.order_number}</p>
                   <p className="text-xs text-muted-foreground">
-                    {o.profiles?.full_name ?? "Guest"} → {o.sellers?.kitchen_name ?? "—"}
+                    {o.customer_name ?? "Guest"} → {o.sellers?.kitchen_name ?? "—"}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {new Date(o.created_at).toLocaleString()} · {o.payment_method.toUpperCase()} ·{" "}
