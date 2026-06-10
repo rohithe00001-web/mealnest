@@ -37,6 +37,7 @@ function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <HowItWorks />
         <Suspense fallback={<SectionSkeleton />}>
           <Categories />
         </Suspense>
@@ -49,6 +50,29 @@ function HomePage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function HowItWorks() {
+  const steps = [
+    { n: "01", title: "Pick a dish", body: "Browse fresh menus from real cooks near you." },
+    { n: "02", title: "Order in seconds", body: "Cash on delivery, no subscriptions, no fuss." },
+    { n: "03", title: "Eat homemade", body: "Hot food at your door, usually within the hour." },
+  ];
+  return (
+    <section className="container-page py-10 border-t border-border/60">
+      <div className="grid gap-6 md:grid-cols-3">
+        {steps.map((s) => (
+          <div key={s.n} className="flex gap-4">
+            <span className="font-display text-3xl text-primary/70 leading-none">{s.n}</span>
+            <div>
+              <h3 className="font-display text-lg font-semibold">{s.title}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{s.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
