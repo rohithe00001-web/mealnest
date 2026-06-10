@@ -1,0 +1,75 @@
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { dishByIdQuery } from "@/lib/queries";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { inr } from "@/lib/format";
+import { useCart } from "@/lib/cart";
+import { Clock, Star, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/dish/$id")({
+  component: DishPage,
+});
+
+function DishPage() {
+  const { id } = Route.useParams();
+  const { data: dish, isLoading } = useQuery(dishByIdQuery(id));
+  const { add } = useCart();
+  const router = useRouter();
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="container-page flex-1 py-8">
+        <button onClick={() => router.history.back()} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Back
+        </button>
+        {isLoading ? (
+          <div className="mt-6 h-96 animate-pulse rounded-3xl bg-muted" />
+        ) : !dish ? (
+          <p className="mt-10 text-center text-muted-foreground">Dish not found.</p>
+        ) : (
+          <div className="mt-6 grid gap-10 md:grid-cols-2">
+            <div className="aspect-square overflow-hidden rounded-3xl bg-muted">
+              {dish.image_url && <img src={dish.image_url} alt={dish.name} className="h-full w-full object-cover" />}
+            </div>
+            <div>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">{(dish as any).categories?.name}</p>
+              <h1 className="mt-2 font-display text-4xl font-semibold">{dish.name}</h1>
+              {(dish as any).sellers && (
+                <Link to="/" className="mt-2 inline-block text-sm text-primary hover:underline">
+                  from {(dish as any).sellers.kitchen_name}
+                </Link>
+              )}
+              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+                {dish.prep_time_min && <span className="inline-flex items-center gap-1"><Clock className="h-4 w-4" />{dish.prep_time_min}m</span>}
+                {Number(dish.rating_avg) > 0 && <span className="inline-flex items-center gap-1"><Star className="h-4 w-4 fill-current text-success" />{Number(dish.rating_avg).toFixed(1)} ({dish.rating_count})</span>}
+              </div>
+              {dish.description && <p className="mt-6 text-base text-muted-foreground leading-relaxed">{dish.description}</p>}
+              {dish.ingredients && (
+                <div className="mt-6">
+                  <h3 className="text-sm font-semibold">Ingredients</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{dish.ingredients}</p>
+                </div>
+              )}
+              <div className="mt-8 flex items-center justify-between rounded-2xl border border-border bg-card p-5">
+                <span className="font-display text-3xl font-semibold">{inr(dish.price)}</span>
+                <button
+                  onClick={() => {
+                    add({ dishId: dish.id, sellerId: dish.seller_id, name: dish.name, price: Number(dish.price), imageUrl: dish.image_url });
+                    toast.success("Added to cart");
+                  }}
+                  className="h-12 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Add to cart
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+      <Footer />
+    </div>
+  );
+}
