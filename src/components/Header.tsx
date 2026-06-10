@@ -1,8 +1,11 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat } from "lucide-react";
+import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { supabase } from "@/integrations/supabase/client";
+import { checkIsAdmin } from "@/lib/admin.functions";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
