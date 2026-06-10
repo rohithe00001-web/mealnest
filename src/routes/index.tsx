@@ -13,6 +13,16 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
 };
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "HomeBite — Homemade meals from neighborhood kitchens" },
+      { name: "description", content: "Order fresh, home-cooked meals from real cooks in your area. Browse dishes by cuisine, veg/non-veg, and rating. Delivered in under an hour." },
+      { property: "og:title", content: "HomeBite — Homemade meals, delivered" },
+      { property: "og:description", content: "Real cooks in your neighborhood, real food, delivered to your door." },
+      { property: "og:type", content: "website" },
+    ],
+    links: [{ rel: "canonical", href: "/" }],
+  }),
   loader: ({ context }) => {
     void context.queryClient.prefetchQuery(categoriesQuery);
     void context.queryClient.prefetchQuery(dishesQuery());
