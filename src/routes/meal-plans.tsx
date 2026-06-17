@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Calendar, Leaf, Star, Clock } from "lucide-react";
+import { Calendar, Leaf, Star, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { listSubscriptionMarketplace } from "@/lib/subscriptions.functions";
+import { listSubscriptionMarketplace, aiRecommendPlans } from "@/lib/subscriptions.functions";
 import { inr } from "@/lib/format";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/meal-plans")({
   head: () => ({
