@@ -41,7 +41,7 @@ export function Header() {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
             <ChefHat className="h-5 w-5" />
           </span>
-          <span className="text-xl font-display font-semibold tracking-tight">HomeBite</span>
+          <span className="text-xl font-display font-semibold tracking-tight">MealNest</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 text-sm font-medium text-muted-foreground">

@@ -45,7 +45,7 @@ function SubscriptionDetail() {
       const title = `${s.subscription_plans?.title} — Day ${d.day_number}`;
       return [
         "BEGIN:VEVENT",
-        `UID:${d.id}@homebite`,
+        `UID:${d.id}@mealnest`,
         `DTSTAMP:${dt}T120000Z`,
         `DTSTART;VALUE=DATE:${dt}`,
         `SUMMARY:${title}`,
@@ -53,7 +53,7 @@ function SubscriptionDetail() {
         "END:VEVENT",
       ].join("\n");
     }).join("\n");
-    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//HomeBite//Meal Plan//EN\n${events}\nEND:VCALENDAR`;
+    const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//MealNest//Meal Plan//EN\n${events}\nEND:VCALENDAR`;
     const blob = new Blob([ics], { type: "text/calendar" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);

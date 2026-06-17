@@ -15,9 +15,9 @@ const categoryIcons: Record<string, React.ComponentType<{ className?: string }>>
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "HomeBite — Homemade meals from neighborhood kitchens" },
+      { title: "MealNest — Homemade meals from neighborhood kitchens" },
       { name: "description", content: "Order fresh, home-cooked meals from real cooks in your area. Browse dishes by cuisine, veg/non-veg, and rating. Delivered in under an hour." },
-      { property: "og:title", content: "HomeBite — Homemade meals, delivered" },
+      { property: "og:title", content: "MealNest — Homemade meals, delivered" },
       { property: "og:description", content: "Real cooks in your neighborhood, real food, delivered to your door." },
       { property: "og:type", content: "website" },
     ],
@@ -185,7 +185,7 @@ function EmptyKitchens() {
   return (
     <div className="mt-8 rounded-3xl border border-dashed border-border bg-surface p-10 text-center">
       <h3 className="font-display text-xl font-semibold">No dishes available yet</h3>
-      <p className="mt-2 text-sm text-muted-foreground">HomeBite is opening in your area. Be the first cook to join.</p>
+      <p className="mt-2 text-sm text-muted-foreground">MealNest is opening in your area. Be the first cook to join.</p>
       <Link to="/become-seller" className="mt-5 inline-flex h-11 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
         Open your kitchen
       </Link>

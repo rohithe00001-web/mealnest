@@ -24,9 +24,9 @@ export const Route = createFileRoute("/browse")({
   validateSearch: zodValidator(searchSchema),
   head: () => ({
     meta: [
-      { title: "Browse home-cooked dishes — HomeBite" },
+      { title: "Browse home-cooked dishes — MealNest" },
       { name: "description", content: "Search dishes and home kitchens by cuisine, veg/non-veg, price, and rating. Open now and ready to deliver." },
-      { property: "og:title", content: "Browse home-cooked dishes — HomeBite" },
+      { property: "og:title", content: "Browse home-cooked dishes — MealNest" },
       { property: "og:description", content: "Find homemade meals from neighborhood kitchens, ready to deliver." },
     ],
   }),

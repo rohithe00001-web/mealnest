@@ -65,10 +65,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "HomeBite — Homemade meals, delivered" },
+      { title: "MealNest — Homemade meals, delivered" },
       { name: "description", content: "Order fresh homemade meals from neighborhood kitchens. Real cooks, real food, delivered to your door." },
       { name: "theme-color", content: "#f8f4ec" },
-      { property: "og:title", content: "HomeBite — Homemade meals, delivered" },
+      { property: "og:title", content: "MealNest — Homemade meals, delivered" },
       { property: "og:description", content: "Order fresh homemade meals from neighborhood kitchens." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

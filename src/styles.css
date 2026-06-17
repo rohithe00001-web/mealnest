@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * HomeBite design system.
+ * MealNest design system.
  * Warm cream + deep ink + terracotta. Editorial, minimal, food-forward.
  * All colors are oklch tokens; never hardcode color utilities in components.
  */

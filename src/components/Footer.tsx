@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="border-t border-border/60 bg-surface mt-20">
       <div className="container-page grid gap-8 py-12 sm:grid-cols-2 md:grid-cols-4">
         <div>
-          <h4 className="font-display text-lg font-semibold">HomeBite</h4>
+          <h4 className="font-display text-lg font-semibold">MealNest</h4>
           <p className="mt-2 text-sm text-muted-foreground">
             Homemade meals from neighborhood kitchens, delivered to your door.
           </p>
@@ -32,7 +32,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-border/60">
-        <div className="container-page py-4 text-xs text-muted-foreground">© {new Date().getFullYear()} HomeBite</div>
+        <div className="container-page py-4 text-xs text-muted-foreground">© {new Date().getFullYear()} MealNest</div>
       </div>
     </footer>
   );
