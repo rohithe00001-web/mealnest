@@ -104,7 +104,7 @@ function DeliveryRegister() {
   );
 }
 
-function Input({ label, value, onChange, required, placeholder }: any) {
+function Input({ label, value, onChange, required, placeholder }: { label: string; value: string; onChange: (v: string) => void; required?: boolean; placeholder?: string }) {
   return (
     <label className="grid gap-1 text-sm">
       <span className="font-medium">{label}</span>

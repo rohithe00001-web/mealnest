@@ -34,6 +34,7 @@ import { Route as AuthenticatedSellerDishesRouteImport } from './routes/_authent
 import { Route as AuthenticatedSellerAnalyticsRouteImport } from './routes/_authenticated/seller/analytics'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedMySubscriptionsIdRouteImport } from './routes/_authenticated/my-subscriptions.$id'
+import { Route as AuthenticatedDeliveryRegisterRouteImport } from './routes/_authenticated/delivery.register'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
 import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin/sellers'
@@ -173,6 +174,12 @@ const AuthenticatedMySubscriptionsIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedMySubscriptionsRoute,
   } as any)
+const AuthenticatedDeliveryRegisterRoute =
+  AuthenticatedDeliveryRegisterRouteImport.update({
+    id: '/delivery/register',
+    path: '/delivery/register',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -217,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/delivery/register': typeof AuthenticatedDeliveryRegisterRoute
   '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
@@ -245,6 +253,7 @@ export interface FileRoutesByTo {
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/delivery/register': typeof AuthenticatedDeliveryRegisterRoute
   '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
@@ -277,6 +286,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
   '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/delivery/register': typeof AuthenticatedDeliveryRegisterRoute
   '/_authenticated/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/sellers'
     | '/admin/subscriptions'
     | '/admin/users'
+    | '/delivery/register'
     | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/admin/sellers'
     | '/admin/subscriptions'
     | '/admin/users'
+    | '/delivery/register'
     | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
@@ -368,6 +380,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/sellers'
     | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/users'
+    | '/_authenticated/delivery/register'
     | '/_authenticated/my-subscriptions/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/seller/analytics'
@@ -566,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMySubscriptionsIdRouteImport
       parentRoute: typeof AuthenticatedMySubscriptionsRoute
     }
+    '/_authenticated/delivery/register': {
+      id: '/_authenticated/delivery/register'
+      path: '/delivery/register'
+      fullPath: '/delivery/register'
+      preLoaderRoute: typeof AuthenticatedDeliveryRegisterRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
@@ -678,6 +698,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMySubscriptionsRoute: typeof AuthenticatedMySubscriptionsRouteWithChildren
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
+  AuthenticatedDeliveryRegisterRoute: typeof AuthenticatedDeliveryRegisterRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -690,6 +711,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedMySubscriptionsRouteWithChildren,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
+  AuthenticatedDeliveryRegisterRoute: AuthenticatedDeliveryRegisterRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
