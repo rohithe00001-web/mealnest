@@ -47,6 +47,8 @@ function AdminDelivery() {
         })}
       </div>
       {tab === "agents" && <AgentsTab />}
+      {tab === "monitoring" && <MonitoringTab />}
+      {tab === "analytics" && <AnalyticsTab />}
       {tab === "zones" && <ZonesTab />}
       {tab === "compliance" && <ComplianceTab />}
     </div>
