@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          active: boolean
+          description: string | null
+          icon: string | null
+          id: string
+          metric: string
+          name: string
+          reward_coins: number
+          threshold: number
+        }
+        Insert: {
+          active?: boolean
+          description?: string | null
+          icon?: string | null
+          id: string
+          metric?: string
+          name: string
+          reward_coins?: number
+          threshold?: number
+        }
+        Update: {
+          active?: boolean
+          description?: string | null
+          icon?: string | null
+          id?: string
+          metric?: string
+          name?: string
+          reward_coins?: number
+          threshold?: number
+        }
+        Relationships: []
+      }
       addresses: {
         Row: {
           address_line: string
@@ -821,6 +854,42 @@ export type Database = {
           },
         ]
       }
+      mystery_rewards: {
+        Row: {
+          claimed: boolean
+          claimed_at: string | null
+          coupon_code: string | null
+          created_at: string
+          id: string
+          milestone: number
+          prize_kind: string
+          prize_value: number
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          claimed_at?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          id?: string
+          milestone: number
+          prize_kind: string
+          prize_value?: number
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          claimed_at?: string | null
+          coupon_code?: string | null
+          created_at?: string
+          id?: string
+          milestone?: number
+          prize_kind?: string
+          prize_value?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           dish_id: string
@@ -1174,6 +1243,47 @@ export type Database = {
           },
         ]
       }
+      seller_sponsorships: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          ends_at: string | null
+          id: string
+          kind: string
+          seller_id: string
+          starts_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          kind: string
+          seller_id: string
+          starts_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          ends_at?: string | null
+          id?: string
+          kind?: string
+          seller_id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_sponsorships_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sellers: {
         Row: {
           address_line: string
@@ -1248,6 +1358,36 @@ export type Database = {
           rating_count?: number
           status?: Database["public"]["Enums"]["seller_status"]
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      spin_wheel_spins: {
+        Row: {
+          coupon_code: string | null
+          created_at: string
+          id: string
+          prize_kind: string
+          prize_value: number
+          spin_date: string
+          user_id: string
+        }
+        Insert: {
+          coupon_code?: string | null
+          created_at?: string
+          id?: string
+          prize_kind: string
+          prize_value?: number
+          spin_date?: string
+          user_id: string
+        }
+        Update: {
+          coupon_code?: string | null
+          created_at?: string
+          id?: string
+          prize_kind?: string
+          prize_value?: number
+          spin_date?: string
           user_id?: string
         }
         Relationships: []
@@ -1534,6 +1674,32 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_referral_codes: {
         Row: {
           code: string
@@ -1624,6 +1790,16 @@ export type Database = {
           success: boolean
         }[]
       }
+      claim_mystery_reward: {
+        Args: { _id: string; _user: string }
+        Returns: {
+          coupon_code: string
+          prize_kind: string
+          prize_value: number
+          reason: string
+          success: boolean
+        }[]
+      }
       ensure_loyalty_account: { Args: { _user: string }; Returns: undefined }
       has_role: {
         Args: {
@@ -1656,6 +1832,15 @@ export type Database = {
           discount_type: string
           reason: string
           success: boolean
+        }[]
+      }
+      spin_wheel: {
+        Args: { _user: string }
+        Returns: {
+          coupon_code: string
+          prize_kind: string
+          prize_value: number
+          reason: string
         }[]
       }
       validate_coupon: {
