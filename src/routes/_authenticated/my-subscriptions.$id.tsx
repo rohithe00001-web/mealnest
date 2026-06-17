@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pause, Play, X, SkipForward, Check } from "lucide-react";
+import { Pause, Play, X, SkipForward, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import {
   getMySubscriptionDetail, skipDelivery, pauseSubscription, cancelSubscription,
+  aiNutritionSummary,
 } from "@/lib/subscriptions.functions";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
