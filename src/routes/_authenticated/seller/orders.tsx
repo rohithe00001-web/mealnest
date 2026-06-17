@@ -3,9 +3,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { listSellerOrders, updateSellerOrderStatus } from "@/lib/seller.functions";
+import { listSellerApprovedAgents, assignAgentToOrder } from "@/lib/delivery.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
+import { Truck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/seller/orders")({
   component: SellerOrders,
@@ -31,11 +33,19 @@ function SellerOrders() {
   const [status, setStatus] = useState("placed");
   const listFn = useServerFn(listSellerOrders);
   const updateFn = useServerFn(updateSellerOrderStatus);
+  const agentsFn = useServerFn(listSellerApprovedAgents);
+  const assignFn = useServerFn(assignAgentToOrder);
   const qc = useQueryClient();
   const { data = [], isLoading } = useQuery({ queryKey: ["seller", "orders", status], queryFn: () => listFn({ data: { status } }) });
+  const { data: agents = [] } = useQuery({ queryKey: ["seller", "agents", "approved"], queryFn: () => agentsFn() });
   const mut = useMutation({
     mutationFn: (v: { orderId: string; status: any }) => updateFn({ data: v }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["seller"] }),
+  });
+  const assign = useMutation({
+    mutationFn: (v: { order_id: string; agent_id: string }) => assignFn({ data: v }),
+    onSuccess: () => { toast.success("Agent assigned"); qc.invalidateQueries({ queryKey: ["seller", "orders"] }); },
+    onError: (e: any) => toast.error(e.message),
   });
 
   useEffect(() => {
@@ -59,6 +69,11 @@ function SellerOrders() {
             }`}>{t.label}</button>
         ))}
       </div>
+      {agents.length === 0 && (
+        <div className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
+          No approved delivery agents yet. Recruit some from the <strong>Delivery</strong> tab.
+        </div>
+      )}
       <div className="rounded-xl border border-border bg-surface">
         {isLoading ? (
           <p className="p-6 text-sm text-muted-foreground">Loading…</p>
@@ -88,6 +103,28 @@ function SellerOrders() {
                   <p className="text-xs text-muted-foreground">
                     Deliver to: {addr.addressLine}, {addr.city} · {addr.phone}
                   </p>
+
+                  {agents.length > 0 && o.status !== "delivered" && o.status !== "cancelled" && o.status !== "rejected" && (
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <Truck className="h-4 w-4 text-muted-foreground" />
+                      <select
+                        value={o.delivery_agent_id ?? ""}
+                        onChange={(e) => e.target.value && assign.mutate({ order_id: o.id, agent_id: e.target.value })}
+                        className="h-8 rounded-full border border-border bg-background px-3 text-xs"
+                      >
+                        <option value="">{o.delivery_agent_id ? "Reassign agent…" : "Assign agent…"}</option>
+                        {agents.map((a: any) => (
+                          <option key={a.id} value={a.id}>{a.full_name} {a.delivery_count ? `· ${a.delivery_count} deliveries` : ""}</option>
+                        ))}
+                      </select>
+                      {o.delivery_agent_id && (
+                        <span className="text-xs text-success">
+                          ✓ {agents.find((a: any) => a.id === o.delivery_agent_id)?.full_name ?? "Assigned"}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
                   {NEXT[o.status] && (
                     <div className="flex flex-wrap gap-2 pt-1">
                       {NEXT[o.status].map((a) => (
