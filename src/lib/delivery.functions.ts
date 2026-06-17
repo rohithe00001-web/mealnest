@@ -132,7 +132,7 @@ export const sellerRemoveAgent = createServerFn({ method: "POST" })
 // ─────────── Admin ───────────
 export const adminListAgents = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ status: z.string().optional() }).parse(d ?? {}))
+  .inputValidator((d) => z.object({ status: z.enum(["pending_seller","pending_admin","approved","rejected","suspended"]).optional() }).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await requireAdmin(context.supabase, context.userId);
     let q = context.supabase.from("delivery_agents").select("*, sellers(kitchen_name)").order("created_at", { ascending: false });
