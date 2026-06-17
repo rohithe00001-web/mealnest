@@ -53,6 +53,101 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_payroll: {
+        Row: {
+          agent_id: string
+          computed_amount: number
+          created_at: string
+          id: string
+          incentive_rules: Json
+          month: string
+          paid_amount: number
+          per_order_rate: number
+          salary_base: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id: string
+          computed_amount?: number
+          created_at?: string
+          id?: string
+          incentive_rules?: Json
+          month: string
+          paid_amount?: number
+          per_order_rate?: number
+          salary_base?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string
+          computed_amount?: number
+          created_at?: string
+          id?: string
+          incentive_rules?: Json
+          month?: string
+          paid_amount?: number
+          per_order_rate?: number
+          salary_base?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_payroll_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_schedules: {
+        Row: {
+          active: boolean
+          agent_id: string
+          created_at: string
+          id: string
+          slot: string
+          weekday: number
+          zone_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          agent_id: string
+          created_at?: string
+          id?: string
+          slot: string
+          weekday: number
+          zone_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          agent_id?: string
+          created_at?: string
+          id?: string
+          slot?: string
+          weekday?: number
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_schedules_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_schedules_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -150,6 +245,270 @@ export type Database = {
           min_order?: number
         }
         Relationships: []
+      }
+      delivery_agents: {
+        Row: {
+          aadhaar_number: string | null
+          active: boolean
+          admin_approved_at: string | null
+          background_check_passed: boolean
+          created_at: string
+          delivery_count: number
+          email: string | null
+          full_name: string
+          id: string
+          id_doc_url: string | null
+          license_doc_url: string | null
+          license_number: string | null
+          phone: string
+          rating_avg: number
+          rejected_reason: string | null
+          seller_approved_at: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["delivery_agent_status"]
+          updated_at: string
+          user_id: string
+          vehicle_doc_url: string | null
+          vehicle_number: string | null
+          vehicle_type: string | null
+        }
+        Insert: {
+          aadhaar_number?: string | null
+          active?: boolean
+          admin_approved_at?: string | null
+          background_check_passed?: boolean
+          created_at?: string
+          delivery_count?: number
+          email?: string | null
+          full_name: string
+          id?: string
+          id_doc_url?: string | null
+          license_doc_url?: string | null
+          license_number?: string | null
+          phone: string
+          rating_avg?: number
+          rejected_reason?: string | null
+          seller_approved_at?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["delivery_agent_status"]
+          updated_at?: string
+          user_id: string
+          vehicle_doc_url?: string | null
+          vehicle_number?: string | null
+          vehicle_type?: string | null
+        }
+        Update: {
+          aadhaar_number?: string | null
+          active?: boolean
+          admin_approved_at?: string | null
+          background_check_passed?: boolean
+          created_at?: string
+          delivery_count?: number
+          email?: string | null
+          full_name?: string
+          id?: string
+          id_doc_url?: string | null
+          license_doc_url?: string | null
+          license_number?: string | null
+          phone?: string
+          rating_avg?: number
+          rejected_reason?: string | null
+          seller_approved_at?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["delivery_agent_status"]
+          updated_at?: string
+          user_id?: string
+          vehicle_doc_url?: string | null
+          vehicle_number?: string | null
+          vehicle_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_agents_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_assignments: {
+        Row: {
+          agent_id: string | null
+          assigned_at: string
+          created_at: string
+          current_lat: number | null
+          current_lng: number | null
+          customer_feedback: string | null
+          customer_id: string
+          customer_rating: number | null
+          delivered_at: string | null
+          failed_reason: string | null
+          id: string
+          last_location_at: string | null
+          notes: string | null
+          order_id: string | null
+          otp: string
+          picked_up_at: string | null
+          seller_id: string
+          status: Database["public"]["Enums"]["delivery_assignment_status"]
+          subscription_delivery_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          assigned_at?: string
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          customer_feedback?: string | null
+          customer_id: string
+          customer_rating?: number | null
+          delivered_at?: string | null
+          failed_reason?: string | null
+          id?: string
+          last_location_at?: string | null
+          notes?: string | null
+          order_id?: string | null
+          otp?: string
+          picked_up_at?: string | null
+          seller_id: string
+          status?: Database["public"]["Enums"]["delivery_assignment_status"]
+          subscription_delivery_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          assigned_at?: string
+          created_at?: string
+          current_lat?: number | null
+          current_lng?: number | null
+          customer_feedback?: string | null
+          customer_id?: string
+          customer_rating?: number | null
+          delivered_at?: string | null
+          failed_reason?: string | null
+          id?: string
+          last_location_at?: string | null
+          notes?: string | null
+          order_id?: string | null
+          otp?: string
+          picked_up_at?: string | null
+          seller_id?: string
+          status?: Database["public"]["Enums"]["delivery_assignment_status"]
+          subscription_delivery_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_assignments_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_assignments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_assignments_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_assignments_subscription_delivery_id_fkey"
+            columns: ["subscription_delivery_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_deliveries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_role: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_role?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      delivery_zones: {
+        Row: {
+          admin_approved: boolean
+          admin_approved_at: string | null
+          created_at: string
+          id: string
+          name: string
+          pincode: string
+          radius_km: number
+          rejected_reason: string | null
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          admin_approved?: boolean
+          admin_approved_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          pincode: string
+          radius_km?: number
+          rejected_reason?: string | null
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          admin_approved?: boolean
+          admin_approved_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          pincode?: string
+          radius_km?: number
+          rejected_reason?: string | null
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_zones_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       dishes: {
         Row: {
@@ -280,8 +639,10 @@ export type Database = {
           created_at: string
           customer_id: string
           delivery_address: Json
+          delivery_agent_id: string | null
           delivery_fee: number
           delivery_instructions: string | null
+          delivery_status: string | null
           discount: number
           id: string
           order_number: string
@@ -298,8 +659,10 @@ export type Database = {
           created_at?: string
           customer_id: string
           delivery_address: Json
+          delivery_agent_id?: string | null
           delivery_fee?: number
           delivery_instructions?: string | null
+          delivery_status?: string | null
           discount?: number
           id?: string
           order_number?: string
@@ -316,8 +679,10 @@ export type Database = {
           created_at?: string
           customer_id?: string
           delivery_address?: Json
+          delivery_agent_id?: string | null
           delivery_fee?: number
           delivery_instructions?: string | null
+          delivery_status?: string | null
           discount?: number
           id?: string
           order_number?: string
@@ -335,6 +700,13 @@ export type Database = {
             columns: ["address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_delivery_agent_id_fkey"
+            columns: ["delivery_agent_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_agents"
             referencedColumns: ["id"]
           },
           {
@@ -516,6 +888,8 @@ export type Database = {
         Row: {
           created_at: string
           day_number: number
+          delivery_agent_id: string | null
+          delivery_status: string | null
           id: string
           meals: Json
           scheduled_date: string
@@ -527,6 +901,8 @@ export type Database = {
         Insert: {
           created_at?: string
           day_number: number
+          delivery_agent_id?: string | null
+          delivery_status?: string | null
           id?: string
           meals?: Json
           scheduled_date: string
@@ -538,6 +914,8 @@ export type Database = {
         Update: {
           created_at?: string
           day_number?: number
+          delivery_agent_id?: string | null
+          delivery_status?: string | null
           id?: string
           meals?: Json
           scheduled_date?: string
@@ -547,6 +925,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "subscription_deliveries_delivery_agent_id_fkey"
+            columns: ["delivery_agent_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_agents"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "subscription_deliveries_seller_id_fkey"
             columns: ["seller_id"]
@@ -852,7 +1237,19 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "seller" | "customer"
+      app_role: "admin" | "seller" | "customer" | "delivery_agent"
+      delivery_agent_status:
+        | "pending_seller"
+        | "pending_admin"
+        | "approved"
+        | "rejected"
+        | "suspended"
+      delivery_assignment_status:
+        | "assigned"
+        | "picked_up"
+        | "delivered"
+        | "failed"
+        | "cancelled"
       order_status:
         | "placed"
         | "accepted"
@@ -1007,7 +1404,21 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "seller", "customer"],
+      app_role: ["admin", "seller", "customer", "delivery_agent"],
+      delivery_agent_status: [
+        "pending_seller",
+        "pending_admin",
+        "approved",
+        "rejected",
+        "suspended",
+      ],
+      delivery_assignment_status: [
+        "assigned",
+        "picked_up",
+        "delivered",
+        "failed",
+        "cancelled",
+      ],
       order_status: [
         "placed",
         "accepted",
