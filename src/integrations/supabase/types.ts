@@ -148,6 +148,51 @@ export type Database = {
           },
         ]
       }
+      campaign_redemptions: {
+        Row: {
+          campaign_id: string
+          discount_amount: number
+          id: string
+          order_id: string | null
+          order_total: number
+          redeemed_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          discount_amount?: number
+          id?: string
+          order_id?: string | null
+          order_total?: number
+          redeemed_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          discount_amount?: number
+          id?: string
+          order_id?: string | null
+          order_total?: number
+          redeemed_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_redemptions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "promotional_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_redemptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cart_items: {
         Row: {
           created_at: string
@@ -957,6 +1002,86 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      promotional_campaigns: {
+        Row: {
+          active: boolean
+          audience_limit: number | null
+          banner_image: string | null
+          config: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_type: string | null
+          discount_value: number | null
+          ends_at: string | null
+          featured: boolean
+          id: string
+          max_discount: number | null
+          min_order: number | null
+          name: string
+          scope: string
+          seller_id: string | null
+          starts_at: string
+          type: string
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          audience_limit?: number | null
+          banner_image?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          ends_at?: string | null
+          featured?: boolean
+          id?: string
+          max_discount?: number | null
+          min_order?: number | null
+          name: string
+          scope?: string
+          seller_id?: string | null
+          starts_at?: string
+          type: string
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          audience_limit?: number | null
+          banner_image?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_type?: string | null
+          discount_value?: number | null
+          ends_at?: string | null
+          featured?: boolean
+          id?: string
+          max_discount?: number | null
+          min_order?: number | null
+          name?: string
+          scope?: string
+          seller_id?: string | null
+          starts_at?: string
+          type?: string
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotional_campaigns_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       referrals: {
         Row: {
