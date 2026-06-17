@@ -370,3 +370,229 @@ export const sellerGetOrderAssignment = createServerFn({ method: "POST" })
     return a;
   });
 
+
+// ─────────── Phase 3: Schedules ───────────
+export const listAgentSchedules = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ agent_id: z.string().uuid().optional() }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    let q = context.supabase.from("agent_schedules")
+      .select("*, delivery_agents!inner(id, full_name, seller_id), delivery_zones(name, pincode)")
+      .eq("delivery_agents.seller_id", sellerId);
+    if (data.agent_id) q = q.eq("agent_id", data.agent_id);
+    const { data: rows, error } = await q.order("weekday").order("slot");
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const upsertAgentSchedule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    agent_id: z.string().uuid(),
+    weekday: z.number().int().min(0).max(6),
+    slot: z.enum(["morning","afternoon","evening"]),
+    active: z.boolean().default(true),
+    zone_id: z.string().uuid().nullable().optional(),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    const { data: agent } = await context.supabase.from("delivery_agents")
+      .select("id, seller_id").eq("id", data.agent_id).maybeSingle();
+    if (!agent || agent.seller_id !== sellerId) throw new Error("Agent not in your team");
+    const { error } = await context.supabase.from("agent_schedules")
+      .upsert({ agent_id: data.agent_id, weekday: data.weekday, slot: data.slot, active: data.active, zone_id: data.zone_id ?? null },
+              { onConflict: "agent_id,weekday,slot" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteAgentSchedule = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    const { data: sch } = await context.supabase.from("agent_schedules")
+      .select("id, delivery_agents!inner(seller_id)").eq("id", data.id).maybeSingle();
+    if (!sch || (sch as any).delivery_agents.seller_id !== sellerId) throw new Error("Not allowed");
+    const { error } = await context.supabase.from("agent_schedules").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// ─────────── Phase 3: Payroll ───────────
+export const listAgentPayroll = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ month: z.string().optional() }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    let q = context.supabase.from("agent_payroll")
+      .select("*, delivery_agents!inner(id, full_name, seller_id)")
+      .eq("delivery_agents.seller_id", sellerId);
+    if (data.month) q = q.eq("month", data.month);
+    const { data: rows, error } = await q.order("month", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const upsertAgentPayroll = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    agent_id: z.string().uuid(),
+    month: z.string(), // YYYY-MM-01
+    salary_base: z.number().min(0).default(0),
+    per_order_rate: z.number().min(0).default(0),
+    status: z.enum(["pending","approved","paid"]).default("pending"),
+    paid_amount: z.number().min(0).default(0),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    const { data: agent } = await context.supabase.from("delivery_agents")
+      .select("id, seller_id").eq("id", data.agent_id).maybeSingle();
+    if (!agent || agent.seller_id !== sellerId) throw new Error("Agent not in your team");
+
+    // count delivered assignments for that month
+    const start = data.month;
+    const end = new Date(new Date(start).getFullYear(), new Date(start).getMonth() + 1, 1).toISOString().slice(0, 10);
+    const { count } = await context.supabase
+      .from("delivery_assignments").select("id", { count: "exact", head: true })
+      .eq("agent_id", data.agent_id).eq("status", "delivered")
+      .gte("delivered_at", start).lt("delivered_at", end);
+    const delivered = count ?? 0;
+    const computed = Number(data.salary_base) + Number(data.per_order_rate) * delivered;
+
+    const { error } = await context.supabase.from("agent_payroll").upsert({
+      agent_id: data.agent_id, month: data.month,
+      salary_base: data.salary_base, per_order_rate: data.per_order_rate,
+      computed_amount: computed, paid_amount: data.paid_amount, status: data.status,
+      incentive_rules: { delivered_orders: delivered },
+    }, { onConflict: "agent_id,month" });
+    if (error) throw new Error(error.message);
+    return { ok: true, computed, delivered };
+  });
+
+// Agent: see my own payroll
+export const agentListMyPayroll = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data } = await context.supabase.from("agent_payroll")
+      .select("*, delivery_agents!inner(user_id)")
+      .eq("delivery_agents.user_id", context.userId)
+      .order("month", { ascending: false });
+    return data ?? [];
+  });
+
+// ─────────── Phase 3: Performance ───────────
+export const sellerAgentPerformance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    const { data: agents } = await context.supabase.from("delivery_agents")
+      .select("id, full_name, rating_avg, delivery_count, status").eq("seller_id", sellerId);
+    if (!agents?.length) return [];
+    const since = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+    const { data: assigns } = await context.supabase.from("delivery_assignments")
+      .select("agent_id, status, assigned_at, delivered_at")
+      .eq("seller_id", sellerId).gte("assigned_at", since);
+    return agents.map((a: any) => {
+      const mine = (assigns ?? []).filter((x: any) => x.agent_id === a.id);
+      const delivered = mine.filter((x) => x.status === "delivered");
+      const failed = mine.filter((x) => x.status === "failed").length;
+      const avgMin = delivered.length
+        ? Math.round(delivered.reduce((s, x: any) =>
+            s + (new Date(x.delivered_at).getTime() - new Date(x.assigned_at).getTime()) / 60000, 0) / delivered.length)
+        : 0;
+      const rate = mine.length ? Math.round((delivered.length / mine.length) * 100) : 0;
+      return { ...a, last30_assigned: mine.length, last30_delivered: delivered.length, last30_failed: failed, success_rate: rate, avg_minutes: avgMin };
+    });
+  });
+
+// ─────────── Phase 3: Zones ───────────
+export const listSellerZones = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    const { data } = await context.supabase.from("delivery_zones")
+      .select("*").eq("seller_id", sellerId).order("created_at", { ascending: false });
+    return data ?? [];
+  });
+
+export const upsertSellerZone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    id: z.string().uuid().optional(),
+    name: z.string().min(1).max(80),
+    pincode: z.string().min(3).max(12),
+    radius_km: z.number().min(0.1).max(50),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    if (data.id) {
+      const { error } = await context.supabase.from("delivery_zones")
+        .update({ name: data.name, pincode: data.pincode, radius_km: data.radius_km, admin_approved: false })
+        .eq("id", data.id).eq("seller_id", sellerId);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await context.supabase.from("delivery_zones")
+        .insert({ seller_id: sellerId, name: data.name, pincode: data.pincode, radius_km: data.radius_km });
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const deleteSellerZone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const sellerId = await getMySellerId(context.supabase, context.userId);
+    const { error } = await context.supabase.from("delivery_zones").delete().eq("id", data.id).eq("seller_id", sellerId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+// Admin: zones
+export const adminListZones = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ pending_only: z.boolean().default(false) }).parse(d ?? {}))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    let q = context.supabase.from("delivery_zones")
+      .select("*, sellers(kitchen_name)").order("created_at", { ascending: false });
+    if (data.pending_only) q = q.eq("admin_approved", false);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const adminApproveZone = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ id: z.string().uuid(), approve: z.boolean(), reason: z.string().optional() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const update = data.approve
+      ? { admin_approved: true, admin_approved_at: new Date().toISOString(), rejected_reason: null }
+      : { admin_approved: false, rejected_reason: data.reason ?? "Rejected" };
+    const { error } = await context.supabase.from("delivery_zones").update(update).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await logAudit(context.supabase, context.userId, "admin", data.approve ? "approve_zone" : "reject_zone", "delivery_zone", data.id);
+    return { ok: true };
+  });
+
+// Admin: compliance overview
+export const adminDeliveryCompliance = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const [pendingAgents, pendingZones, suspendedAgents, lowRating] = await Promise.all([
+      context.supabase.from("delivery_agents").select("id", { count: "exact", head: true }).eq("status", "pending_admin"),
+      context.supabase.from("delivery_zones").select("id", { count: "exact", head: true }).eq("admin_approved", false),
+      context.supabase.from("delivery_agents").select("id", { count: "exact", head: true }).eq("status", "suspended"),
+      context.supabase.from("delivery_agents").select("id, full_name, rating_avg, sellers(kitchen_name)").lt("rating_avg", 3).gt("delivery_count", 5).limit(10),
+    ]);
+    return {
+      pending_agents: pendingAgents.count ?? 0,
+      pending_zones: pendingZones.count ?? 0,
+      suspended_agents: suspendedAgents.count ?? 0,
+      low_rated: lowRating.data ?? [],
+    };
+  });
