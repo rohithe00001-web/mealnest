@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft, Calendar } from "lucide-react";
+import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft, Calendar, Truck } from "lucide-react";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 
