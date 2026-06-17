@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, Circle, Star, MapPin, Phone } from "lucide-react";
 import { Header } from "@/components/Header";
+import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
 import { getOrderDetail, submitReview } from "@/lib/customer.functions";
 import { customerGetAssignment } from "@/lib/delivery.functions";
@@ -48,8 +49,15 @@ function OrderDetailPage() {
         toast.success("Order updated");
       })
       .subscribe();
+    const ch2 = supabase
+      .channel(`order-${id}-assignment`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "delivery_assignments", filter: `order_id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["order", id, "assignment"] });
+      })
+      .subscribe();
     return () => {
       supabase.removeChannel(ch);
+      supabase.removeChannel(ch2);
     };
   }, [id, qc]);
 
@@ -194,6 +202,14 @@ function OrderDetailPage() {
                   <p className="mt-3 rounded-lg bg-primary/10 p-3 text-xs text-primary">
                     Share this OTP with the agent on delivery: <span className="text-base font-bold tracking-widest">{assignment.otp}</span>
                   </p>
+                )}
+                {(assignment as any).current_lat && (assignment as any).current_lng && (
+                  <div className="mt-3">
+                    <LiveMap agent={{ lat: Number((assignment as any).current_lat), lng: Number((assignment as any).current_lng), label: "Agent" }} height={220} />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Updated {(assignment as any).last_location_at ? new Date((assignment as any).last_location_at).toLocaleTimeString() : "—"}
+                    </p>
+                  </div>
                 )}
               </div>
             )}

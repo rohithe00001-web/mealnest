@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Truck, Package, CheckCircle2, MapPin, Phone, KeyRound } from "lucide-react";
+import { Truck, Package, CheckCircle2, MapPin, Phone, KeyRound, Radio } from "lucide-react";
 import { Header } from "@/components/Header";
-import { agentListMyAssignments, agentUpdateAssignment } from "@/lib/delivery.functions";
+import { agentListMyAssignments, agentUpdateAssignment, agentUpdateLocation } from "@/lib/delivery.functions";
 import { inr } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/delivery/")({
@@ -67,6 +67,8 @@ function AgentDashboard() {
           <Stat label="Completed" value={done.length} icon={CheckCircle2} />
           <Stat label="Total" value={assignments.length} icon={Package} />
         </div>
+
+        <LocationBroadcaster activeIds={active.map((a: any) => a.id)} />
 
         <h2 className="font-display text-xl font-semibold">Active deliveries</h2>
         <div className="mt-3 grid gap-3">
@@ -156,6 +158,49 @@ function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) =
           Failed
         </button>
       </div>
+    </div>
+  );
+}
+
+function LocationBroadcaster({ activeIds }: { activeIds: string[] }) {
+  const updateLoc = useServerFn(agentUpdateLocation);
+  const [on, setOn] = useState(false);
+  const watchId = useRef<number | null>(null);
+  const lastSent = useRef(0);
+
+  useEffect(() => {
+    if (!on || activeIds.length === 0) return;
+    if (!("geolocation" in navigator)) { toast.error("Geolocation not supported"); setOn(false); return; }
+    watchId.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        const now = Date.now();
+        if (now - lastSent.current < 10_000) return; // throttle to 10s
+        lastSent.current = now;
+        const { latitude, longitude } = pos.coords;
+        activeIds.forEach((id) => {
+          updateLoc({ data: { assignment_id: id, lat: latitude, lng: longitude } }).catch(() => {});
+        });
+      },
+      (err) => { toast.error(err.message); setOn(false); },
+      { enableHighAccuracy: true, maximumAge: 5_000, timeout: 15_000 }
+    );
+    return () => {
+      if (watchId.current !== null) navigator.geolocation.clearWatch(watchId.current);
+      watchId.current = null;
+    };
+  }, [on, activeIds.join(",")]);
+
+  if (activeIds.length === 0) return null;
+  return (
+    <div className="mb-4 flex items-center justify-between rounded-xl border border-border bg-surface p-3">
+      <div className="flex items-center gap-2 text-sm">
+        <Radio className={`h-4 w-4 ${on ? "text-success animate-pulse" : "text-muted-foreground"}`} />
+        <span>{on ? "Sharing live location with customers" : "Live location off"}</span>
+      </div>
+      <button onClick={() => setOn((v) => !v)}
+        className={`rounded-full px-3 py-1.5 text-xs font-medium ${on ? "bg-destructive text-white" : "bg-primary text-primary-foreground"}`}>
+        {on ? "Stop sharing" : "Start sharing"}
+      </button>
     </div>
   );
 }
