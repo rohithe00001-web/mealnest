@@ -23,12 +23,20 @@ export const Route = createFileRoute("/meal-plans")({
 
 function MealPlansBrowse() {
   const listFn = useServerFn(listSubscriptionMarketplace);
+  const recFn = useServerFn(aiRecommendPlans);
   const [planType, setPlanType] = useState<"" | "weekly" | "half_month" | "monthly">("");
   const [vegOnly, setVegOnly] = useState(false);
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["meal-plans", planType, vegOnly],
     queryFn: () => listFn({ data: { plan_type: (planType || undefined) as any, is_veg: vegOnly || undefined } }),
   });
+  const recMut = useMutation({
+    mutationFn: () => recFn(),
+    onError: (e: any) => toast.error(e.message ?? "Could not generate recommendations"),
+  });
+  const recById = new Map<string, string>(
+    (recMut.data?.recommendations ?? []).map((r: any) => [r.plan_id, r.reason]),
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
