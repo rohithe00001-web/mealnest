@@ -68,6 +68,8 @@ function AgentDashboard() {
           <Stat label="Total" value={assignments.length} icon={Package} />
         </div>
 
+        <LocationBroadcaster activeIds={active.map((a: any) => a.id)} />
+
         <h2 className="font-display text-xl font-semibold">Active deliveries</h2>
         <div className="mt-3 grid gap-3">
           {active.length === 0 && <p className="text-sm text-muted-foreground">Nothing to deliver right now.</p>}
