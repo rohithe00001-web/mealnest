@@ -21,6 +21,7 @@ function SubscriptionDetail() {
   const skipFn = useServerFn(skipDelivery);
   const pauseFn = useServerFn(pauseSubscription);
   const cancelFn = useServerFn(cancelSubscription);
+  const nutritionFn = useServerFn(aiNutritionSummary);
   const qc = useQueryClient();
   const { data: sub, isLoading } = useQuery({
     queryKey: ["my-sub", id], queryFn: () => detailFn({ data: { id } }),
@@ -29,6 +30,10 @@ function SubscriptionDetail() {
   const skipMut = useMutation({ mutationFn: (d: string) => skipFn({ data: { delivery_id: d } }), onSuccess: () => { toast.success("Skipped — your plan was extended by 1 day"); refresh(); } });
   const pauseMut = useMutation({ mutationFn: (pause: boolean) => pauseFn({ data: { id, pause } }), onSuccess: () => { toast.success("Updated"); refresh(); } });
   const cancelMut = useMutation({ mutationFn: () => cancelFn({ data: { id } }), onSuccess: () => { toast.success("Cancelled"); refresh(); } });
+  const nutritionMut = useMutation({
+    mutationFn: () => nutritionFn({ data: { subscription_id: id } }),
+    onError: (e: any) => toast.error(e.message ?? "Could not generate insights"),
+  });
 
   if (isLoading || !sub) return <div className="min-h-screen flex flex-col"><Header /><main className="container-page flex-1 py-16 text-muted-foreground">Loading…</main></div>;
   const s: any = sub;
