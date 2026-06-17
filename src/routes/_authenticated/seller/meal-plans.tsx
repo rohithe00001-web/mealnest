@@ -217,7 +217,7 @@ function PlanEditor({ initial, onDone }: { initial: any; onDone: () => void }) {
           duration_days: duration as 7 | 15 | 30,
           meal_types: mealTypes as any,
           price_per_person: Number(price),
-          cuisines: cuisinesStr.split(",").map((s) => s.trim()).filter(Boolean),
+          cuisines: cuisinesStr.split(",").map((s: string) => s.trim()).filter(Boolean),
           is_veg: isVeg,
           image_url: imageUrl,
           submit_for_review: submit,
