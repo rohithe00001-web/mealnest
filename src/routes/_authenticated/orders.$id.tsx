@@ -203,6 +203,14 @@ function OrderDetailPage() {
                     Share this OTP with the agent on delivery: <span className="text-base font-bold tracking-widest">{assignment.otp}</span>
                   </p>
                 )}
+                {(assignment as any).current_lat && (assignment as any).current_lng && (
+                  <div className="mt-3">
+                    <LiveMap agent={{ lat: Number((assignment as any).current_lat), lng: Number((assignment as any).current_lng), label: "Agent" }} height={220} />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Updated {(assignment as any).last_location_at ? new Date((assignment as any).last_location_at).toLocaleTimeString() : "—"}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </aside>
