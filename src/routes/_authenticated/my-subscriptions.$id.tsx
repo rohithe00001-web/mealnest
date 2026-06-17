@@ -121,6 +121,42 @@ function SubscriptionDetail() {
           </div>
         </div>
 
+        <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
+                <Sparkles className="h-3 w-3" /> Nutrition assistant
+              </p>
+              <p className="text-sm text-muted-foreground">AI summary of your weekly intake with suggestions.</p>
+            </div>
+            <button
+              onClick={() => nutritionMut.mutate()}
+              disabled={nutritionMut.isPending}
+              className="h-9 rounded-full bg-foreground text-background px-4 text-xs font-medium inline-flex items-center gap-1 disabled:opacity-60"
+            >
+              <Sparkles className="h-3 w-3" /> {nutritionMut.isPending ? "Analyzing…" : nutritionMut.data ? "Refresh" : "Generate insights"}
+            </button>
+          </div>
+          {nutritionMut.data && (
+            <>
+              <div className="grid grid-cols-4 gap-2 text-center">
+                {[
+                  { l: "Calories/day", v: nutritionMut.data.averages.calories },
+                  { l: "Protein g", v: nutritionMut.data.averages.protein_g },
+                  { l: "Carbs g", v: nutritionMut.data.averages.carbs_g },
+                  { l: "Fat g", v: nutritionMut.data.averages.fat_g },
+                ].map((m) => (
+                  <div key={m.l} className="rounded-lg bg-muted p-2">
+                    <p className="font-display text-lg font-semibold">{m.v}</p>
+                    <p className="text-[10px] text-muted-foreground">{m.l}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">{nutritionMut.data.summary}</p>
+            </>
+          )}
+        </div>
+
         <p className="text-sm text-muted-foreground">Total paid: <strong>{inr(Number(s.total_price))}</strong> · {s.payment_status}</p>
       </main>
       <Footer />
