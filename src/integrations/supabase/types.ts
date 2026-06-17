@@ -512,6 +512,275 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_deliveries: {
+        Row: {
+          created_at: string
+          day_number: number
+          id: string
+          meals: Json
+          scheduled_date: string
+          seller_id: string
+          status: Database["public"]["Enums"]["subscription_delivery_status"]
+          subscription_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_number: number
+          id?: string
+          meals?: Json
+          scheduled_date: string
+          seller_id: string
+          status?: Database["public"]["Enums"]["subscription_delivery_status"]
+          subscription_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_number?: number
+          id?: string
+          meals?: Json
+          scheduled_date?: string
+          seller_id?: string
+          status?: Database["public"]["Enums"]["subscription_delivery_status"]
+          subscription_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_deliveries_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_deliveries_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plan_days: {
+        Row: {
+          breakfast_desc: string | null
+          breakfast_name: string | null
+          calories: number | null
+          carbs_g: number | null
+          created_at: string
+          day_number: number
+          dinner_desc: string | null
+          dinner_name: string | null
+          fat_g: number | null
+          id: string
+          is_veg: boolean
+          lunch_desc: string | null
+          lunch_name: string | null
+          plan_id: string
+          protein_g: number | null
+        }
+        Insert: {
+          breakfast_desc?: string | null
+          breakfast_name?: string | null
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string
+          day_number: number
+          dinner_desc?: string | null
+          dinner_name?: string | null
+          fat_g?: number | null
+          id?: string
+          is_veg?: boolean
+          lunch_desc?: string | null
+          lunch_name?: string | null
+          plan_id: string
+          protein_g?: number | null
+        }
+        Update: {
+          breakfast_desc?: string | null
+          breakfast_name?: string | null
+          calories?: number | null
+          carbs_g?: number | null
+          created_at?: string
+          day_number?: number
+          dinner_desc?: string | null
+          dinner_name?: string | null
+          fat_g?: number | null
+          id?: string
+          is_veg?: boolean
+          lunch_desc?: string | null
+          lunch_name?: string | null
+          plan_id?: string
+          protein_g?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          cuisines: string[]
+          description: string | null
+          duration_days: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_veg: boolean
+          meal_types: string[]
+          plan_type: Database["public"]["Enums"]["subscription_plan_type"]
+          price_per_person: number
+          rating_avg: number
+          rating_count: number
+          seller_id: string
+          status: Database["public"]["Enums"]["subscription_plan_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cuisines?: string[]
+          description?: string | null
+          duration_days: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_veg?: boolean
+          meal_types?: string[]
+          plan_type: Database["public"]["Enums"]["subscription_plan_type"]
+          price_per_person: number
+          rating_avg?: number
+          rating_count?: number
+          seller_id: string
+          status?: Database["public"]["Enums"]["subscription_plan_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cuisines?: string[]
+          description?: string | null
+          duration_days?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_veg?: boolean
+          meal_types?: string[]
+          plan_type?: Database["public"]["Enums"]["subscription_plan_type"]
+          price_per_person?: number
+          rating_avg?: number
+          rating_count?: number
+          seller_id?: string
+          status?: Database["public"]["Enums"]["subscription_plan_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_plans_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          address_id: string | null
+          created_at: string
+          customer_id: string
+          customizations: Json
+          delivery_address: Json
+          delivery_slot: string
+          end_date: string
+          extension_days: number
+          id: string
+          meal_selection: Database["public"]["Enums"]["subscription_meal_selection"]
+          payment_method: Database["public"]["Enums"]["payment_method"]
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          people_count: number
+          plan_id: string
+          seller_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          address_id?: string | null
+          created_at?: string
+          customer_id: string
+          customizations?: Json
+          delivery_address: Json
+          delivery_slot?: string
+          end_date: string
+          extension_days?: number
+          id?: string
+          meal_selection?: Database["public"]["Enums"]["subscription_meal_selection"]
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          people_count?: number
+          plan_id: string
+          seller_id: string
+          start_date: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          total_price?: number
+          updated_at?: string
+        }
+        Update: {
+          address_id?: string | null
+          created_at?: string
+          customer_id?: string
+          customizations?: Json
+          delivery_address?: Json
+          delivery_slot?: string
+          end_date?: string
+          extension_days?: number
+          id?: string
+          meal_selection?: Database["public"]["Enums"]["subscription_meal_selection"]
+          payment_method?: Database["public"]["Enums"]["payment_method"]
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          people_count?: number
+          plan_id?: string
+          seller_id?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -596,6 +865,21 @@ export type Database = {
       payment_method: "cod" | "upi" | "card" | "wallet"
       payment_status: "pending" | "paid" | "refunded" | "failed"
       seller_status: "pending" | "approved" | "rejected" | "suspended"
+      subscription_delivery_status:
+        | "scheduled"
+        | "skipped"
+        | "delivered"
+        | "paused"
+      subscription_meal_selection:
+        | "breakfast_only"
+        | "lunch_only"
+        | "dinner_only"
+        | "breakfast_lunch"
+        | "lunch_dinner"
+        | "full_day"
+      subscription_plan_status: "draft" | "pending" | "approved" | "rejected"
+      subscription_plan_type: "weekly" | "half_month" | "monthly"
+      subscription_status: "active" | "paused" | "completed" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -737,6 +1021,23 @@ export const Constants = {
       payment_method: ["cod", "upi", "card", "wallet"],
       payment_status: ["pending", "paid", "refunded", "failed"],
       seller_status: ["pending", "approved", "rejected", "suspended"],
+      subscription_delivery_status: [
+        "scheduled",
+        "skipped",
+        "delivered",
+        "paused",
+      ],
+      subscription_meal_selection: [
+        "breakfast_only",
+        "lunch_only",
+        "dinner_only",
+        "breakfast_lunch",
+        "lunch_dinner",
+        "full_day",
+      ],
+      subscription_plan_status: ["draft", "pending", "approved", "rejected"],
+      subscription_plan_type: ["weekly", "half_month", "monthly"],
+      subscription_status: ["active", "paused", "completed", "cancelled"],
     },
   },
 } as const
