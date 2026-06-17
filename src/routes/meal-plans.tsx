@@ -124,7 +124,13 @@ function MealPlansBrowse() {
                         {p.plan_type.replace("_", " ")}
                       </span>
                       {p.is_veg && <span className="text-success"><Leaf className="h-4 w-4" /></span>}
+                      {reason && (
+                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground inline-flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" /> Pick
+                        </span>
+                      )}
                     </div>
+                    {reason && <p className="text-xs text-primary line-clamp-2">{reason}</p>}
                     <h3 className="font-medium line-clamp-1">{p.title}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-1">{p.sellers?.kitchen_name} · {p.sellers?.city}</p>
                     {p.cuisines?.length > 0 && (
