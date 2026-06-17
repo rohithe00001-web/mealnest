@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft } from "lucide-react";
+import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft, Calendar } from "lucide-react";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 
@@ -13,6 +13,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { to: "/admin/sellers", label: "Sellers", icon: Store },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { to: "/admin/subscriptions", label: "Subscriptions", icon: Calendar },
   { to: "/admin/users", label: "Users", icon: Users },
 ];
 

@@ -48,6 +48,9 @@ export function Header() {
           <Link to="/browse" className="rounded-md px-3 py-2 transition-colors hover:bg-muted hover:text-foreground">
             Browse
           </Link>
+          <Link to="/meal-plans" className="rounded-md px-3 py-2 transition-colors hover:bg-muted hover:text-foreground">
+            Meal Plans
+          </Link>
           <Link to="/" hash="kitchens" className="rounded-md px-3 py-2 transition-colors hover:bg-muted hover:text-foreground">
             Kitchens
           </Link>
@@ -90,6 +93,9 @@ export function Header() {
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link to="/orders"><ClipboardList className="mr-2 h-4 w-4" />My Orders</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/my-subscriptions"><ClipboardList className="mr-2 h-4 w-4" />My Subscriptions</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/wishlist"><Heart className="mr-2 h-4 w-4" />Wishlist</Link>
