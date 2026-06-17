@@ -207,44 +207,158 @@ export type Database = {
         }
         Relationships: []
       }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string
+          discount_amount: number
+          id: string
+          order_id: string | null
+          order_total: number
+          redeemed_at: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          discount_amount?: number
+          id?: string
+          order_id?: string | null
+          order_total?: number
+          redeemed_at?: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          discount_amount?: number
+          id?: string
+          order_id?: string | null
+          order_total?: number
+          redeemed_at?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coupons: {
         Row: {
           active: boolean
+          applies_to: string
+          category_ids: string[] | null
           code: string
           created_at: string
+          created_by: string | null
+          cuisine_tags: string[] | null
           description: string | null
           discount_flat: number | null
           discount_percent: number | null
+          discount_type: string
           expires_at: string | null
+          festival_tag: string | null
+          geo_pincodes: string[] | null
           id: string
           max_discount: number | null
+          metadata: Json
           min_order: number
+          new_customers_only: boolean
+          scope: string
+          seller_id: string | null
+          starts_at: string | null
+          subscription_plan_types: string[] | null
+          updated_at: string
+          usage_count: number
+          usage_limit_per_user: number | null
+          usage_limit_total: number | null
         }
         Insert: {
           active?: boolean
+          applies_to?: string
+          category_ids?: string[] | null
           code: string
           created_at?: string
+          created_by?: string | null
+          cuisine_tags?: string[] | null
           description?: string | null
           discount_flat?: number | null
           discount_percent?: number | null
+          discount_type?: string
           expires_at?: string | null
+          festival_tag?: string | null
+          geo_pincodes?: string[] | null
           id?: string
           max_discount?: number | null
+          metadata?: Json
           min_order?: number
+          new_customers_only?: boolean
+          scope?: string
+          seller_id?: string | null
+          starts_at?: string | null
+          subscription_plan_types?: string[] | null
+          updated_at?: string
+          usage_count?: number
+          usage_limit_per_user?: number | null
+          usage_limit_total?: number | null
         }
         Update: {
           active?: boolean
+          applies_to?: string
+          category_ids?: string[] | null
           code?: string
           created_at?: string
+          created_by?: string | null
+          cuisine_tags?: string[] | null
           description?: string | null
           discount_flat?: number | null
           discount_percent?: number | null
+          discount_type?: string
           expires_at?: string | null
+          festival_tag?: string | null
+          geo_pincodes?: string[] | null
           id?: string
           max_discount?: number | null
+          metadata?: Json
           min_order?: number
+          new_customers_only?: boolean
+          scope?: string
+          seller_id?: string | null
+          starts_at?: string | null
+          subscription_plan_types?: string[] | null
+          updated_at?: string
+          usage_count?: number
+          usage_limit_per_user?: number | null
+          usage_limit_total?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "coupons_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       delivery_agents: {
         Row: {
@@ -636,6 +750,8 @@ export type Database = {
       orders: {
         Row: {
           address_id: string | null
+          coupon_code: string | null
+          coupon_id: string | null
           created_at: string
           customer_id: string
           delivery_address: Json
@@ -656,6 +772,8 @@ export type Database = {
         }
         Insert: {
           address_id?: string | null
+          coupon_code?: string | null
+          coupon_id?: string | null
           created_at?: string
           customer_id: string
           delivery_address: Json
@@ -676,6 +794,8 @@ export type Database = {
         }
         Update: {
           address_id?: string | null
+          coupon_code?: string | null
+          coupon_id?: string | null
           created_at?: string
           customer_id?: string
           delivery_address?: Json
@@ -700,6 +820,13 @@ export type Database = {
             columns: ["address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
             referencedColumns: ["id"]
           },
           {
@@ -1234,6 +1361,39 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_coupon: {
+        Args: {
+          _code: string
+          _kind: string
+          _order_id: string
+          _order_total: number
+          _seller: string
+          _subscription_id: string
+          _user: string
+        }
+        Returns: {
+          discount: number
+          discount_type: string
+          reason: string
+          success: boolean
+        }[]
+      }
+      validate_coupon: {
+        Args: {
+          _code: string
+          _kind?: string
+          _order_total: number
+          _seller: string
+          _user: string
+        }
+        Returns: {
+          coupon_id: string
+          discount: number
+          discount_type: string
+          reason: string
+          valid: boolean
+        }[]
       }
     }
     Enums: {
