@@ -225,7 +225,7 @@ function PayrollTab() {
       <div className="grid gap-3">
         {agents.map((a: any) => {
           const r = byAgent.get(a.id);
-          return <PayrollRow key={a.id} agent={a} row={r} month={month} onSave={(v) => upsert.mutate(v)} />;
+          return <PayrollRow key={a.id} agent={a} row={r} month={month} onSave={(v: any) => upsert.mutate(v)} />;
         })}
         {agents.length === 0 && <p className="text-sm text-muted-foreground">No approved agents.</p>}
       </div>
