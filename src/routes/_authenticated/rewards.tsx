@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { Coins, Flame, Gift, Share2, Sparkles, Cake, Copy, Check } from "lucide-react";
+import { Coins, Flame, Gift, Share2, Sparkles, Cake, Copy, Check, Trophy, Lock, PartyPopper } from "lucide-react";
 import {
   getMyLoyalty,
   generateReferralCode,
@@ -10,6 +10,8 @@ import {
   redeemCoins,
   updateBirthday,
 } from "@/lib/loyalty.functions";
+import { getGamificationState, claimMysteryReward } from "@/lib/gamification.functions";
+import { SpinWheel } from "@/components/SpinWheel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,8 +31,11 @@ function RewardsPage() {
   const applyCode = useServerFn(applyReferralCode);
   const redeem = useServerFn(redeemCoins);
   const saveDob = useServerFn(updateBirthday);
+  const fetchGame = useServerFn(getGamificationState);
+  const claimMystery = useServerFn(claimMysteryReward);
 
   const { data, isLoading } = useQuery({ queryKey: ["loyalty"], queryFn: () => fetchLoyalty() });
+  const { data: game } = useQuery({ queryKey: ["gamification"], queryFn: () => fetchGame() });
   const [refInput, setRefInput] = useState("");
   const [dob, setDob] = useState("");
   const [anniv, setAnniv] = useState("");
@@ -55,6 +60,16 @@ function RewardsPage() {
   const dobM = useMutation({
     mutationFn: () => saveDob({ data: { dob: dob || null, anniversary: anniv || null } }),
     onSuccess: () => toast.success("Saved — we'll send you a special coupon on the day 🎂"),
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const mysteryM = useMutation({
+    mutationFn: (id: string) => claimMystery({ data: { id } }),
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: ["gamification"] });
+      qc.invalidateQueries({ queryKey: ["loyalty"] });
+      toast.success(r.couponCode ? `Coupon ${r.couponCode} unlocked!` : `${r.prizeValue} coins added!`);
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
@@ -124,6 +139,70 @@ function RewardsPage() {
             Coupon <strong>{lastCoupon.code}</strong> for ₹{lastCoupon.discount} off — use at checkout.
           </div>
         )}
+      </section>
+
+      {/* Spin & Win */}
+      <SpinWheel alreadySpun={game?.spinToday ?? null} />
+
+      {/* Mystery rewards */}
+      <section className="rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <PartyPopper className="h-5 w-5 text-pink-500" />
+          <h2 className="text-lg font-semibold">Mystery rewards</h2>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Every 10 delivered orders, a surprise prize unlocks.
+          {game?.nextMysteryAt && game.nextMysteryAt < 10 && (
+            <> {game.nextMysteryAt} more order{game.nextMysteryAt === 1 ? "" : "s"} to your next mystery!</>
+          )}
+        </p>
+        {game?.mysteryRewards && game.mysteryRewards.length > 0 ? (
+          <ul className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+            {game.mysteryRewards.map((m: any) => (
+              <li key={m.id} className="rounded-xl border border-border bg-background p-3 flex items-center gap-3">
+                <div className="grid place-items-center w-10 h-10 rounded-full bg-pink-100 text-pink-600">
+                  <Gift className="h-4 w-4" />
+                </div>
+                <div className="flex-1 text-sm">
+                  <div className="font-semibold">Order #{m.milestone} milestone</div>
+                  <div className="text-xs text-muted-foreground">
+                    {m.claimed ? (m.coupon_code ? `Claimed — code ${m.coupon_code}` : "Claimed") : "Tap to reveal"}
+                  </div>
+                </div>
+                {!m.claimed ? (
+                  <Button size="sm" onClick={() => mysteryM.mutate(m.id)} disabled={mysteryM.isPending}>Reveal</Button>
+                ) : (
+                  <Check className="h-4 w-4 text-emerald-500" />
+                )}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-2 text-xs text-muted-foreground">No mystery rewards yet — keep ordering!</p>
+        )}
+      </section>
+
+      {/* Achievements */}
+      <section className="rounded-2xl border border-border bg-surface p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Trophy className="h-5 w-5 text-amber-500" />
+          <h2 className="text-lg font-semibold">Achievements</h2>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {(game?.achievements ?? []).map((a: any) => {
+            const got = (game?.unlocked ?? []).some((u: any) => u.achievement_id === a.id);
+            return (
+              <div key={a.id} className={`rounded-xl border p-3 ${got ? "border-amber-400 bg-amber-50" : "border-border bg-background opacity-70"}`}>
+                <div className="flex items-center gap-2">
+                  {got ? <Trophy className="h-4 w-4 text-amber-500" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
+                  <div className="font-semibold text-sm">{a.name}</div>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{a.description}</p>
+                <div className="mt-2 text-xs font-medium text-primary">+{a.reward_coins} coins</div>
+              </div>
+            );
+          })}
+        </div>
       </section>
 
       {/* Referrals */}
