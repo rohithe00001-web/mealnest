@@ -15,6 +15,7 @@ const NAV = [
   { to: "/seller/orders", label: "Orders", icon: ShoppingBag },
   { to: "/seller/meal-plans", label: "Meal Plans", icon: Calendar },
   { to: "/seller/subscriptions", label: "Subscriptions", icon: Repeat },
+  { to: "/seller/delivery", label: "Delivery", icon: Truck },
   { to: "/seller/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
