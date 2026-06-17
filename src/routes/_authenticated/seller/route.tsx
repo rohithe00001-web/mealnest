@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft, BarChart3, Calendar, Repeat } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft, BarChart3, Calendar, Repeat, Truck } from "lucide-react";
 import { Header } from "@/components/Header";
 import { getSellerMe, updateSellerOpen } from "@/lib/seller.functions";
 
