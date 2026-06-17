@@ -102,6 +102,7 @@ function CheckoutPage() {
           deliveryAddress,
           deliveryInstructions: form.instructions || undefined,
           paymentMethod: "cod",
+          couponCode: couponState?.code,
         },
       });
       clear();
