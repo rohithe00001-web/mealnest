@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      abuse_reports: {
+        Row: {
+          created_at: string
+          details: Json
+          id: string
+          kind: string
+          reviewed: boolean
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json
+          id?: string
+          kind: string
+          reviewed?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          id?: string
+          kind?: string
+          reviewed?: boolean
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       achievements: {
         Row: {
           active: boolean
@@ -1243,6 +1279,36 @@ export type Database = {
           },
         ]
       }
+      reward_claim_attempts: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          reason: string | null
+          success: boolean
+          target_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          success: boolean
+          target_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          success?: boolean
+          target_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       seller_sponsorships: {
         Row: {
           active: boolean
@@ -1807,6 +1873,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      record_abuse: {
+        Args: {
+          _details: Json
+          _kind: string
+          _severity: string
+          _user: string
+        }
+        Returns: undefined
       }
       redeem_coins_for_coupon: {
         Args: { _coins: number; _user: string }
