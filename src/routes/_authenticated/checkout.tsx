@@ -8,6 +8,7 @@ import { useCart } from "@/lib/cart";
 import { inr } from "@/lib/format";
 import { placeOrder } from "@/lib/orders.functions";
 import { listAddresses } from "@/lib/customer.functions";
+import { previewCoupon } from "@/lib/coupons.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
@@ -19,8 +20,12 @@ function CheckoutPage() {
   const navigate = useNavigate();
   const placeOrderFn = useServerFn(placeOrder);
   const listAddressesFn = useServerFn(listAddresses);
+  const previewFn = useServerFn(previewCoupon);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
+  const [couponCode, setCouponCode] = useState("");
+  const [couponState, setCouponState] = useState<{ code: string; discount: number; type: string } | null>(null);
+  const [couponBusy, setCouponBusy] = useState(false);
   const [form, setForm] = useState({
     label: "Home", addressLine: "", city: "", pincode: "", phone: "", instructions: "",
   });
@@ -37,8 +42,26 @@ function CheckoutPage() {
     }
   }, [addresses]);
 
-  const deliveryFee = subtotal >= 500 || subtotal === 0 ? 0 : 29;
-  const total = subtotal + deliveryFee;
+  let deliveryFee = subtotal >= 500 || subtotal === 0 ? 0 : 29;
+  let couponDiscount = 0;
+  if (couponState) {
+    if (couponState.type === "free_delivery") deliveryFee = 0;
+    else if (couponState.type === "partial_delivery") deliveryFee = Math.max(0, deliveryFee - couponState.discount);
+    else couponDiscount = couponState.discount;
+  }
+  const total = Math.max(0, subtotal + deliveryFee - couponDiscount);
+
+  async function applyCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponBusy(true);
+    try {
+      const res = await previewFn({ data: { code: couponCode.trim(), sellerId: items[0]?.sellerId, orderTotal: subtotal, kind: "order" } });
+      if (!res.valid) { toast.error(res.reason || "Invalid"); setCouponState(null); return; }
+      setCouponState({ code: couponCode.trim().toUpperCase(), discount: res.discount, type: res.discountType ?? "flat" });
+      toast.success("Coupon applied");
+    } catch (e: any) { toast.error(e.message); }
+    finally { setCouponBusy(false); }
+  }
 
   if (items.length === 0) {
     return (
@@ -79,6 +102,7 @@ function CheckoutPage() {
           deliveryAddress,
           deliveryInstructions: form.instructions || undefined,
           paymentMethod: "cod",
+          couponCode: couponState?.code,
         },
       });
       clear();
@@ -175,9 +199,24 @@ function CheckoutPage() {
                 </li>
               ))}
             </ul>
+            <div className="mt-4 space-y-2 border-t border-border pt-3">
+              <p className="text-xs font-medium text-muted-foreground">Coupon code</p>
+              {couponState ? (
+                <div className="flex items-center justify-between rounded-xl border border-accent/40 bg-accent/10 p-2 text-sm">
+                  <span className="font-mono font-semibold">{couponState.code}</span>
+                  <button type="button" onClick={() => { setCouponState(null); setCouponCode(""); }} className="text-xs text-destructive hover:underline">Remove</button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="Enter code" className="h-10 flex-1 rounded-xl border border-input bg-background px-3 text-sm" />
+                  <button type="button" onClick={applyCoupon} disabled={couponBusy} className="h-10 rounded-full border border-primary px-4 text-sm font-medium text-primary disabled:opacity-50">{couponBusy ? "…" : "Apply"}</button>
+                </div>
+              )}
+            </div>
             <dl className="mt-4 space-y-2 border-t border-border pt-3 text-sm">
               <div className="flex justify-between"><dt className="text-muted-foreground">Subtotal</dt><dd>{inr(subtotal)}</dd></div>
               <div className="flex justify-between"><dt className="text-muted-foreground">Delivery</dt><dd>{deliveryFee === 0 ? "Free" : inr(deliveryFee)}</dd></div>
+              {couponDiscount > 0 && <div className="flex justify-between text-accent"><dt>Coupon ({couponState?.code})</dt><dd>−{inr(couponDiscount)}</dd></div>}
               <div className="flex justify-between border-t border-border pt-2 text-base font-semibold"><dt>Total</dt><dd>{inr(total)}</dd></div>
             </dl>
             <button type="submit" disabled={loading} className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">

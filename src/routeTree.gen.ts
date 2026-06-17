@@ -34,6 +34,7 @@ import { Route as AuthenticatedSellerOrdersRouteImport } from './routes/_authent
 import { Route as AuthenticatedSellerMealPlansRouteImport } from './routes/_authenticated/seller/meal-plans'
 import { Route as AuthenticatedSellerDishesRouteImport } from './routes/_authenticated/seller/dishes'
 import { Route as AuthenticatedSellerDeliveryRouteImport } from './routes/_authenticated/seller/delivery'
+import { Route as AuthenticatedSellerCouponsRouteImport } from './routes/_authenticated/seller/coupons'
 import { Route as AuthenticatedSellerAnalyticsRouteImport } from './routes/_authenticated/seller/analytics'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedMySubscriptionsIdRouteImport } from './routes/_authenticated/my-subscriptions.$id'
@@ -43,6 +44,7 @@ import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_a
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin/sellers'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin/delivery'
+import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
 
 const MealPlansRoute = MealPlansRouteImport.update({
   id: '/meal-plans',
@@ -178,6 +180,12 @@ const AuthenticatedSellerDeliveryRoute =
     path: '/delivery',
     getParentRoute: () => AuthenticatedSellerRouteRoute,
   } as any)
+const AuthenticatedSellerCouponsRoute =
+  AuthenticatedSellerCouponsRouteImport.update({
+    id: '/coupons',
+    path: '/coupons',
+    getParentRoute: () => AuthenticatedSellerRouteRoute,
+  } as any)
 const AuthenticatedSellerAnalyticsRoute =
   AuthenticatedSellerAnalyticsRouteImport.update({
     id: '/analytics',
@@ -230,6 +238,12 @@ const AuthenticatedAdminDeliveryRoute =
     path: '/delivery',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminCouponsRoute =
+  AuthenticatedAdminCouponsRouteImport.update({
+    id: '/coupons',
+    path: '/coupons',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -248,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
@@ -257,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
+  '/seller/coupons': typeof AuthenticatedSellerCouponsRoute
   '/seller/delivery': typeof AuthenticatedSellerDeliveryRoute
   '/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
@@ -280,6 +296,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
@@ -289,6 +306,7 @@ export interface FileRoutesByTo {
   '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
+  '/seller/coupons': typeof AuthenticatedSellerCouponsRoute
   '/seller/delivery': typeof AuthenticatedSellerDeliveryRoute
   '/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
@@ -317,6 +335,7 @@ export interface FileRoutesById {
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
@@ -326,6 +345,7 @@ export interface FileRoutesById {
   '/_authenticated/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
+  '/_authenticated/seller/coupons': typeof AuthenticatedSellerCouponsRoute
   '/_authenticated/seller/delivery': typeof AuthenticatedSellerDeliveryRoute
   '/_authenticated/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/_authenticated/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
@@ -354,6 +374,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/admin/coupons'
     | '/admin/delivery'
     | '/admin/orders'
     | '/admin/sellers'
@@ -363,6 +384,7 @@ export interface FileRouteTypes {
     | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
+    | '/seller/coupons'
     | '/seller/delivery'
     | '/seller/dishes'
     | '/seller/meal-plans'
@@ -386,6 +408,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/admin/coupons'
     | '/admin/delivery'
     | '/admin/orders'
     | '/admin/sellers'
@@ -395,6 +418,7 @@ export interface FileRouteTypes {
     | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
+    | '/seller/coupons'
     | '/seller/delivery'
     | '/seller/dishes'
     | '/seller/meal-plans'
@@ -422,6 +446,7 @@ export interface FileRouteTypes {
     | '/_authenticated/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/delivery'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/sellers'
@@ -431,6 +456,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-subscriptions/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/seller/analytics'
+    | '/_authenticated/seller/coupons'
     | '/_authenticated/seller/delivery'
     | '/_authenticated/seller/dishes'
     | '/_authenticated/seller/meal-plans'
@@ -628,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellerDeliveryRouteImport
       parentRoute: typeof AuthenticatedSellerRouteRoute
     }
+    '/_authenticated/seller/coupons': {
+      id: '/_authenticated/seller/coupons'
+      path: '/coupons'
+      fullPath: '/seller/coupons'
+      preLoaderRoute: typeof AuthenticatedSellerCouponsRouteImport
+      parentRoute: typeof AuthenticatedSellerRouteRoute
+    }
     '/_authenticated/seller/analytics': {
       id: '/_authenticated/seller/analytics'
       path: '/analytics'
@@ -691,10 +724,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminDeliveryRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/coupons': {
+      id: '/_authenticated/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AuthenticatedAdminCouponsRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
@@ -705,6 +746,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
     AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
     AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
     AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
@@ -720,6 +762,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedSellerRouteRouteChildren {
   AuthenticatedSellerAnalyticsRoute: typeof AuthenticatedSellerAnalyticsRoute
+  AuthenticatedSellerCouponsRoute: typeof AuthenticatedSellerCouponsRoute
   AuthenticatedSellerDeliveryRoute: typeof AuthenticatedSellerDeliveryRoute
   AuthenticatedSellerDishesRoute: typeof AuthenticatedSellerDishesRoute
   AuthenticatedSellerMealPlansRoute: typeof AuthenticatedSellerMealPlansRoute
@@ -731,6 +774,7 @@ interface AuthenticatedSellerRouteRouteChildren {
 const AuthenticatedSellerRouteRouteChildren: AuthenticatedSellerRouteRouteChildren =
   {
     AuthenticatedSellerAnalyticsRoute: AuthenticatedSellerAnalyticsRoute,
+    AuthenticatedSellerCouponsRoute: AuthenticatedSellerCouponsRoute,
     AuthenticatedSellerDeliveryRoute: AuthenticatedSellerDeliveryRoute,
     AuthenticatedSellerDishesRoute: AuthenticatedSellerDishesRoute,
     AuthenticatedSellerMealPlansRoute: AuthenticatedSellerMealPlansRoute,

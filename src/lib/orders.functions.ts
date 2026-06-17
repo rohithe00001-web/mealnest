@@ -22,6 +22,7 @@ const PlaceOrderInput = z.object({
   }),
   deliveryInstructions: z.string().max(300).optional(),
   paymentMethod: z.enum(["cod"]).default("cod"),
+  couponCode: z.string().min(2).max(40).optional(),
 });
 
 export const placeOrder = createServerFn({ method: "POST" })
@@ -57,8 +58,36 @@ export const placeOrder = createServerFn({ method: "POST" })
     });
 
     const subtotal = lineItems.reduce((n, x) => n + x.line_total, 0);
-    const deliveryFee = subtotal >= 500 ? 0 : 29;
-    const total = subtotal + deliveryFee;
+    let deliveryFee = subtotal >= 500 ? 0 : 29;
+    let discount = 0;
+    let couponId: string | null = null;
+    let couponCode: string | null = null;
+
+    if (data.couponCode) {
+      const { data: rRows, error: rErr } = await supabase.rpc("redeem_coupon", {
+        _code: data.couponCode,
+        _user: userId,
+        _seller: data.sellerId,
+        _order_total: subtotal,
+        _order_id: null as any,
+        _subscription_id: null as any,
+        _kind: "order",
+      });
+      if (rErr) throw new Error(rErr.message);
+      const r: any = Array.isArray(rRows) ? rRows[0] : rRows;
+      if (!r?.success) throw new Error(r?.reason || "Invalid coupon");
+      if (r.discount_type === "free_delivery") {
+        deliveryFee = 0;
+      } else if (r.discount_type === "partial_delivery") {
+        deliveryFee = Math.max(0, deliveryFee - Number(r.discount));
+      } else {
+        discount = Number(r.discount);
+      }
+      couponCode = data.couponCode.toUpperCase();
+      const { data: c } = await supabase.from("coupons").select("id").eq("code", couponCode).maybeSingle();
+      couponId = c?.id ?? null;
+    }
+    const total = Math.max(0, subtotal + deliveryFee - discount);
 
     const { data: order, error: oErr } = await supabase
       .from("orders")
@@ -68,15 +97,23 @@ export const placeOrder = createServerFn({ method: "POST" })
         delivery_address: data.deliveryAddress,
         subtotal,
         delivery_fee: deliveryFee,
+        discount,
         total,
         payment_method: data.paymentMethod,
         payment_status: "pending",
         status: "placed",
         delivery_instructions: data.deliveryInstructions ?? null,
+        coupon_id: couponId,
+        coupon_code: couponCode,
       })
       .select("id, order_number, total")
       .single();
     if (oErr) throw new Error(oErr.message);
+
+    if (couponId) {
+      await supabase.from("coupon_redemptions").update({ order_id: order.id })
+        .eq("coupon_id", couponId).eq("user_id", userId).is("order_id", null);
+    }
 
     const { error: iErr } = await supabase
       .from("order_items")
