@@ -202,7 +202,7 @@ export const assignAgentToOrder = createServerFn({ method: "POST" })
     const sellerId = await getMySellerId(context.supabase, context.userId);
     // verify ownership
     const { data: order } = await context.supabase
-      .from("orders").select("id, user_id, seller_id").eq("id", data.order_id).maybeSingle();
+      .from("orders").select("id, customer_id, seller_id").eq("id", data.order_id).maybeSingle();
     if (!order || order.seller_id !== sellerId) throw new Error("Order not found");
     const { data: agent } = await context.supabase
       .from("delivery_agents").select("id, status, seller_id").eq("id", data.agent_id).maybeSingle();
