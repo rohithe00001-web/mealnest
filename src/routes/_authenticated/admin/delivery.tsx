@@ -204,7 +204,7 @@ function ComplianceTab() {
   );
 }
 
-function Kpi({ label, value }: { label: string; value: number }) {
+function Kpi({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="rounded-xl border border-border bg-surface p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
