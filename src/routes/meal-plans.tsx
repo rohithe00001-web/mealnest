@@ -73,7 +73,23 @@ function MealPlansBrowse() {
           >
             <Leaf className="mr-1 inline h-4 w-4" /> Veg only
           </button>
+          <button
+            onClick={() => recMut.mutate()}
+            disabled={recMut.isPending}
+            className="h-9 rounded-full bg-foreground text-background px-4 text-sm font-medium inline-flex items-center gap-1 disabled:opacity-60"
+          >
+            <Sparkles className="h-4 w-4" /> {recMut.isPending ? "Thinking…" : "Recommend a plan"}
+          </button>
         </div>
+
+        {recMut.data?.summary && (
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1 inline-flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> AI recommendation
+            </p>
+            <p className="text-sm">{recMut.data.summary}</p>
+          </div>
+        )}
 
         {isLoading ? (
           <p className="text-muted-foreground">Loading meal plans…</p>
