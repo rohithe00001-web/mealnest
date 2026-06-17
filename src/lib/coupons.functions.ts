@@ -156,13 +156,13 @@ export const previewCoupon = createServerFn({ method: "POST" })
       _kind: data.kind,
     });
     if (error) throw new Error(error.message);
-    const row = Array.isArray(rows) ? rows[0] : rows;
+    const row: any = Array.isArray(rows) ? rows[0] : rows;
     return {
       valid: !!row?.valid,
       discount: Number(row?.discount ?? 0),
-      reason: row?.reason as string,
-      couponId: row?.coupon_id as string | null,
-      discountType: row?.discount_type as string | null,
+      reason: (row?.reason ?? "") as string,
+      couponId: (row?.coupon_id ?? null) as string | null,
+      discountType: (row?.discount_type ?? null) as string | null,
     };
   });
 
