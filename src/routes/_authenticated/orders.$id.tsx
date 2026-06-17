@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { ArrowLeft, CheckCircle2, Circle, Star, MapPin, Phone } from "lucide-react";
 import { Header } from "@/components/Header";
+import { LiveMap } from "@/components/LiveMap";
 import { Footer } from "@/components/Footer";
 import { getOrderDetail, submitReview } from "@/lib/customer.functions";
 import { customerGetAssignment } from "@/lib/delivery.functions";
