@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, Circle, Star, MapPin, Phone } from "lucide-rea
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { getOrderDetail, submitReview } from "@/lib/customer.functions";
+import { customerGetAssignment } from "@/lib/delivery.functions";
 import { inr } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -26,10 +27,16 @@ const STEPS = [
 function OrderDetailPage() {
   const { id } = Route.useParams();
   const fn = useServerFn(getOrderDetail);
+  const asgFn = useServerFn(customerGetAssignment);
   const qc = useQueryClient();
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", id],
     queryFn: () => fn({ data: { orderId: id } }),
+  });
+  const { data: assignment } = useQuery({
+    queryKey: ["order", id, "assignment"],
+    queryFn: () => asgFn({ data: { order_id: id } }),
+    refetchInterval: 15_000,
   });
 
   // Realtime: refetch when this order updates
@@ -172,6 +179,24 @@ function OrderDetailPage() {
                 </p>
               )}
             </div>
+            {assignment && (
+              <div className="rounded-2xl border border-border bg-surface p-5 text-sm">
+                <h3 className="font-display text-base font-semibold">Delivery agent</h3>
+                <p className="mt-2 font-medium">{(assignment as any).delivery_agents?.full_name ?? "—"}</p>
+                <p className="text-xs capitalize text-muted-foreground">Status: {String(assignment.status).replace("_", " ")}</p>
+                {(assignment as any).delivery_agents?.phone && (
+                  <p className="mt-1 inline-flex items-center gap-2 text-muted-foreground">
+                    <Phone className="h-4 w-4" />
+                    <a href={`tel:${(assignment as any).delivery_agents.phone}`} className="hover:underline">{(assignment as any).delivery_agents.phone}</a>
+                  </p>
+                )}
+                {assignment.status === "picked_up" && (
+                  <p className="mt-3 rounded-lg bg-primary/10 p-3 text-xs text-primary">
+                    Share this OTP with the agent on delivery: <span className="text-base font-bold tracking-widest">{assignment.otp}</span>
+                  </p>
+                )}
+              </div>
+            )}
           </aside>
         </div>
       </main>
