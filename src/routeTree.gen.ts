@@ -49,6 +49,7 @@ import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authenticated/admin/delivery'
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
 import { Route as AuthenticatedAdminCampaignsRouteImport } from './routes/_authenticated/admin/campaigns'
+import { Route as AuthenticatedAdminAbuseRouteImport } from './routes/_authenticated/admin/abuse'
 
 const MealPlansRoute = MealPlansRouteImport.update({
   id: '/meal-plans',
@@ -271,6 +272,11 @@ const AuthenticatedAdminCampaignsRoute =
     path: '/campaigns',
     getParentRoute: () => AuthenticatedAdminRouteRoute,
   } as any)
+const AuthenticatedAdminAbuseRoute = AuthenticatedAdminAbuseRouteImport.update({
+  id: '/abuse',
+  path: '/abuse',
+  getParentRoute: () => AuthenticatedAdminRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -290,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/admin/abuse': typeof AuthenticatedAdminAbuseRoute
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
@@ -328,6 +335,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/admin/abuse': typeof AuthenticatedAdminAbuseRoute
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
@@ -371,6 +379,7 @@ export interface FileRoutesById {
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/_authenticated/admin/abuse': typeof AuthenticatedAdminAbuseRoute
   '/_authenticated/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
   '/_authenticated/admin/delivery': typeof AuthenticatedAdminDeliveryRoute
@@ -414,6 +423,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/admin/abuse'
     | '/admin/campaigns'
     | '/admin/coupons'
     | '/admin/delivery'
@@ -452,6 +462,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/admin/abuse'
     | '/admin/campaigns'
     | '/admin/coupons'
     | '/admin/delivery'
@@ -494,6 +505,7 @@ export interface FileRouteTypes {
     | '/_authenticated/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/_authenticated/admin/abuse'
     | '/_authenticated/admin/campaigns'
     | '/_authenticated/admin/coupons'
     | '/_authenticated/admin/delivery'
@@ -810,10 +822,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCampaignsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/abuse': {
+      id: '/_authenticated/admin/abuse'
+      path: '/abuse'
+      fullPath: '/admin/abuse'
+      preLoaderRoute: typeof AuthenticatedAdminAbuseRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
   }
 }
 
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminAbuseRoute: typeof AuthenticatedAdminAbuseRoute
   AuthenticatedAdminCampaignsRoute: typeof AuthenticatedAdminCampaignsRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
   AuthenticatedAdminDeliveryRoute: typeof AuthenticatedAdminDeliveryRoute
@@ -827,6 +847,7 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminAbuseRoute: AuthenticatedAdminAbuseRoute,
     AuthenticatedAdminCampaignsRoute: AuthenticatedAdminCampaignsRoute,
     AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
     AuthenticatedAdminDeliveryRoute: AuthenticatedAdminDeliveryRoute,
