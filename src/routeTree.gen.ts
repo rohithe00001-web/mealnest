@@ -20,6 +20,7 @@ import { Route as DishIdRouteImport } from './routes/dish.$id'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedMySubscriptionsRouteImport } from './routes/_authenticated/my-subscriptions'
+import { Route as AuthenticatedDeliveryRouteImport } from './routes/_authenticated/delivery'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedBecomeSellerRouteImport } from './routes/_authenticated/become-seller'
 import { Route as AuthenticatedAddressesRouteImport } from './routes/_authenticated/addresses'
@@ -97,6 +98,11 @@ const AuthenticatedMySubscriptionsRoute =
     path: '/my-subscriptions',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDeliveryRoute = AuthenticatedDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -184,9 +190,9 @@ const AuthenticatedMySubscriptionsIdRoute =
   } as any)
 const AuthenticatedDeliveryRegisterRoute =
   AuthenticatedDeliveryRegisterRouteImport.update({
-    id: '/delivery/register',
-    path: '/delivery/register',
-    getParentRoute: () => AuthenticatedRouteRoute,
+    id: '/register',
+    path: '/register',
+    getParentRoute: () => AuthenticatedDeliveryRoute,
   } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/delivery': typeof AuthenticatedDeliveryRouteWithChildren
   '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/wishlist': typeof AuthenticatedWishlistRoute
@@ -260,6 +267,7 @@ export interface FileRoutesByTo {
   '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/delivery': typeof AuthenticatedDeliveryRouteWithChildren
   '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/wishlist': typeof AuthenticatedWishlistRoute
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/_authenticated/addresses': typeof AuthenticatedAddressesRoute
   '/_authenticated/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/delivery': typeof AuthenticatedDeliveryRouteWithChildren
   '/_authenticated/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
@@ -330,6 +339,7 @@ export interface FileRouteTypes {
     | '/addresses'
     | '/become-seller'
     | '/checkout'
+    | '/delivery'
     | '/my-subscriptions'
     | '/orders'
     | '/wishlist'
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/addresses'
     | '/become-seller'
     | '/checkout'
+    | '/delivery'
     | '/my-subscriptions'
     | '/orders'
     | '/wishlist'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/_authenticated/addresses'
     | '/_authenticated/become-seller'
     | '/_authenticated/checkout'
+    | '/_authenticated/delivery'
     | '/_authenticated/my-subscriptions'
     | '/_authenticated/orders'
     | '/_authenticated/wishlist'
@@ -507,6 +519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMySubscriptionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/delivery': {
+      id: '/_authenticated/delivery'
+      path: '/delivery'
+      fullPath: '/delivery'
+      preLoaderRoute: typeof AuthenticatedDeliveryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/checkout': {
       id: '/_authenticated/checkout'
       path: '/checkout'
@@ -614,10 +633,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/delivery/register': {
       id: '/_authenticated/delivery/register'
-      path: '/delivery/register'
+      path: '/register'
       fullPath: '/delivery/register'
       preLoaderRoute: typeof AuthenticatedDeliveryRegisterRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      parentRoute: typeof AuthenticatedDeliveryRoute
     }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
@@ -708,6 +727,19 @@ const AuthenticatedSellerRouteRouteWithChildren =
     AuthenticatedSellerRouteRouteChildren,
   )
 
+interface AuthenticatedDeliveryRouteChildren {
+  AuthenticatedDeliveryRegisterRoute: typeof AuthenticatedDeliveryRegisterRoute
+}
+
+const AuthenticatedDeliveryRouteChildren: AuthenticatedDeliveryRouteChildren = {
+  AuthenticatedDeliveryRegisterRoute: AuthenticatedDeliveryRegisterRoute,
+}
+
+const AuthenticatedDeliveryRouteWithChildren =
+  AuthenticatedDeliveryRoute._addFileChildren(
+    AuthenticatedDeliveryRouteChildren,
+  )
+
 interface AuthenticatedMySubscriptionsRouteChildren {
   AuthenticatedMySubscriptionsIdRoute: typeof AuthenticatedMySubscriptionsIdRoute
 }
@@ -739,10 +771,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAddressesRoute: typeof AuthenticatedAddressesRoute
   AuthenticatedBecomeSellerRoute: typeof AuthenticatedBecomeSellerRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedDeliveryRoute: typeof AuthenticatedDeliveryRouteWithChildren
   AuthenticatedMySubscriptionsRoute: typeof AuthenticatedMySubscriptionsRouteWithChildren
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
-  AuthenticatedDeliveryRegisterRoute: typeof AuthenticatedDeliveryRegisterRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -751,11 +783,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAddressesRoute: AuthenticatedAddressesRoute,
   AuthenticatedBecomeSellerRoute: AuthenticatedBecomeSellerRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedDeliveryRoute: AuthenticatedDeliveryRouteWithChildren,
   AuthenticatedMySubscriptionsRoute:
     AuthenticatedMySubscriptionsRouteWithChildren,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
-  AuthenticatedDeliveryRegisterRoute: AuthenticatedDeliveryRegisterRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
