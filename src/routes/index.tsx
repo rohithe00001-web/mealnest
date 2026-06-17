@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DishCard } from "@/components/DishCard";
+import { CampaignBanners } from "@/components/CampaignBanners";
 import { categoriesQuery, dishesQuery, sellersQuery } from "@/lib/queries";
 import { ArrowRight, MapPin, Sun, Utensils, Moon, Cookie, Coffee, Cake } from "lucide-react";
 import heroImg from "@/assets/hero-thali.jpg";
@@ -37,6 +38,7 @@ function HomePage() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <CampaignBanners />
         <HowItWorks />
         <Suspense fallback={<SectionSkeleton />}>
           <Categories />
