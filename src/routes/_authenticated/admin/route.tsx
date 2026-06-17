@@ -14,6 +14,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/sellers", label: "Sellers", icon: Store },
   { to: "/admin/orders", label: "Orders", icon: ShoppingBag },
   { to: "/admin/subscriptions", label: "Subscriptions", icon: Calendar },
+  { to: "/admin/delivery", label: "Delivery", icon: Truck },
   { to: "/admin/users", label: "Users", icon: Users },
 ];
 
