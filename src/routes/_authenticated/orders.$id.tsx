@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, Circle, Star, MapPin, Phone } from "lucide-rea
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { getOrderDetail, submitReview } from "@/lib/customer.functions";
+import { customerGetAssignment } from "@/lib/delivery.functions";
 import { inr } from "@/lib/format";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
