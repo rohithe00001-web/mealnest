@@ -318,9 +318,12 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
         await context.supabase.from("subscription_deliveries")
           .update({ status: "delivered", delivery_status: "delivered" }).eq("id", a.subscription_delivery_id);
       }
-      await context.supabase.from("delivery_agents")
-        .update({ delivery_count: ((await context.supabase.from("delivery_agents").select("delivery_count").eq("id", a.agent_id).maybeSingle()).data?.delivery_count ?? 0) + 1 })
-        .eq("id", a.agent_id);
+      if (a.agent_id) {
+        const cur = await context.supabase.from("delivery_agents").select("delivery_count").eq("id", a.agent_id).maybeSingle();
+        await context.supabase.from("delivery_agents")
+          .update({ delivery_count: (cur.data?.delivery_count ?? 0) + 1 })
+          .eq("id", a.agent_id);
+      }
     }
     return { ok: true };
   });
