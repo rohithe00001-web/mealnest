@@ -221,7 +221,7 @@ export const assignAgentToOrder = createServerFn({ method: "POST" })
     } else {
       const { error } = await context.supabase.from("delivery_assignments").insert({
         seller_id: sellerId, agent_id: data.agent_id, order_id: data.order_id,
-        customer_id: order.user_id, status: "assigned",
+        customer_id: order.customer_id, status: "assigned",
       });
       if (error) throw new Error(error.message);
     }
