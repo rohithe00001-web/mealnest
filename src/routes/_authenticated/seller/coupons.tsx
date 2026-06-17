@@ -12,11 +12,11 @@ export const Route = createFileRoute("/_authenticated/seller/coupons")({
   component: SellerCouponsPage,
 });
 
-const PRESETS = [
-  { code: "MOMSPECIAL20", type: "percent" as const, val: 20, desc: "20% off any order" },
-  { code: "FIRSTORDER10", type: "percent" as const, val: 10, desc: "First-time customer offer", newCustomersOnly: true },
-  { code: "FREEDEL", type: "free_delivery" as const, val: 0, desc: "Free delivery on us" },
-  { code: "WEEKLY15", type: "percent" as const, val: 15, desc: "15% off weekly plans", applies_to: "subscription" as const },
+const PRESETS: Array<{ code: string; type: "flat" | "percent" | "free_delivery"; val: number; desc: string; newCustomersOnly?: boolean; applies_to?: "order" | "subscription" }> = [
+  { code: "MOMSPECIAL20", type: "percent", val: 20, desc: "20% off any order" },
+  { code: "FIRSTORDER10", type: "percent", val: 10, desc: "First-time customer offer", newCustomersOnly: true },
+  { code: "FREEDEL", type: "free_delivery", val: 0, desc: "Free delivery on us" },
+  { code: "WEEKLY15", type: "percent", val: 15, desc: "15% off weekly plans", applies_to: "subscription" },
 ];
 
 function SellerCouponsPage() {
