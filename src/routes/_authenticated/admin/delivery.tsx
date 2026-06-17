@@ -212,3 +212,132 @@ function Kpi({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
+function MonitoringTab() {
+  const fn = useServerFn(adminLiveAssignments);
+  const cancelFn = useServerFn(adminCancelAssignment);
+  const qc = useQueryClient();
+  const { data: rows = [] } = useQuery({
+    queryKey: ["admin", "live-assignments"], queryFn: () => fn(), refetchInterval: 20_000,
+  });
+  const [selected, setSelected] = useState<string | null>(null);
+  useEffect(() => {
+    const ch = supabase.channel("admin-live-assign")
+      .on("postgres_changes", { event: "*", schema: "public", table: "delivery_assignments" },
+        () => qc.invalidateQueries({ queryKey: ["admin", "live-assignments"] }))
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [qc]);
+  const cancel = useMutation({
+    mutationFn: (v: { assignment_id: string; reason: string }) => cancelFn({ data: v }),
+    onSuccess: () => { toast.success("Cancelled"); qc.invalidateQueries({ queryKey: ["admin", "live-assignments"] }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const focused = rows.find((r: any) => r.id === selected) ?? rows[0];
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <div className="space-y-2 overflow-auto rounded-xl border border-border bg-surface p-2" style={{ maxHeight: 560 }}>
+        {rows.length === 0 && <p className="p-4 text-sm text-muted-foreground">No active deliveries right now.</p>}
+        {rows.map((r: any) => (
+          <button key={r.id} onClick={() => setSelected(r.id)}
+            className={`flex w-full flex-col items-start gap-1 rounded-lg border p-3 text-left text-sm ${focused?.id === r.id ? "border-primary bg-primary/5" : "border-border"}`}>
+            <div className="flex w-full items-center justify-between">
+              <span className="font-medium">{r.orders?.order_number ?? "Subscription"}</span>
+              <span className={`rounded-full px-2 py-0.5 text-xs ${r.status === "picked_up" ? "bg-warning/10 text-warning" : "bg-primary/10 text-primary"}`}>
+                {r.status}
+              </span>
+            </div>
+            <span className="text-xs text-muted-foreground">{r.sellers?.kitchen_name} · {r.delivery_agents?.full_name}</span>
+            <span className="text-xs text-muted-foreground">
+              {r.last_location_at ? `Last ping ${new Date(r.last_location_at).toLocaleTimeString()}` : "No location yet"}
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className="space-y-3">
+        {focused ? (
+          <>
+            <div className="rounded-xl border border-border bg-surface p-4">
+              <p className="font-medium">{focused.orders?.order_number ?? "Subscription"}</p>
+              <p className="text-xs text-muted-foreground">{focused.sellers?.kitchen_name} → {focused.delivery_agents?.full_name}</p>
+              <p className="mt-1 text-xs">Phone: {focused.delivery_agents?.phone ?? "—"}</p>
+            </div>
+            <LiveMap
+              agent={focused.current_lat && focused.current_lng
+                ? { lat: Number(focused.current_lat), lng: Number(focused.current_lng), label: focused.delivery_agents?.full_name }
+                : null}
+              height={280}
+            />
+            <button onClick={() => {
+              const reason = prompt("Cancel reason?") || "";
+              if (reason) cancel.mutate({ assignment_id: focused.id, reason });
+            }} className="inline-flex items-center gap-1.5 rounded-full bg-destructive px-4 py-2 text-xs font-medium text-white">
+              <Ban className="h-3.5 w-3.5" /> Emergency cancel
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">Select a delivery to view live location.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsTab() {
+  const fn = useServerFn(adminDeliveryAnalytics);
+  const { data, isLoading } = useQuery({ queryKey: ["admin", "delivery-analytics"], queryFn: () => fn() });
+  if (isLoading || !data) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  const max = Math.max(1, ...data.series.map((s: any) => s.count));
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <Kpi label="Assignments (30d)" value={data.total_assignments} />
+        <Kpi label="Delivered" value={data.delivered} />
+        <Kpi label="Failed" value={data.failed} />
+        <Kpi label="Success rate" value={`${data.success_rate}%`} />
+        <Kpi label="Avg minutes" value={data.avg_minutes} />
+        <Kpi label="Active agents" value={data.total_agents} />
+      </div>
+      <div className="rounded-xl border border-border bg-surface p-4">
+        <p className="mb-3 text-sm font-medium">Assignments per day</p>
+        <div className="flex items-end gap-1" style={{ height: 140 }}>
+          {data.series.length === 0 && <p className="text-sm text-muted-foreground">No data yet.</p>}
+          {data.series.map((s: any) => (
+            <div key={s.day} className="flex flex-1 flex-col items-center gap-1">
+              <div className="w-full rounded-t bg-primary/70" style={{ height: `${(s.count / max) * 100}%`, minHeight: 2 }} title={`${s.day}: ${s.count}`} />
+              <span className="text-[10px] text-muted-foreground">{s.day.slice(5)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="overflow-x-auto rounded-xl border border-border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="p-3 text-left">Seller</th>
+              <th className="p-3 text-right">Agents</th>
+              <th className="p-3 text-right">Assigned</th>
+              <th className="p-3 text-right">Delivered</th>
+              <th className="p-3 text-right">Failed</th>
+              <th className="p-3 text-right">Success %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.sellers.map((s: any) => (
+              <tr key={s.seller_id} className="border-t border-border">
+                <td className="p-3">{s.kitchen_name}</td>
+                <td className="p-3 text-right">{s.agents}</td>
+                <td className="p-3 text-right">{s.assigned}</td>
+                <td className="p-3 text-right">{s.delivered}</td>
+                <td className="p-3 text-right">{s.failed}</td>
+                <td className="p-3 text-right">{s.success_rate}%</td>
+              </tr>
+            ))}
+            {data.sellers.length === 0 && <tr><td colSpan={6} className="p-4 text-center text-muted-foreground">No data.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
