@@ -7,7 +7,7 @@ export function Footer() {
         <div>
           <h4 className="font-display text-lg font-semibold">MealNest</h4>
           <p className="mt-2 text-sm text-muted-foreground">
-            Homemade meals from neighborhood kitchens, delivered to your door.
+            Homemade Goodness, Delivered Daily. Fresh meals from trusted home chefs in your neighborhood.
           </p>
         </div>
         <div className="text-sm">
