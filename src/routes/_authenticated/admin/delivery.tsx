@@ -1,12 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CheckCircle2, XCircle, PauseCircle, ShieldAlert, Users, MapPin } from "lucide-react";
+import { CheckCircle2, XCircle, PauseCircle, ShieldAlert, Users, MapPin, Radio, BarChart3, Ban } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { LiveMap } from "@/components/LiveMap";
 import {
   adminListAgents, adminApproveAgent, adminSuspendAgent,
   adminListZones, adminApproveZone, adminDeliveryCompliance,
+  adminLiveAssignments, adminDeliveryAnalytics, adminCancelAssignment,
 } from "@/lib/delivery.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/delivery")({
@@ -15,6 +18,8 @@ export const Route = createFileRoute("/_authenticated/admin/delivery")({
 
 const TABS = [
   { id: "agents", label: "Agents", icon: Users },
+  { id: "monitoring", label: "Live monitoring", icon: Radio },
+  { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "zones", label: "Zones", icon: MapPin },
   { id: "compliance", label: "Compliance", icon: ShieldAlert },
 ] as const;
