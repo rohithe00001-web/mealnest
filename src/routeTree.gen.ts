@@ -9,14 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MealPlansRouteImport } from './routes/meal-plans'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as BrowseRouteImport } from './routes/browse'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MealPlansIdRouteImport } from './routes/meal-plans.$id'
 import { Route as DishIdRouteImport } from './routes/dish.$id'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as AuthenticatedMySubscriptionsRouteImport } from './routes/_authenticated/my-subscriptions'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedBecomeSellerRouteImport } from './routes/_authenticated/become-seller'
 import { Route as AuthenticatedAddressesRouteImport } from './routes/_authenticated/addresses'
@@ -24,14 +27,23 @@ import { Route as AuthenticatedSellerRouteRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authenticated/admin/route'
 import { Route as AuthenticatedSellerIndexRouteImport } from './routes/_authenticated/seller/index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as AuthenticatedSellerSubscriptionsRouteImport } from './routes/_authenticated/seller/subscriptions'
 import { Route as AuthenticatedSellerOrdersRouteImport } from './routes/_authenticated/seller/orders'
+import { Route as AuthenticatedSellerMealPlansRouteImport } from './routes/_authenticated/seller/meal-plans'
 import { Route as AuthenticatedSellerDishesRouteImport } from './routes/_authenticated/seller/dishes'
 import { Route as AuthenticatedSellerAnalyticsRouteImport } from './routes/_authenticated/seller/analytics'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
+import { Route as AuthenticatedMySubscriptionsIdRouteImport } from './routes/_authenticated/my-subscriptions.$id'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin/users'
+import { Route as AuthenticatedAdminSubscriptionsRouteImport } from './routes/_authenticated/admin/subscriptions'
 import { Route as AuthenticatedAdminSellersRouteImport } from './routes/_authenticated/admin/sellers'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin/orders'
 
+const MealPlansRoute = MealPlansRouteImport.update({
+  id: '/meal-plans',
+  path: '/meal-plans',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -56,6 +68,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MealPlansIdRoute = MealPlansIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MealPlansRoute,
+} as any)
 const DishIdRoute = DishIdRouteImport.update({
   id: '/dish/$id',
   path: '/dish/$id',
@@ -71,6 +88,12 @@ const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMySubscriptionsRoute =
+  AuthenticatedMySubscriptionsRouteImport.update({
+    id: '/my-subscriptions',
+    path: '/my-subscriptions',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   id: '/checkout',
   path: '/checkout',
@@ -109,10 +132,22 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedSellerSubscriptionsRoute =
+  AuthenticatedSellerSubscriptionsRouteImport.update({
+    id: '/subscriptions',
+    path: '/subscriptions',
+    getParentRoute: () => AuthenticatedSellerRouteRoute,
+  } as any)
 const AuthenticatedSellerOrdersRoute =
   AuthenticatedSellerOrdersRouteImport.update({
     id: '/orders',
     path: '/orders',
+    getParentRoute: () => AuthenticatedSellerRouteRoute,
+  } as any)
+const AuthenticatedSellerMealPlansRoute =
+  AuthenticatedSellerMealPlansRouteImport.update({
+    id: '/meal-plans',
+    path: '/meal-plans',
     getParentRoute: () => AuthenticatedSellerRouteRoute,
   } as any)
 const AuthenticatedSellerDishesRoute =
@@ -132,11 +167,23 @@ const AuthenticatedOrdersIdRoute = AuthenticatedOrdersIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedOrdersRoute,
 } as any)
+const AuthenticatedMySubscriptionsIdRoute =
+  AuthenticatedMySubscriptionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedMySubscriptionsRoute,
+  } as any)
 const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminSubscriptionsRoute =
+  AuthenticatedAdminSubscriptionsRouteImport.update({
+    id: '/subscriptions',
+    path: '/subscriptions',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
 const AuthenticatedAdminSellersRoute =
   AuthenticatedAdminSellersRouteImport.update({
     id: '/sellers',
@@ -155,21 +202,28 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
+  '/meal-plans': typeof MealPlansRouteWithChildren
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/seller': typeof AuthenticatedSellerRouteRouteWithChildren
   '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
+  '/meal-plans/$id': typeof MealPlansIdRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
   '/seller/dishes': typeof AuthenticatedSellerDishesRoute
+  '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/seller/orders': typeof AuthenticatedSellerOrdersRoute
+  '/seller/subscriptions': typeof AuthenticatedSellerSubscriptionsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/seller/': typeof AuthenticatedSellerIndexRoute
 }
@@ -178,19 +232,26 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
+  '/meal-plans': typeof MealPlansRouteWithChildren
   '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
+  '/meal-plans/$id': typeof MealPlansIdRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/sellers': typeof AuthenticatedAdminSellersRoute
+  '/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
   '/seller/dishes': typeof AuthenticatedSellerDishesRoute
+  '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/seller/orders': typeof AuthenticatedSellerOrdersRoute
+  '/seller/subscriptions': typeof AuthenticatedSellerSubscriptionsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/seller': typeof AuthenticatedSellerIndexRoute
 }
@@ -201,21 +262,28 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
+  '/meal-plans': typeof MealPlansRouteWithChildren
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/seller': typeof AuthenticatedSellerRouteRouteWithChildren
   '/_authenticated/addresses': typeof AuthenticatedAddressesRoute
   '/_authenticated/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
+  '/_authenticated/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
+  '/meal-plans/$id': typeof MealPlansIdRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/sellers': typeof AuthenticatedAdminSellersRoute
+  '/_authenticated/admin/subscriptions': typeof AuthenticatedAdminSubscriptionsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
+  '/_authenticated/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
   '/_authenticated/seller/dishes': typeof AuthenticatedSellerDishesRoute
+  '/_authenticated/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/_authenticated/seller/orders': typeof AuthenticatedSellerOrdersRoute
+  '/_authenticated/seller/subscriptions': typeof AuthenticatedSellerSubscriptionsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
 }
@@ -226,21 +294,28 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/cart'
+    | '/meal-plans'
     | '/admin'
     | '/seller'
     | '/addresses'
     | '/become-seller'
     | '/checkout'
+    | '/my-subscriptions'
     | '/orders'
     | '/wishlist'
     | '/dish/$id'
+    | '/meal-plans/$id'
     | '/admin/orders'
     | '/admin/sellers'
+    | '/admin/subscriptions'
     | '/admin/users'
+    | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
     | '/seller/dishes'
+    | '/seller/meal-plans'
     | '/seller/orders'
+    | '/seller/subscriptions'
     | '/admin/'
     | '/seller/'
   fileRoutesByTo: FileRoutesByTo
@@ -249,19 +324,26 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/cart'
+    | '/meal-plans'
     | '/addresses'
     | '/become-seller'
     | '/checkout'
+    | '/my-subscriptions'
     | '/orders'
     | '/wishlist'
     | '/dish/$id'
+    | '/meal-plans/$id'
     | '/admin/orders'
     | '/admin/sellers'
+    | '/admin/subscriptions'
     | '/admin/users'
+    | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
     | '/seller/dishes'
+    | '/seller/meal-plans'
     | '/seller/orders'
+    | '/seller/subscriptions'
     | '/admin'
     | '/seller'
   id:
@@ -271,21 +353,28 @@ export interface FileRouteTypes {
     | '/auth'
     | '/browse'
     | '/cart'
+    | '/meal-plans'
     | '/_authenticated/admin'
     | '/_authenticated/seller'
     | '/_authenticated/addresses'
     | '/_authenticated/become-seller'
     | '/_authenticated/checkout'
+    | '/_authenticated/my-subscriptions'
     | '/_authenticated/orders'
     | '/_authenticated/wishlist'
     | '/dish/$id'
+    | '/meal-plans/$id'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/sellers'
+    | '/_authenticated/admin/subscriptions'
     | '/_authenticated/admin/users'
+    | '/_authenticated/my-subscriptions/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/seller/analytics'
     | '/_authenticated/seller/dishes'
+    | '/_authenticated/seller/meal-plans'
     | '/_authenticated/seller/orders'
+    | '/_authenticated/seller/subscriptions'
     | '/_authenticated/admin/'
     | '/_authenticated/seller/'
   fileRoutesById: FileRoutesById
@@ -296,11 +385,19 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BrowseRoute: typeof BrowseRoute
   CartRoute: typeof CartRoute
+  MealPlansRoute: typeof MealPlansRouteWithChildren
   DishIdRoute: typeof DishIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/meal-plans': {
+      id: '/meal-plans'
+      path: '/meal-plans'
+      fullPath: '/meal-plans'
+      preLoaderRoute: typeof MealPlansRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cart': {
       id: '/cart'
       path: '/cart'
@@ -336,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/meal-plans/$id': {
+      id: '/meal-plans/$id'
+      path: '/$id'
+      fullPath: '/meal-plans/$id'
+      preLoaderRoute: typeof MealPlansIdRouteImport
+      parentRoute: typeof MealPlansRoute
+    }
     '/dish/$id': {
       id: '/dish/$id'
       path: '/dish/$id'
@@ -355,6 +459,13 @@ declare module '@tanstack/react-router' {
       path: '/orders'
       fullPath: '/orders'
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/my-subscriptions': {
+      id: '/_authenticated/my-subscriptions'
+      path: '/my-subscriptions'
+      fullPath: '/my-subscriptions'
+      preLoaderRoute: typeof AuthenticatedMySubscriptionsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/checkout': {
@@ -406,11 +517,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/seller/subscriptions': {
+      id: '/_authenticated/seller/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/seller/subscriptions'
+      preLoaderRoute: typeof AuthenticatedSellerSubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedSellerRouteRoute
+    }
     '/_authenticated/seller/orders': {
       id: '/_authenticated/seller/orders'
       path: '/orders'
       fullPath: '/seller/orders'
       preLoaderRoute: typeof AuthenticatedSellerOrdersRouteImport
+      parentRoute: typeof AuthenticatedSellerRouteRoute
+    }
+    '/_authenticated/seller/meal-plans': {
+      id: '/_authenticated/seller/meal-plans'
+      path: '/meal-plans'
+      fullPath: '/seller/meal-plans'
+      preLoaderRoute: typeof AuthenticatedSellerMealPlansRouteImport
       parentRoute: typeof AuthenticatedSellerRouteRoute
     }
     '/_authenticated/seller/dishes': {
@@ -434,11 +559,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersIdRouteImport
       parentRoute: typeof AuthenticatedOrdersRoute
     }
+    '/_authenticated/my-subscriptions/$id': {
+      id: '/_authenticated/my-subscriptions/$id'
+      path: '/$id'
+      fullPath: '/my-subscriptions/$id'
+      preLoaderRoute: typeof AuthenticatedMySubscriptionsIdRouteImport
+      parentRoute: typeof AuthenticatedMySubscriptionsRoute
+    }
     '/_authenticated/admin/users': {
       id: '/_authenticated/admin/users'
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/subscriptions': {
+      id: '/_authenticated/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AuthenticatedAdminSubscriptionsRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
     '/_authenticated/admin/sellers': {
@@ -461,6 +600,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteRouteChildren {
   AuthenticatedAdminOrdersRoute: typeof AuthenticatedAdminOrdersRoute
   AuthenticatedAdminSellersRoute: typeof AuthenticatedAdminSellersRoute
+  AuthenticatedAdminSubscriptionsRoute: typeof AuthenticatedAdminSubscriptionsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
@@ -469,6 +609,7 @@ const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren
   {
     AuthenticatedAdminOrdersRoute: AuthenticatedAdminOrdersRoute,
     AuthenticatedAdminSellersRoute: AuthenticatedAdminSellersRoute,
+    AuthenticatedAdminSubscriptionsRoute: AuthenticatedAdminSubscriptionsRoute,
     AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
     AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
   }
@@ -481,7 +622,9 @@ const AuthenticatedAdminRouteRouteWithChildren =
 interface AuthenticatedSellerRouteRouteChildren {
   AuthenticatedSellerAnalyticsRoute: typeof AuthenticatedSellerAnalyticsRoute
   AuthenticatedSellerDishesRoute: typeof AuthenticatedSellerDishesRoute
+  AuthenticatedSellerMealPlansRoute: typeof AuthenticatedSellerMealPlansRoute
   AuthenticatedSellerOrdersRoute: typeof AuthenticatedSellerOrdersRoute
+  AuthenticatedSellerSubscriptionsRoute: typeof AuthenticatedSellerSubscriptionsRoute
   AuthenticatedSellerIndexRoute: typeof AuthenticatedSellerIndexRoute
 }
 
@@ -489,13 +632,30 @@ const AuthenticatedSellerRouteRouteChildren: AuthenticatedSellerRouteRouteChildr
   {
     AuthenticatedSellerAnalyticsRoute: AuthenticatedSellerAnalyticsRoute,
     AuthenticatedSellerDishesRoute: AuthenticatedSellerDishesRoute,
+    AuthenticatedSellerMealPlansRoute: AuthenticatedSellerMealPlansRoute,
     AuthenticatedSellerOrdersRoute: AuthenticatedSellerOrdersRoute,
+    AuthenticatedSellerSubscriptionsRoute:
+      AuthenticatedSellerSubscriptionsRoute,
     AuthenticatedSellerIndexRoute: AuthenticatedSellerIndexRoute,
   }
 
 const AuthenticatedSellerRouteRouteWithChildren =
   AuthenticatedSellerRouteRoute._addFileChildren(
     AuthenticatedSellerRouteRouteChildren,
+  )
+
+interface AuthenticatedMySubscriptionsRouteChildren {
+  AuthenticatedMySubscriptionsIdRoute: typeof AuthenticatedMySubscriptionsIdRoute
+}
+
+const AuthenticatedMySubscriptionsRouteChildren: AuthenticatedMySubscriptionsRouteChildren =
+  {
+    AuthenticatedMySubscriptionsIdRoute: AuthenticatedMySubscriptionsIdRoute,
+  }
+
+const AuthenticatedMySubscriptionsRouteWithChildren =
+  AuthenticatedMySubscriptionsRoute._addFileChildren(
+    AuthenticatedMySubscriptionsRouteChildren,
   )
 
 interface AuthenticatedOrdersRouteChildren {
@@ -515,6 +675,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAddressesRoute: typeof AuthenticatedAddressesRoute
   AuthenticatedBecomeSellerRoute: typeof AuthenticatedBecomeSellerRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
+  AuthenticatedMySubscriptionsRoute: typeof AuthenticatedMySubscriptionsRouteWithChildren
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
 }
@@ -525,6 +686,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAddressesRoute: AuthenticatedAddressesRoute,
   AuthenticatedBecomeSellerRoute: AuthenticatedBecomeSellerRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
+  AuthenticatedMySubscriptionsRoute:
+    AuthenticatedMySubscriptionsRouteWithChildren,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
 }
@@ -532,12 +695,25 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface MealPlansRouteChildren {
+  MealPlansIdRoute: typeof MealPlansIdRoute
+}
+
+const MealPlansRouteChildren: MealPlansRouteChildren = {
+  MealPlansIdRoute: MealPlansIdRoute,
+}
+
+const MealPlansRouteWithChildren = MealPlansRoute._addFileChildren(
+  MealPlansRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   BrowseRoute: BrowseRoute,
   CartRoute: CartRoute,
+  MealPlansRoute: MealPlansRouteWithChildren,
   DishIdRoute: DishIdRoute,
 }
 export const routeTree = rootRouteImport
