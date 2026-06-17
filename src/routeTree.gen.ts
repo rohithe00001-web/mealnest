@@ -31,6 +31,7 @@ import { Route as AuthenticatedSellerSubscriptionsRouteImport } from './routes/_
 import { Route as AuthenticatedSellerOrdersRouteImport } from './routes/_authenticated/seller/orders'
 import { Route as AuthenticatedSellerMealPlansRouteImport } from './routes/_authenticated/seller/meal-plans'
 import { Route as AuthenticatedSellerDishesRouteImport } from './routes/_authenticated/seller/dishes'
+import { Route as AuthenticatedSellerDeliveryRouteImport } from './routes/_authenticated/seller/delivery'
 import { Route as AuthenticatedSellerAnalyticsRouteImport } from './routes/_authenticated/seller/analytics'
 import { Route as AuthenticatedOrdersIdRouteImport } from './routes/_authenticated/orders.$id'
 import { Route as AuthenticatedMySubscriptionsIdRouteImport } from './routes/_authenticated/my-subscriptions.$id'
@@ -157,6 +158,12 @@ const AuthenticatedSellerDishesRoute =
     path: '/dishes',
     getParentRoute: () => AuthenticatedSellerRouteRoute,
   } as any)
+const AuthenticatedSellerDeliveryRoute =
+  AuthenticatedSellerDeliveryRouteImport.update({
+    id: '/delivery',
+    path: '/delivery',
+    getParentRoute: () => AuthenticatedSellerRouteRoute,
+  } as any)
 const AuthenticatedSellerAnalyticsRoute =
   AuthenticatedSellerAnalyticsRouteImport.update({
     id: '/analytics',
@@ -228,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
+  '/seller/delivery': typeof AuthenticatedSellerDeliveryRoute
   '/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/seller/orders': typeof AuthenticatedSellerOrdersRoute
@@ -257,6 +265,7 @@ export interface FileRoutesByTo {
   '/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
+  '/seller/delivery': typeof AuthenticatedSellerDeliveryRoute
   '/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/seller/orders': typeof AuthenticatedSellerOrdersRoute
@@ -290,6 +299,7 @@ export interface FileRoutesById {
   '/_authenticated/my-subscriptions/$id': typeof AuthenticatedMySubscriptionsIdRoute
   '/_authenticated/orders/$id': typeof AuthenticatedOrdersIdRoute
   '/_authenticated/seller/analytics': typeof AuthenticatedSellerAnalyticsRoute
+  '/_authenticated/seller/delivery': typeof AuthenticatedSellerDeliveryRoute
   '/_authenticated/seller/dishes': typeof AuthenticatedSellerDishesRoute
   '/_authenticated/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/_authenticated/seller/orders': typeof AuthenticatedSellerOrdersRoute
@@ -323,6 +333,7 @@ export interface FileRouteTypes {
     | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
+    | '/seller/delivery'
     | '/seller/dishes'
     | '/seller/meal-plans'
     | '/seller/orders'
@@ -352,6 +363,7 @@ export interface FileRouteTypes {
     | '/my-subscriptions/$id'
     | '/orders/$id'
     | '/seller/analytics'
+    | '/seller/delivery'
     | '/seller/dishes'
     | '/seller/meal-plans'
     | '/seller/orders'
@@ -384,6 +396,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-subscriptions/$id'
     | '/_authenticated/orders/$id'
     | '/_authenticated/seller/analytics'
+    | '/_authenticated/seller/delivery'
     | '/_authenticated/seller/dishes'
     | '/_authenticated/seller/meal-plans'
     | '/_authenticated/seller/orders'
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedSellerDishesRouteImport
       parentRoute: typeof AuthenticatedSellerRouteRoute
     }
+    '/_authenticated/seller/delivery': {
+      id: '/_authenticated/seller/delivery'
+      path: '/delivery'
+      fullPath: '/seller/delivery'
+      preLoaderRoute: typeof AuthenticatedSellerDeliveryRouteImport
+      parentRoute: typeof AuthenticatedSellerRouteRoute
+    }
     '/_authenticated/seller/analytics': {
       id: '/_authenticated/seller/analytics'
       path: '/analytics'
@@ -641,6 +661,7 @@ const AuthenticatedAdminRouteRouteWithChildren =
 
 interface AuthenticatedSellerRouteRouteChildren {
   AuthenticatedSellerAnalyticsRoute: typeof AuthenticatedSellerAnalyticsRoute
+  AuthenticatedSellerDeliveryRoute: typeof AuthenticatedSellerDeliveryRoute
   AuthenticatedSellerDishesRoute: typeof AuthenticatedSellerDishesRoute
   AuthenticatedSellerMealPlansRoute: typeof AuthenticatedSellerMealPlansRoute
   AuthenticatedSellerOrdersRoute: typeof AuthenticatedSellerOrdersRoute
@@ -651,6 +672,7 @@ interface AuthenticatedSellerRouteRouteChildren {
 const AuthenticatedSellerRouteRouteChildren: AuthenticatedSellerRouteRouteChildren =
   {
     AuthenticatedSellerAnalyticsRoute: AuthenticatedSellerAnalyticsRoute,
+    AuthenticatedSellerDeliveryRoute: AuthenticatedSellerDeliveryRoute,
     AuthenticatedSellerDishesRoute: AuthenticatedSellerDishesRoute,
     AuthenticatedSellerMealPlansRoute: AuthenticatedSellerMealPlansRoute,
     AuthenticatedSellerOrdersRoute: AuthenticatedSellerOrdersRoute,
