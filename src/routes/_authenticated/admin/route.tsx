@@ -63,7 +63,7 @@ function AdminLayout() {
       <div className="container-page flex-1 py-8">
         <div className="mb-6 flex items-center justify-between gap-4">
           <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">HomeBite</p>
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">MealNest</p>
             <h1 className="font-display text-3xl font-semibold sm:text-4xl">Admin panel</h1>
           </div>
         </div>

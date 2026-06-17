@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * HomeBite design system.
+ * MealNest design system.
  * Warm cream + deep ink + terracotta. Editorial, minimal, food-forward.
  * All colors are oklch tokens; never hardcode color utilities in components.
  */
@@ -65,8 +65,8 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.22 0.025 55);
 
-  /* terracotta — primary action */
-  --primary: oklch(0.58 0.165 36);
+  /* MealNest warm orange — primary action (#FF7A00) */
+  --primary: oklch(0.70 0.19 50);
   --primary-foreground: oklch(0.985 0.01 80);
 
   /* warm sand secondary */
@@ -76,8 +76,9 @@
   --muted: oklch(0.945 0.018 75);
   --muted-foreground: oklch(0.48 0.025 60);
 
-  --accent: oklch(0.78 0.13 75);
-  --accent-foreground: oklch(0.22 0.03 55);
+  /* fresh green accent (#2E7D32) */
+  --accent: oklch(0.51 0.13 145);
+  --accent-foreground: oklch(0.985 0.01 80);
 
   --destructive: oklch(0.55 0.21 27);
   --destructive-foreground: oklch(0.985 0.01 80);

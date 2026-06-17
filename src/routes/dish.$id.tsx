@@ -18,12 +18,12 @@ export const Route = createFileRoute("/dish/$id")({
   },
   head: ({ loaderData }) => {
     const d: any = loaderData;
-    if (!d) return { meta: [{ title: "Dish — HomeBite" }] };
-    const title = `${d.name} from ${d.sellers?.kitchen_name ?? "HomeBite"}`;
-    const desc = d.description?.slice(0, 155) ?? `Order ${d.name} fresh from a neighborhood kitchen on HomeBite.`;
+    if (!d) return { meta: [{ title: "Dish — MealNest" }] };
+    const title = `${d.name} from ${d.sellers?.kitchen_name ?? "MealNest"}`;
+    const desc = d.description?.slice(0, 155) ?? `Order ${d.name} fresh from a neighborhood kitchen on MealNest.`;
     return {
       meta: [
-        { title: `${title} — HomeBite` },
+        { title: `${title} — MealNest` },
         { name: "description", content: desc },
         { property: "og:title", content: title },
         { property: "og:description", content: desc },

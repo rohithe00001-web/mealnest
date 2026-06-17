@@ -12,9 +12,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/meal-plans")({
   head: () => ({
     meta: [
-      { title: "Meal Plans — Weekly, 15-Day & Monthly Subscriptions | HomeBite" },
+      { title: "Meal Plans — Weekly, 15-Day & Monthly Subscriptions | MealNest" },
       { name: "description", content: "Subscribe to homemade meal plans from local kitchens. Choose weekly, 15-day or monthly plans with daily delivery." },
-      { property: "og:title", content: "HomeBite Meal Subscriptions" },
+      { property: "og:title", content: "MealNest Meal Subscriptions" },
       { property: "og:description", content: "Daily homemade meals, delivered. Weekly / 15-day / monthly plans." },
     ],
   }),

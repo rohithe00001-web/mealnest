@@ -45,7 +45,7 @@ function SellerLayout() {
         <main className="container-page flex-1 py-16">
           <div className="max-w-md rounded-2xl border border-border bg-surface p-8">
             <h1 className="font-display text-2xl font-semibold">Become a seller</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Apply to open your home kitchen on HomeBite.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Apply to open your home kitchen on MealNest.</p>
             <Link to="/become-seller" className="mt-6 inline-flex h-11 items-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground">
               Start application
             </Link>

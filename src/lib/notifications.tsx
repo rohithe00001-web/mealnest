@@ -34,7 +34,7 @@ const STATUS_LABEL: Record<string, string> = {
   rejected: "Order rejected",
 };
 
-function storageKey(uid: string) { return `homebite.notifs.${uid}`; }
+function storageKey(uid: string) { return `mealnest.notifs.${uid}`; }
 
 export function NotificationsProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
