@@ -596,3 +596,87 @@ export const adminDeliveryCompliance = createServerFn({ method: "GET" })
       low_rated: lowRating.data ?? [],
     };
   });
+
+// ─────────── Phase 4: Admin monitoring & analytics ───────────
+export const adminLiveAssignments = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { data } = await context.supabase
+      .from("delivery_assignments")
+      .select("id, status, assigned_at, picked_up_at, delivered_at, current_lat, current_lng, last_location_at, seller_id, agent_id, sellers(kitchen_name), delivery_agents(full_name, phone), orders(order_number, total)")
+      .in("status", ["assigned", "picked_up"])
+      .order("assigned_at", { ascending: false })
+      .limit(100);
+    return data ?? [];
+  });
+
+export const adminDeliveryAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const since = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+    const [assigns, sellersAgg] = await Promise.all([
+      context.supabase.from("delivery_assignments")
+        .select("status, assigned_at, delivered_at, seller_id, sellers(kitchen_name)")
+        .gte("assigned_at", since),
+      context.supabase.from("delivery_agents")
+        .select("seller_id, status, rating_avg, delivery_count, sellers(kitchen_name)"),
+    ]);
+    const rows = assigns.data ?? [];
+    const total = rows.length;
+    const delivered = rows.filter((r: any) => r.status === "delivered");
+    const failed = rows.filter((r: any) => r.status === "failed").length;
+    const avgMin = delivered.length
+      ? Math.round(delivered.reduce((s, r: any) => s + (new Date(r.delivered_at).getTime() - new Date(r.assigned_at).getTime()) / 60000, 0) / delivered.length)
+      : 0;
+    // Per-seller breakdown
+    const sellerMap = new Map<string, any>();
+    rows.forEach((r: any) => {
+      const k = r.seller_id;
+      const cur = sellerMap.get(k) ?? { seller_id: k, kitchen_name: r.sellers?.kitchen_name, assigned: 0, delivered: 0, failed: 0 };
+      cur.assigned++;
+      if (r.status === "delivered") cur.delivered++;
+      if (r.status === "failed") cur.failed++;
+      sellerMap.set(k, cur);
+    });
+    // Daily series
+    const byDay = new Map<string, number>();
+    rows.forEach((r: any) => {
+      const d = new Date(r.assigned_at).toISOString().slice(0, 10);
+      byDay.set(d, (byDay.get(d) ?? 0) + 1);
+    });
+    const series = Array.from(byDay.entries()).sort().map(([day, count]) => ({ day, count }));
+    // Agent counts per seller
+    const agentSeller = new Map<string, number>();
+    (sellersAgg.data ?? []).forEach((a: any) => {
+      agentSeller.set(a.seller_id, (agentSeller.get(a.seller_id) ?? 0) + 1);
+    });
+    const sellers = Array.from(sellerMap.values()).map((s) => ({
+      ...s, agents: agentSeller.get(s.seller_id) ?? 0,
+      success_rate: s.assigned ? Math.round((s.delivered / s.assigned) * 100) : 0,
+    })).sort((a, b) => b.assigned - a.assigned);
+    return {
+      total_assignments: total,
+      delivered: delivered.length,
+      failed,
+      success_rate: total ? Math.round((delivered.length / total) * 100) : 0,
+      avg_minutes: avgMin,
+      total_agents: sellersAgg.data?.length ?? 0,
+      series,
+      sellers,
+    };
+  });
+
+// Admin emergency: force-cancel assignment (frees order for reassignment)
+export const adminCancelAssignment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ assignment_id: z.string().uuid(), reason: z.string().min(2) }).parse(d))
+  .handler(async ({ data, context }) => {
+    await requireAdmin(context.supabase, context.userId);
+    const { error } = await context.supabase.from("delivery_assignments")
+      .update({ status: "cancelled", failed_reason: data.reason }).eq("id", data.assignment_id);
+    if (error) throw new Error(error.message);
+    await logAudit(context.supabase, context.userId, "admin", "emergency_cancel", "assignment", data.assignment_id, { reason: data.reason });
+    return { ok: true };
+  });
