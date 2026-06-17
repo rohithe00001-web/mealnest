@@ -151,7 +151,7 @@ export const previewCoupon = createServerFn({ method: "POST" })
     const { data: rows, error } = await context.supabase.rpc("validate_coupon", {
       _code: data.code,
       _user: context.userId,
-      _seller: data.sellerId ?? null,
+      _seller: (data.sellerId ?? null) as any,
       _order_total: data.orderTotal,
       _kind: data.kind,
     });
