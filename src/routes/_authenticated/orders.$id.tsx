@@ -49,8 +49,15 @@ function OrderDetailPage() {
         toast.success("Order updated");
       })
       .subscribe();
+    const ch2 = supabase
+      .channel(`order-${id}-assignment`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "delivery_assignments", filter: `order_id=eq.${id}` }, () => {
+        qc.invalidateQueries({ queryKey: ["order", id, "assignment"] });
+      })
+      .subscribe();
     return () => {
       supabase.removeChannel(ch);
+      supabase.removeChannel(ch2);
     };
   }, [id, qc]);
 
