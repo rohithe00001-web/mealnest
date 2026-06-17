@@ -18,6 +18,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as MealPlansIdRouteImport } from './routes/meal-plans.$id'
 import { Route as DishIdRouteImport } from './routes/dish.$id'
 import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticated/wishlist'
+import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedMySubscriptionsRouteImport } from './routes/_authenticated/my-subscriptions'
 import { Route as AuthenticatedDeliveryRouteImport } from './routes/_authenticated/delivery'
@@ -88,6 +89,11 @@ const DishIdRoute = DishIdRouteImport.update({
 const AuthenticatedWishlistRoute = AuthenticatedWishlistRouteImport.update({
   id: '/wishlist',
   path: '/wishlist',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRewardsRoute = AuthenticatedRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
@@ -259,6 +265,7 @@ export interface FileRoutesByFullPath {
   '/delivery': typeof AuthenticatedDeliveryRouteWithChildren
   '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/rewards': typeof AuthenticatedRewardsRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
@@ -293,6 +300,7 @@ export interface FileRoutesByTo {
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/rewards': typeof AuthenticatedRewardsRoute
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
@@ -332,6 +340,7 @@ export interface FileRoutesById {
   '/_authenticated/delivery': typeof AuthenticatedDeliveryRouteWithChildren
   '/_authenticated/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
+  '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
@@ -371,6 +380,7 @@ export interface FileRouteTypes {
     | '/delivery'
     | '/my-subscriptions'
     | '/orders'
+    | '/rewards'
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/my-subscriptions'
     | '/orders'
+    | '/rewards'
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
@@ -443,6 +454,7 @@ export interface FileRouteTypes {
     | '/_authenticated/delivery'
     | '/_authenticated/my-subscriptions'
     | '/_authenticated/orders'
+    | '/_authenticated/rewards'
     | '/_authenticated/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
@@ -540,6 +552,13 @@ declare module '@tanstack/react-router' {
       path: '/wishlist'
       fullPath: '/wishlist'
       preLoaderRoute: typeof AuthenticatedWishlistRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/rewards': {
+      id: '/_authenticated/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof AuthenticatedRewardsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/orders': {
@@ -838,6 +857,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDeliveryRoute: typeof AuthenticatedDeliveryRouteWithChildren
   AuthenticatedMySubscriptionsRoute: typeof AuthenticatedMySubscriptionsRouteWithChildren
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
+  AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedWishlistRoute: typeof AuthenticatedWishlistRoute
 }
 
@@ -851,6 +871,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMySubscriptionsRoute:
     AuthenticatedMySubscriptionsRouteWithChildren,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,
+  AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedWishlistRoute: AuthenticatedWishlistRoute,
 }
 
@@ -881,13 +902,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -699,6 +699,83 @@ export type Database = {
           },
         ]
       }
+      loyalty_accounts: {
+        Row: {
+          coins_balance: number
+          created_at: string
+          current_streak: number
+          last_order_date: string | null
+          lifetime_coins: number
+          longest_streak: number
+          total_orders: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coins_balance?: number
+          created_at?: string
+          current_streak?: number
+          last_order_date?: string | null
+          lifetime_coins?: number
+          longest_streak?: number
+          total_orders?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coins_balance?: number
+          created_at?: string
+          current_streak?: number
+          last_order_date?: string | null
+          lifetime_coins?: number
+          longest_streak?: number
+          total_orders?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      loyalty_transactions: {
+        Row: {
+          created_at: string
+          delta: number
+          description: string | null
+          id: string
+          kind: string
+          metadata: Json
+          order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delta: number
+          description?: string | null
+          id?: string
+          kind: string
+          metadata?: Json
+          order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delta?: number
+          description?: string | null
+          id?: string
+          kind?: string
+          metadata?: Json
+          order_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           dish_id: string
@@ -847,8 +924,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          anniversary: string | null
           avatar_url: string | null
           created_at: string
+          dob: string | null
           full_name: string | null
           id: string
           is_blocked: boolean
@@ -856,8 +935,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anniversary?: string | null
           avatar_url?: string | null
           created_at?: string
+          dob?: string | null
           full_name?: string | null
           id: string
           is_blocked?: boolean
@@ -865,13 +946,48 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anniversary?: string | null
           avatar_url?: string | null
           created_at?: string
+          dob?: string | null
           full_name?: string | null
           id?: string
           is_blocked?: boolean
           phone?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          referred_id: string
+          referrer_id: string
+          reward_coins: number
+          rewarded_at: string | null
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          referred_id: string
+          referrer_id: string
+          reward_coins?: number
+          rewarded_at?: string | null
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_coins?: number
+          rewarded_at?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -1293,6 +1409,27 @@ export type Database = {
           },
         ]
       }
+      user_referral_codes: {
+        Row: {
+          code: string
+          created_at: string
+          user_id: string
+          uses_count: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          user_id: string
+          uses_count?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          user_id?: string
+          uses_count?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1355,12 +1492,29 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_referral_code: {
+        Args: { _code: string; _user: string }
+        Returns: {
+          reason: string
+          success: boolean
+        }[]
+      }
+      ensure_loyalty_account: { Args: { _user: string }; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_coins_for_coupon: {
+        Args: { _coins: number; _user: string }
+        Returns: {
+          code: string
+          discount: number
+          reason: string
+          success: boolean
+        }[]
       }
       redeem_coupon: {
         Args: {
