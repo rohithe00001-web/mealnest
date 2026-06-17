@@ -69,8 +69,8 @@ export const placeOrder = createServerFn({ method: "POST" })
         _user: userId,
         _seller: data.sellerId,
         _order_total: subtotal,
-        _order_id: null,
-        _subscription_id: null,
+        _order_id: null as any,
+        _subscription_id: null as any,
         _kind: "order",
       });
       if (rErr) throw new Error(rErr.message);
