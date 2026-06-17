@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useState } from "react";
-import { Calendar, Leaf, Star, Clock } from "lucide-react";
+import { Calendar, Leaf, Star, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { listSubscriptionMarketplace } from "@/lib/subscriptions.functions";
+import { listSubscriptionMarketplace, aiRecommendPlans } from "@/lib/subscriptions.functions";
 import { inr } from "@/lib/format";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/meal-plans")({
   head: () => ({
@@ -22,12 +23,20 @@ export const Route = createFileRoute("/meal-plans")({
 
 function MealPlansBrowse() {
   const listFn = useServerFn(listSubscriptionMarketplace);
+  const recFn = useServerFn(aiRecommendPlans);
   const [planType, setPlanType] = useState<"" | "weekly" | "half_month" | "monthly">("");
   const [vegOnly, setVegOnly] = useState(false);
   const { data: plans = [], isLoading } = useQuery({
     queryKey: ["meal-plans", planType, vegOnly],
     queryFn: () => listFn({ data: { plan_type: (planType || undefined) as any, is_veg: vegOnly || undefined } }),
   });
+  const recMut = useMutation({
+    mutationFn: () => recFn(),
+    onError: (e: any) => toast.error(e.message ?? "Could not generate recommendations"),
+  });
+  const recById = new Map<string, string>(
+    (recMut.data?.recommendations ?? []).map((r: any) => [r.plan_id, r.reason]),
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -64,7 +73,23 @@ function MealPlansBrowse() {
           >
             <Leaf className="mr-1 inline h-4 w-4" /> Veg only
           </button>
+          <button
+            onClick={() => recMut.mutate()}
+            disabled={recMut.isPending}
+            className="h-9 rounded-full bg-foreground text-background px-4 text-sm font-medium inline-flex items-center gap-1 disabled:opacity-60"
+          >
+            <Sparkles className="h-4 w-4" /> {recMut.isPending ? "Thinking…" : "Recommend a plan"}
+          </button>
         </div>
+
+        {recMut.data?.summary && (
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-1 inline-flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> AI recommendation
+            </p>
+            <p className="text-sm">{recMut.data.summary}</p>
+          </div>
+        )}
 
         {isLoading ? (
           <p className="text-muted-foreground">Loading meal plans…</p>
@@ -76,12 +101,13 @@ function MealPlansBrowse() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(plans as any[]).map((p) => {
               const costPerMeal = Number(p.price_per_person) / p.duration_days;
+              const reason = recById.get(p.id);
               return (
                 <Link
                   key={p.id}
                   to="/meal-plans/$id"
                   params={{ id: p.id }}
-                  className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow"
+                  className={`group rounded-2xl border bg-card overflow-hidden hover:shadow-lg transition-shadow ${reason ? "border-primary ring-2 ring-primary/30" : "border-border"}`}
                 >
                   <div className="aspect-[16/9] bg-muted overflow-hidden">
                     {p.image_url ? (
@@ -98,7 +124,13 @@ function MealPlansBrowse() {
                         {p.plan_type.replace("_", " ")}
                       </span>
                       {p.is_veg && <span className="text-success"><Leaf className="h-4 w-4" /></span>}
+                      {reason && (
+                        <span className="ml-auto rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground inline-flex items-center gap-1">
+                          <Sparkles className="h-3 w-3" /> Pick
+                        </span>
+                      )}
                     </div>
+                    {reason && <p className="text-xs text-primary line-clamp-2">{reason}</p>}
                     <h3 className="font-medium line-clamp-1">{p.title}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-1">{p.sellers?.kitchen_name} · {p.sellers?.city}</p>
                     {p.cuisines?.length > 0 && (

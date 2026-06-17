@@ -448,3 +448,101 @@ export const adminSubscriptionStats = createServerFn({ method: "GET" })
     const active = rows.filter((s: any) => s.status === "active").length;
     return { total: rows.length, active, revenue, byType, retention, totalCustomers: customers.size };
   });
+
+// ============= AI (Lovable AI Gateway) =============
+
+async function callLovableAI(systemPrompt: string, userPrompt: string): Promise<string> {
+  const apiKey = process.env.LOVABLE_API_KEY;
+  if (!apiKey) throw new Error("AI is not configured");
+  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-flash",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt },
+      ],
+    }),
+  });
+  if (res.status === 429) throw new Error("AI rate limit reached. Try again in a moment.");
+  if (res.status === 402) throw new Error("AI credits exhausted. Please top up workspace credits.");
+  if (!res.ok) throw new Error(`AI error (${res.status})`);
+  const json: any = await res.json();
+  return json.choices?.[0]?.message?.content ?? "";
+}
+
+export const aiRecommendPlans = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: orders } = await context.supabase
+      .from("orders")
+      .select("id, order_items(dish_id, dishes(name, cuisine, is_veg))")
+      .eq("customer_id", context.userId)
+      .limit(20);
+
+    const { data: plans } = await context.supabase
+      .from("subscription_plans")
+      .select("id, title, plan_type, duration_days, price_per_person, cuisines, is_veg, description, sellers(kitchen_name)")
+      .eq("status", "approved")
+      .eq("is_active", true)
+      .limit(40);
+
+    const history = (orders ?? []).flatMap((o: any) =>
+      (o.order_items ?? []).map((i: any) => ({
+        name: i.dishes?.name, cuisine: i.dishes?.cuisine, veg: i.dishes?.is_veg,
+      })),
+    );
+    const planList = (plans ?? []).map((p: any) => ({
+      id: p.id, title: p.title, type: p.plan_type, days: p.duration_days,
+      price: Number(p.price_per_person), cuisines: p.cuisines, veg: p.is_veg,
+      kitchen: p.sellers?.kitchen_name,
+    }));
+    if (!planList.length) return { recommendations: [], summary: "No plans available yet." };
+
+    const sys = 'You recommend homemade meal subscription plans. Reply in strict JSON: {"summary":string,"recommendations":[{"plan_id":string,"reason":string}]}. Pick up to 3 plan_ids from the provided list only.';
+    const user = `Order history (recent dishes):\n${JSON.stringify(history).slice(0, 2000)}\n\nAvailable plans:\n${JSON.stringify(planList)}\n\nRecommend the best 1-3 plans for this customer.`;
+    const text = await callLovableAI(sys, user);
+    try {
+      const cleaned = text.replace(/```json|```/g, "").trim();
+      return JSON.parse(cleaned);
+    } catch {
+      return { summary: text, recommendations: [] };
+    }
+  });
+
+export const aiNutritionSummary = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ subscription_id: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { data: sub, error } = await context.supabase
+      .from("subscriptions")
+      .select("id, customizations, subscription_deliveries(meals, day_number, scheduled_date)")
+      .eq("id", data.subscription_id)
+      .eq("customer_id", context.userId)
+      .single();
+    if (error) throw new Error(error.message);
+
+    const meals = (sub.subscription_deliveries ?? []).slice(0, 14).map((d: any) => d.meals);
+    const totals = meals.reduce(
+      (acc: any, m: any) => ({
+        calories: acc.calories + Number(m?.calories ?? 0),
+        protein_g: acc.protein_g + Number(m?.protein_g ?? 0),
+        carbs_g: acc.carbs_g + Number(m?.carbs_g ?? 0),
+        fat_g: acc.fat_g + Number(m?.fat_g ?? 0),
+      }),
+      { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 },
+    );
+    const days = meals.length || 1;
+    const avg = {
+      calories: Math.round(totals.calories / days),
+      protein_g: Math.round(totals.protein_g / days),
+      carbs_g: Math.round(totals.carbs_g / days),
+      fat_g: Math.round(totals.fat_g / days),
+    };
+
+    const sys = "You are a friendly nutrition assistant. Give a concise 3-4 sentence summary of the weekly diet, then 2-3 bullet suggestions. Use plain text with '- ' bullets. No markdown headings.";
+    const user = `Customer preferences: ${JSON.stringify(sub.customizations)}\nDaily averages (${days} days): ${JSON.stringify(avg)}\nMeals: ${JSON.stringify(meals).slice(0, 1500)}`;
+    const text = await callLovableAI(sys, user);
+    return { summary: text, averages: avg, days };
+  });

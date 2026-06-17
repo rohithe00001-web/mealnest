@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Pause, Play, X, SkipForward, Check } from "lucide-react";
+import { Pause, Play, X, SkipForward, Sparkles } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import {
   getMySubscriptionDetail, skipDelivery, pauseSubscription, cancelSubscription,
+  aiNutritionSummary,
 } from "@/lib/subscriptions.functions";
 import { inr } from "@/lib/format";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ function SubscriptionDetail() {
   const skipFn = useServerFn(skipDelivery);
   const pauseFn = useServerFn(pauseSubscription);
   const cancelFn = useServerFn(cancelSubscription);
+  const nutritionFn = useServerFn(aiNutritionSummary);
   const qc = useQueryClient();
   const { data: sub, isLoading } = useQuery({
     queryKey: ["my-sub", id], queryFn: () => detailFn({ data: { id } }),
@@ -28,6 +30,10 @@ function SubscriptionDetail() {
   const skipMut = useMutation({ mutationFn: (d: string) => skipFn({ data: { delivery_id: d } }), onSuccess: () => { toast.success("Skipped — your plan was extended by 1 day"); refresh(); } });
   const pauseMut = useMutation({ mutationFn: (pause: boolean) => pauseFn({ data: { id, pause } }), onSuccess: () => { toast.success("Updated"); refresh(); } });
   const cancelMut = useMutation({ mutationFn: () => cancelFn({ data: { id } }), onSuccess: () => { toast.success("Cancelled"); refresh(); } });
+  const nutritionMut = useMutation({
+    mutationFn: () => nutritionFn({ data: { subscription_id: id } }),
+    onError: (e: any) => toast.error(e.message ?? "Could not generate insights"),
+  });
 
   if (isLoading || !sub) return <div className="min-h-screen flex flex-col"><Header /><main className="container-page flex-1 py-16 text-muted-foreground">Loading…</main></div>;
   const s: any = sub;
@@ -113,6 +119,42 @@ function SubscriptionDetail() {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-primary inline-flex items-center gap-1">
+                <Sparkles className="h-3 w-3" /> Nutrition assistant
+              </p>
+              <p className="text-sm text-muted-foreground">AI summary of your weekly intake with suggestions.</p>
+            </div>
+            <button
+              onClick={() => nutritionMut.mutate()}
+              disabled={nutritionMut.isPending}
+              className="h-9 rounded-full bg-foreground text-background px-4 text-xs font-medium inline-flex items-center gap-1 disabled:opacity-60"
+            >
+              <Sparkles className="h-3 w-3" /> {nutritionMut.isPending ? "Analyzing…" : nutritionMut.data ? "Refresh" : "Generate insights"}
+            </button>
+          </div>
+          {nutritionMut.data && (
+            <>
+              <div className="grid grid-cols-4 gap-2 text-center">
+                {[
+                  { l: "Calories/day", v: nutritionMut.data.averages.calories },
+                  { l: "Protein g", v: nutritionMut.data.averages.protein_g },
+                  { l: "Carbs g", v: nutritionMut.data.averages.carbs_g },
+                  { l: "Fat g", v: nutritionMut.data.averages.fat_g },
+                ].map((m) => (
+                  <div key={m.l} className="rounded-lg bg-muted p-2">
+                    <p className="font-display text-lg font-semibold">{m.v}</p>
+                    <p className="text-[10px] text-muted-foreground">{m.l}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">{nutritionMut.data.summary}</p>
+            </>
+          )}
         </div>
 
         <p className="text-sm text-muted-foreground">Total paid: <strong>{inr(Number(s.total_price))}</strong> · {s.payment_status}</p>
