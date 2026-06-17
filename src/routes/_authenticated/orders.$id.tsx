@@ -27,10 +27,16 @@ const STEPS = [
 function OrderDetailPage() {
   const { id } = Route.useParams();
   const fn = useServerFn(getOrderDetail);
+  const asgFn = useServerFn(customerGetAssignment);
   const qc = useQueryClient();
   const { data: order, isLoading } = useQuery({
     queryKey: ["order", id],
     queryFn: () => fn({ data: { orderId: id } }),
+  });
+  const { data: assignment } = useQuery({
+    queryKey: ["order", id, "assignment"],
+    queryFn: () => asgFn({ data: { order_id: id } }),
+    refetchInterval: 15_000,
   });
 
   // Realtime: refetch when this order updates
