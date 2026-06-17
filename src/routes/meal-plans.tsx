@@ -101,12 +101,13 @@ function MealPlansBrowse() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {(plans as any[]).map((p) => {
               const costPerMeal = Number(p.price_per_person) / p.duration_days;
+              const reason = recById.get(p.id);
               return (
                 <Link
                   key={p.id}
                   to="/meal-plans/$id"
                   params={{ id: p.id }}
-                  className="group rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg transition-shadow"
+                  className={`group rounded-2xl border bg-card overflow-hidden hover:shadow-lg transition-shadow ${reason ? "border-primary ring-2 ring-primary/30" : "border-border"}`}
                 >
                   <div className="aspect-[16/9] bg-muted overflow-hidden">
                     {p.image_url ? (
