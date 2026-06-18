@@ -991,6 +991,9 @@ export type Database = {
           order_number: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_status: Database["public"]["Enums"]["payment_status"]
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
           seller_id: string
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -1013,6 +1016,9 @@ export type Database = {
           order_number?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
           seller_id: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -1035,6 +1041,9 @@ export type Database = {
           order_number?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
           seller_id?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
