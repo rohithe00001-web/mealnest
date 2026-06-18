@@ -13,6 +13,16 @@ const searchSchema = z.object({ redirect: z.string().optional() });
 export const Route = createFileRoute("/auth")({
   validateSearch: searchSchema,
   component: AuthPage,
+  head: () => ({
+    meta: [
+      { title: "Sign in — MealNest" },
+      { name: "description", content: "Sign in or create your MealNest account to order homemade meals from neighborhood kitchens." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Sign in — MealNest" },
+      { property: "og:url", content: "/auth" },
+    ],
+    links: [{ rel: "canonical", href: "/auth" }],
+  }),
 });
 
 type Role = "customer" | "seller" | "delivery_agent";
