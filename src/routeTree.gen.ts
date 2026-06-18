@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as MealPlansRouteImport } from './routes/meal-plans'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as BrowseRouteImport } from './routes/browse'
@@ -51,6 +52,11 @@ import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminCampaignsRouteImport } from './routes/_authenticated/admin/campaigns'
 import { Route as AuthenticatedAdminAbuseRouteImport } from './routes/_authenticated/admin/abuse'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MealPlansRoute = MealPlansRouteImport.update({
   id: '/meal-plans',
   path: '/meal-plans',
@@ -284,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
   '/meal-plans': typeof MealPlansRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/seller': typeof AuthenticatedSellerRouteRouteWithChildren
   '/addresses': typeof AuthenticatedAddressesRoute
@@ -326,6 +333,7 @@ export interface FileRoutesByTo {
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
   '/meal-plans': typeof MealPlansRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/browse': typeof BrowseRoute
   '/cart': typeof CartRoute
   '/meal-plans': typeof MealPlansRouteWithChildren
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteRouteWithChildren
   '/_authenticated/seller': typeof AuthenticatedSellerRouteRouteWithChildren
   '/_authenticated/addresses': typeof AuthenticatedAddressesRoute
@@ -411,6 +420,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/cart'
     | '/meal-plans'
+    | '/reset-password'
     | '/admin'
     | '/seller'
     | '/addresses'
@@ -453,6 +463,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/cart'
     | '/meal-plans'
+    | '/reset-password'
     | '/addresses'
     | '/become-seller'
     | '/checkout'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/browse'
     | '/cart'
     | '/meal-plans'
+    | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/seller'
     | '/_authenticated/addresses'
@@ -537,11 +549,19 @@ export interface RootRouteChildren {
   BrowseRoute: typeof BrowseRoute
   CartRoute: typeof CartRoute
   MealPlansRoute: typeof MealPlansRouteWithChildren
+  ResetPasswordRoute: typeof ResetPasswordRoute
   DishIdRoute: typeof DishIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/meal-plans': {
       id: '/meal-plans'
       path: '/meal-plans'
@@ -984,6 +1004,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrowseRoute: BrowseRoute,
   CartRoute: CartRoute,
   MealPlansRoute: MealPlansRouteWithChildren,
+  ResetPasswordRoute: ResetPasswordRoute,
   DishIdRoute: DishIdRoute,
 }
 export const routeTree = rootRouteImport

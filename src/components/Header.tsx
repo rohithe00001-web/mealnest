@@ -1,6 +1,6 @@
 import { Link, useRouter } from "@tanstack/react-router";
 import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck, Heart, MapPin, Store, Sparkles } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
@@ -20,6 +20,7 @@ export function Header() {
   const { user } = useAuth();
   const { count } = useCart();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const checkAdmin = useServerFn(checkIsAdmin);
   const { data: adminData } = useQuery({
     queryKey: ["me", "is-admin", user?.id ?? "anon"],
@@ -30,8 +31,13 @@ export function Header() {
   const isAdmin = !!adminData?.isAdmin;
 
   const signOut = async () => {
+    // Cancel in-flight protected queries before the 401 storm lands,
+    // clear cached protected data, then sign out and replace history
+    // so Back can't restore the protected screen.
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
-    router.navigate({ to: "/" });
+    router.navigate({ to: "/", replace: true });
   };
 
   return (

@@ -1,9 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Header } from "@/components/Header";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
+import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ChefHat } from "lucide-react";
 
@@ -29,6 +30,7 @@ const ROLE_DEST: Record<Role, string> = {
 function AuthPage() {
   const { redirect } = Route.useSearch();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [role, setRole] = useState<Role>("customer");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [fullName, setFullName] = useState("");
@@ -37,6 +39,26 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   const dest = redirect || ROLE_DEST[role];
+
+  useEffect(() => {
+    if (user) navigate({ to: dest, replace: true });
+  }, [user, dest, navigate]);
+
+  async function onForgotPassword() {
+    if (!email) return toast.error("Enter your email above, then tap Forgot password");
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Check your email for a reset link");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send reset email");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function onEmailSubmit(e: FormEvent) {
     e.preventDefault();
@@ -113,6 +135,14 @@ function AuthPage() {
               {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
           </form>
+          {mode === "signin" && (
+            <p className="mt-3 text-center text-xs">
+              <button type="button" onClick={onForgotPassword} disabled={loading}
+                className="text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50">
+                Forgot password?
+              </button>
+            </p>
+          )}
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {mode === "signin" ? "New here? " : "Have an account? "}
             <button onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="font-medium text-primary hover:underline">
