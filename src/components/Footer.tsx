@@ -32,7 +32,14 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-border/60">
-        <div className="container-page py-4 text-xs text-muted-foreground">© {new Date().getFullYear()} MealNest</div>
+        <div className="container-page py-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+          <span>© {new Date().getFullYear()} MealNest</span>
+          <nav className="flex gap-4">
+            <Link to="/trust" className="hover:text-foreground">Trust &amp; Safety</Link>
+            <Link to="/privacy" className="hover:text-foreground">Privacy</Link>
+            <Link to="/terms" className="hover:text-foreground">Terms</Link>
+          </nav>
+        </div>
       </div>
     </footer>
   );
