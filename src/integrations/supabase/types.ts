@@ -1930,6 +1930,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_seller: {
+        Args: { _seller_id: string }
+        Returns: {
+          address_line: string
+          bank_details: Json | null
+          business_hours: Json | null
+          city: string
+          cover_image_url: string | null
+          created_at: string
+          delivery_radius_km: number
+          description: string | null
+          email: string | null
+          food_license_url: string | null
+          id: string
+          id_proof_url: string | null
+          is_open: boolean
+          kitchen_name: string
+          latitude: number | null
+          longitude: number | null
+          phone: string
+          pincode: string | null
+          rating_avg: number
+          rating_count: number
+          status: Database["public"]["Enums"]["seller_status"]
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "sellers"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       apply_referral_code: {
         Args: { _code: string; _user: string }
         Returns: {
@@ -1948,6 +1982,48 @@ export type Database = {
         }[]
       }
       ensure_loyalty_account: { Args: { _user: string }; Returns: undefined }
+      get_my_seller_record: {
+        Args: never
+        Returns: {
+          address_line: string
+          bank_details: Json | null
+          business_hours: Json | null
+          city: string
+          cover_image_url: string | null
+          created_at: string
+          delivery_radius_km: number
+          description: string | null
+          email: string | null
+          food_license_url: string | null
+          id: string
+          id_proof_url: string | null
+          is_open: boolean
+          kitchen_name: string
+          latitude: number | null
+          longitude: number | null
+          phone: string
+          pincode: string | null
+          rating_avg: number
+          rating_count: number
+          status: Database["public"]["Enums"]["seller_status"]
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "sellers"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_public_profile: {
+        Args: { _user_id: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
