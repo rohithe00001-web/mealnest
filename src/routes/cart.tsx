@@ -8,6 +8,16 @@ import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
+  head: () => ({
+    meta: [
+      { title: "Your cart — MealNest" },
+      { name: "description", content: "Review the homemade dishes in your cart and check out." },
+      { name: "robots", content: "noindex" },
+      { property: "og:title", content: "Your cart — MealNest" },
+      { property: "og:url", content: "/cart" },
+    ],
+    links: [{ rel: "canonical", href: "/cart" }],
+  }),
 });
 
 function CartPage() {
