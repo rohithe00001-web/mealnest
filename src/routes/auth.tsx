@@ -135,6 +135,14 @@ function AuthPage() {
               {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
             </button>
           </form>
+          {mode === "signin" && (
+            <p className="mt-3 text-center text-xs">
+              <button type="button" onClick={onForgotPassword} disabled={loading}
+                className="text-muted-foreground hover:text-foreground hover:underline disabled:opacity-50">
+                Forgot password?
+              </button>
+            </p>
+          )}
           <p className="mt-4 text-center text-sm text-muted-foreground">
             {mode === "signin" ? "New here? " : "Have an account? "}
             <button onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="font-medium text-primary hover:underline">
