@@ -991,6 +991,9 @@ export type Database = {
           order_number: string
           payment_method: Database["public"]["Enums"]["payment_method"]
           payment_status: Database["public"]["Enums"]["payment_status"]
+          razorpay_order_id: string | null
+          razorpay_payment_id: string | null
+          razorpay_signature: string | null
           seller_id: string
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -1013,6 +1016,9 @@ export type Database = {
           order_number?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
           seller_id: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -1035,6 +1041,9 @@ export type Database = {
           order_number?: string
           payment_method?: Database["public"]["Enums"]["payment_method"]
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          razorpay_order_id?: string | null
+          razorpay_payment_id?: string | null
+          razorpay_signature?: string | null
           seller_id?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -2046,7 +2055,7 @@ export type Database = {
         | "delivered"
         | "cancelled"
         | "rejected"
-      payment_method: "cod" | "upi" | "card" | "wallet"
+      payment_method: "cod" | "upi" | "card" | "wallet" | "razorpay"
       payment_status: "pending" | "paid" | "refunded" | "failed"
       seller_status: "pending" | "approved" | "rejected" | "suspended"
       subscription_delivery_status:
@@ -2216,7 +2225,7 @@ export const Constants = {
         "cancelled",
         "rejected",
       ],
-      payment_method: ["cod", "upi", "card", "wallet"],
+      payment_method: ["cod", "upi", "card", "wallet", "razorpay"],
       payment_status: ["pending", "paid", "refunded", "failed"],
       seller_status: ["pending", "approved", "rejected", "suspended"],
       subscription_delivery_status: [

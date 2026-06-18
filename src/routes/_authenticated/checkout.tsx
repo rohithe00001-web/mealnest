@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { useCart } from "@/lib/cart";
 import { inr } from "@/lib/format";
 import { placeOrder } from "@/lib/orders.functions";
+import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/razorpay.functions";
 import { listAddresses } from "@/lib/customer.functions";
 import { previewCoupon } from "@/lib/coupons.functions";
 import { toast } from "sonner";
@@ -15,14 +16,38 @@ export const Route = createFileRoute("/_authenticated/checkout")({
   component: CheckoutPage,
 });
 
+const RZP_SCRIPT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
+
+declare global {
+  interface Window {
+    Razorpay?: any;
+  }
+}
+
+function loadRazorpay(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const s = document.createElement("script");
+    s.src = RZP_SCRIPT_SRC;
+    s.async = true;
+    s.onload = () => resolve(true);
+    s.onerror = () => resolve(false);
+    document.body.appendChild(s);
+  });
+}
+
 function CheckoutPage() {
   const { items, subtotal, clear } = useCart();
   const navigate = useNavigate();
   const placeOrderFn = useServerFn(placeOrder);
+  const createRzpFn = useServerFn(createRazorpayOrder);
+  const verifyRzpFn = useServerFn(verifyRazorpayPayment);
   const listAddressesFn = useServerFn(listAddresses);
   const previewFn = useServerFn(previewCoupon);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
   const [couponCode, setCouponCode] = useState("");
   const [couponState, setCouponState] = useState<{ code: string; discount: number; type: string } | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
@@ -41,6 +66,11 @@ function CheckoutPage() {
       setSelectedId(def.id);
     }
   }, [addresses]);
+
+  // Pre-load Razorpay script so the modal opens instantly when the user clicks Pay.
+  useEffect(() => {
+    loadRazorpay();
+  }, []);
 
   let deliveryFee = subtotal >= 500 || subtotal === 0 ? 0 : 29;
   let couponDiscount = 0;
@@ -76,38 +106,97 @@ function CheckoutPage() {
     );
   }
 
+  function buildDeliveryAddress() {
+    if (selectedId !== "new" && addresses) {
+      const a: any = addresses.find((x: any) => x.id === selectedId);
+      if (!a) throw new Error("Address not found");
+      if (!form.phone) throw new Error("Phone is required");
+      return {
+        label: a.label, addressLine: a.address_line, city: a.city,
+        pincode: a.pincode || undefined, phone: form.phone,
+      };
+    }
+    return {
+      label: form.label, addressLine: form.addressLine, city: form.city,
+      pincode: form.pincode || undefined, phone: form.phone,
+    };
+  }
+
   async function submit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     try {
-      let deliveryAddress;
-      if (selectedId !== "new" && addresses) {
-        const a: any = addresses.find((x: any) => x.id === selectedId);
-        if (!a) throw new Error("Address not found");
-        if (!form.phone) throw new Error("Phone is required");
-        deliveryAddress = {
-          label: a.label, addressLine: a.address_line, city: a.city,
-          pincode: a.pincode || undefined, phone: form.phone,
-        };
-      } else {
-        deliveryAddress = {
-          label: form.label, addressLine: form.addressLine, city: form.city,
-          pincode: form.pincode || undefined, phone: form.phone,
-        };
+      const deliveryAddress = buildDeliveryAddress();
+
+      if (paymentMethod === "cod") {
+        const res = await placeOrderFn({
+          data: {
+            sellerId: items[0].sellerId,
+            items: items.map((i) => ({ dishId: i.dishId, quantity: i.quantity })),
+            deliveryAddress,
+            deliveryInstructions: form.instructions || undefined,
+            paymentMethod: "cod",
+            couponCode: couponState?.code,
+          },
+        });
+        clear();
+        toast.success(`Order ${res.orderNumber} placed!`);
+        navigate({ to: "/orders" });
+        return;
       }
-      const res = await placeOrderFn({
+
+      // Razorpay flow
+      const ready = await loadRazorpay();
+      if (!ready) throw new Error("Could not load payment gateway. Check your connection.");
+
+      const rp = await createRzpFn({
         data: {
           sellerId: items[0].sellerId,
           items: items.map((i) => ({ dishId: i.dishId, quantity: i.quantity })),
           deliveryAddress,
           deliveryInstructions: form.instructions || undefined,
-          paymentMethod: "cod",
           couponCode: couponState?.code,
         },
       });
-      clear();
-      toast.success(`Order ${res.orderNumber} placed!`);
-      navigate({ to: "/orders" });
+
+      await new Promise<void>((resolve, reject) => {
+        const rzp = new window.Razorpay({
+          key: rp.keyId,
+          amount: rp.amount,
+          currency: rp.currency,
+          order_id: rp.razorpayOrderId,
+          name: "MealNest",
+          description: `Order ${rp.orderNumber ?? ""}`.trim(),
+          prefill: { contact: deliveryAddress.phone },
+          notes: { order_id: rp.orderId },
+          theme: { color: "#f97316" },
+          modal: {
+            ondismiss: () => reject(new Error("Payment cancelled")),
+          },
+          handler: async (response: any) => {
+            try {
+              await verifyRzpFn({
+                data: {
+                  orderId: rp.orderId,
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                },
+              });
+              clear();
+              toast.success(`Payment successful! Order ${rp.orderNumber} confirmed.`);
+              navigate({ to: "/orders" });
+              resolve();
+            } catch (err: any) {
+              reject(err);
+            }
+          },
+        });
+        rzp.on("payment.failed", (resp: any) => {
+          reject(new Error(resp?.error?.description ?? "Payment failed"));
+        });
+        rzp.open();
+      });
     } catch (err: any) {
       toast.error(err.message ?? "Failed to place order");
     } finally {
@@ -185,7 +274,28 @@ function CheckoutPage() {
             </section>
             <section className="rounded-2xl border border-border bg-card p-6">
               <h2 className="font-display text-xl font-semibold">Payment</h2>
-              <p className="mt-2 text-sm text-muted-foreground">Cash on Delivery — pay the cook when your food arrives.</p>
+              <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("razorpay")}
+                  className={`text-left rounded-xl border p-4 transition-colors ${
+                    paymentMethod === "razorpay" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="text-sm font-semibold">Pay online</div>
+                  <p className="mt-1 text-xs text-muted-foreground">Cards, UPI, wallets &amp; netbanking — secured by Razorpay.</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPaymentMethod("cod")}
+                  className={`text-left rounded-xl border p-4 transition-colors ${
+                    paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="text-sm font-semibold">Cash on Delivery</div>
+                  <p className="mt-1 text-xs text-muted-foreground">Pay the cook when your food arrives.</p>
+                </button>
+              </div>
             </section>
           </div>
 
@@ -220,7 +330,7 @@ function CheckoutPage() {
               <div className="flex justify-between border-t border-border pt-2 text-base font-semibold"><dt>Total</dt><dd>{inr(total)}</dd></div>
             </dl>
             <button type="submit" disabled={loading} className="mt-5 inline-flex h-12 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-              {loading ? "Placing order…" : "Place order"}
+              {loading ? "Processing…" : paymentMethod === "razorpay" ? `Pay ${inr(total)}` : "Place order"}
             </button>
           </aside>
         </form>

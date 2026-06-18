@@ -34,6 +34,7 @@ import { Route as AuthenticatedAdminRouteRouteImport } from './routes/_authentic
 import { Route as AuthenticatedSellerIndexRouteImport } from './routes/_authenticated/seller/index'
 import { Route as AuthenticatedDeliveryIndexRouteImport } from './routes/_authenticated/delivery.index'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin/index'
+import { Route as ApiPublicRazorpayWebhookRouteImport } from './routes/api/public/razorpay-webhook'
 import { Route as AuthenticatedSellerSubscriptionsRouteImport } from './routes/_authenticated/seller/subscriptions'
 import { Route as AuthenticatedSellerOrdersRouteImport } from './routes/_authenticated/seller/orders'
 import { Route as AuthenticatedSellerMealPlansRouteImport } from './routes/_authenticated/seller/meal-plans'
@@ -184,6 +185,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const ApiPublicRazorpayWebhookRoute =
+  ApiPublicRazorpayWebhookRouteImport.update({
+    id: '/api/public/razorpay-webhook',
+    path: '/api/public/razorpay-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedSellerSubscriptionsRoute =
   AuthenticatedSellerSubscriptionsRouteImport.update({
     id: '/subscriptions',
@@ -344,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/seller/orders': typeof AuthenticatedSellerOrdersRoute
   '/seller/subscriptions': typeof AuthenticatedSellerSubscriptionsRoute
+  '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/delivery/': typeof AuthenticatedDeliveryIndexRoute
   '/seller/': typeof AuthenticatedSellerIndexRoute
@@ -387,6 +395,7 @@ export interface FileRoutesByTo {
   '/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/seller/orders': typeof AuthenticatedSellerOrdersRoute
   '/seller/subscriptions': typeof AuthenticatedSellerSubscriptionsRoute
+  '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/delivery': typeof AuthenticatedDeliveryIndexRoute
   '/seller': typeof AuthenticatedSellerIndexRoute
@@ -435,6 +444,7 @@ export interface FileRoutesById {
   '/_authenticated/seller/meal-plans': typeof AuthenticatedSellerMealPlansRoute
   '/_authenticated/seller/orders': typeof AuthenticatedSellerOrdersRoute
   '/_authenticated/seller/subscriptions': typeof AuthenticatedSellerSubscriptionsRoute
+  '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/delivery/': typeof AuthenticatedDeliveryIndexRoute
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
@@ -483,6 +493,7 @@ export interface FileRouteTypes {
     | '/seller/meal-plans'
     | '/seller/orders'
     | '/seller/subscriptions'
+    | '/api/public/razorpay-webhook'
     | '/admin/'
     | '/delivery/'
     | '/seller/'
@@ -526,6 +537,7 @@ export interface FileRouteTypes {
     | '/seller/meal-plans'
     | '/seller/orders'
     | '/seller/subscriptions'
+    | '/api/public/razorpay-webhook'
     | '/admin'
     | '/delivery'
     | '/seller'
@@ -573,6 +585,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seller/meal-plans'
     | '/_authenticated/seller/orders'
     | '/_authenticated/seller/subscriptions'
+    | '/api/public/razorpay-webhook'
     | '/_authenticated/admin/'
     | '/_authenticated/delivery/'
     | '/_authenticated/seller/'
@@ -590,6 +603,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   TrustRoute: typeof TrustRoute
   DishIdRoute: typeof DishIdRoute
+  ApiPublicRazorpayWebhookRoute: typeof ApiPublicRazorpayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -768,6 +782,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/api/public/razorpay-webhook': {
+      id: '/api/public/razorpay-webhook'
+      path: '/api/public/razorpay-webhook'
+      fullPath: '/api/public/razorpay-webhook'
+      preLoaderRoute: typeof ApiPublicRazorpayWebhookRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/seller/subscriptions': {
       id: '/_authenticated/seller/subscriptions'
@@ -1069,6 +1090,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   TrustRoute: TrustRoute,
   DishIdRoute: DishIdRoute,
+  ApiPublicRazorpayWebhookRoute: ApiPublicRazorpayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
