@@ -73,7 +73,7 @@ const verifySchema = z.object({
   countryCode: z.string().min(2).max(5),
   phone: z.string().min(6).max(15),
   code: z.string().regex(/^\d{6}$/),
-  role: z.enum(["customer", "seller", "delivery", "admin"]).optional(),
+  role: z.enum(["customer", "seller", "delivery_agent", "admin"]).optional(),
   fullName: z.string().min(1).max(100).optional(),
 });
 
@@ -152,7 +152,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
     const requestedRole = data.role && data.role !== "admin" ? data.role : null;
     if (requestedRole) {
       await supabaseAdmin.from("user_roles").upsert(
-        { user_id: userId, role: requestedRole as "customer" | "seller" | "delivery" },
+        { user_id: userId, role: requestedRole },
         { onConflict: "user_id,role", ignoreDuplicates: true },
       );
     }
