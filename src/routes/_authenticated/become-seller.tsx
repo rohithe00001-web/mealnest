@@ -35,8 +35,7 @@ function BecomeSellerPage() {
         pincode: form.pincode || null,
       });
       if (error) throw error;
-      // Add seller role
-      await supabase.from("user_roles").insert({ user_id: u.user.id, role: "seller" }).then(() => {});
+      // Seller role is granted by admin on approval, not self-granted
       toast.success("Application submitted! We'll review your kitchen shortly.");
       navigate({ to: "/" });
     } catch (err: any) {

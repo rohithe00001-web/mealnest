@@ -42,8 +42,7 @@ export const registerDeliveryAgent = createServerFn({ method: "POST" })
       .insert({ ...data, user_id: context.userId, status: "pending_seller" })
       .select("id").single();
     if (error) throw new Error(error.message);
-    // also add delivery_agent role
-    await context.supabase.from("user_roles").insert({ user_id: context.userId, role: "delivery_agent" });
+    // delivery_agent role is granted by admin on approval, not self-granted
     return { id: row.id };
   });
 
@@ -150,8 +149,14 @@ export const adminApproveAgent = createServerFn({ method: "POST" })
     const update = data.approve
       ? { status: "approved" as const, admin_approved_at: new Date().toISOString(), background_check_passed: true }
       : { status: "rejected" as const, rejected_reason: data.reason ?? "Rejected by admin" };
-    const { error } = await context.supabase.from("delivery_agents").update(update).eq("id", data.agent_id);
+    const { data: updated, error } = await context.supabase.from("delivery_agents")
+      .update(update).eq("id", data.agent_id).select("user_id").single();
     if (error) throw new Error(error.message);
+    if (data.approve && updated?.user_id) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.from("user_roles")
+        .upsert({ user_id: updated.user_id, role: "delivery_agent" as any }, { onConflict: "user_id,role" });
+    }
     await logAudit(context.supabase, context.userId, "admin", data.approve ? "admin_approve" : "admin_reject", "delivery_agent", data.agent_id);
     return { ok: true };
   });
