@@ -2055,7 +2055,7 @@ export type Database = {
         | "delivered"
         | "cancelled"
         | "rejected"
-      payment_method: "cod" | "upi" | "card" | "wallet"
+      payment_method: "cod" | "upi" | "card" | "wallet" | "razorpay"
       payment_status: "pending" | "paid" | "refunded" | "failed"
       seller_status: "pending" | "approved" | "rejected" | "suspended"
       subscription_delivery_status:
@@ -2225,7 +2225,7 @@ export const Constants = {
         "cancelled",
         "rejected",
       ],
-      payment_method: ["cod", "upi", "card", "wallet"],
+      payment_method: ["cod", "upi", "card", "wallet", "razorpay"],
       payment_status: ["pending", "paid", "refunded", "failed"],
       seller_status: ["pending", "approved", "rejected", "suspended"],
       subscription_delivery_status: [
