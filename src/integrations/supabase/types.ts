@@ -1072,38 +1072,119 @@ export type Database = {
           },
         ]
       }
+      otp_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          expires_at: string
+          id: string
+          ip: string | null
+          max_attempts: number
+          phone_e164: string
+          purpose: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at: string
+          id?: string
+          ip?: string | null
+          max_attempts?: number
+          phone_e164: string
+          purpose?: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          expires_at?: string
+          id?: string
+          ip?: string | null
+          max_attempts?: number
+          phone_e164?: string
+          purpose?: string
+        }
+        Relationships: []
+      }
+      otp_send_log: {
+        Row: {
+          channel: string
+          created_at: string
+          id: string
+          ip: string | null
+          phone_e164: string
+          reason: string | null
+          success: boolean
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          phone_e164: string
+          reason?: string | null
+          success?: boolean
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          id?: string
+          ip?: string | null
+          phone_e164?: string
+          reason?: string | null
+          success?: boolean
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           anniversary: string | null
           avatar_url: string | null
+          country_code: string | null
           created_at: string
           dob: string | null
           full_name: string | null
           id: string
           is_blocked: boolean
+          last_login_at: string | null
+          login_method: string | null
           phone: string | null
+          phone_verified: boolean
           updated_at: string
         }
         Insert: {
           anniversary?: string | null
           avatar_url?: string | null
+          country_code?: string | null
           created_at?: string
           dob?: string | null
           full_name?: string | null
           id: string
           is_blocked?: boolean
+          last_login_at?: string | null
+          login_method?: string | null
           phone?: string | null
+          phone_verified?: boolean
           updated_at?: string
         }
         Update: {
           anniversary?: string | null
           avatar_url?: string | null
+          country_code?: string | null
           created_at?: string
           dob?: string | null
           full_name?: string | null
           id?: string
           is_blocked?: boolean
+          last_login_at?: string | null
+          login_method?: string | null
           phone?: string | null
+          phone_verified?: boolean
           updated_at?: string
         }
         Relationships: []
