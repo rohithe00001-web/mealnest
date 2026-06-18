@@ -30,6 +30,7 @@ const ROLE_DEST: Record<Role, string> = {
 function AuthPage() {
   const { redirect } = Route.useSearch();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [role, setRole] = useState<Role>("customer");
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [fullName, setFullName] = useState("");
@@ -38,6 +39,26 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   const dest = redirect || ROLE_DEST[role];
+
+  useEffect(() => {
+    if (user) navigate({ to: dest, replace: true });
+  }, [user, dest, navigate]);
+
+  async function onForgotPassword() {
+    if (!email) return toast.error("Enter your email above, then tap Forgot password");
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Check your email for a reset link");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send reset email");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function onEmailSubmit(e: FormEvent) {
     e.preventDefault();
