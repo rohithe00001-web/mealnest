@@ -18,6 +18,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/coupons", label: "Coupons", icon: Ticket },
   { to: "/admin/campaigns", label: "Campaigns", icon: Sparkles },
   { to: "/admin/promotions", label: "Promo analytics", icon: BarChart3 },
+  { to: "/admin/rewards", label: "Rewards", icon: Gift },
   { to: "/admin/abuse", label: "Abuse reports", icon: ShieldAlert },
   { to: "/admin/users", label: "Users", icon: Users },
 ];
