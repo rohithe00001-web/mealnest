@@ -2,5 +2,9 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
   <url><loc>/browse</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>/meal-plans</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
   <url><loc>/become-seller</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>/trust</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
