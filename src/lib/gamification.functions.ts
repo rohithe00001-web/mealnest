@@ -55,15 +55,41 @@ export const getGamificationState = createServerFn({ method: "GET" })
 export const spinWheel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: rows, error } = await context.supabase.rpc("spin_wheel", { _user: context.userId });
+    const { data: rows, error } = await context.supabase.rpc("spin_wheel_v2" as any, { _user: context.userId });
     if (error) throw new Error(error.message);
     const row: any = Array.isArray(rows) ? rows[0] : rows;
+    if (row?.prize_kind === "cooldown" || row?.prize_kind === "ineligible" || row?.prize_kind === "unavailable") {
+      throw new Error(row.reason ?? "Not available");
+    }
     return {
       prizeKind: row.prize_kind as string,
       prizeValue: Number(row.prize_value),
       couponCode: (row.coupon_code ?? null) as string | null,
+      segmentLabel: (row.segment_label ?? null) as string | null,
+      wheelId: (row.wheel_id ?? null) as string | null,
       reason: (row.reason ?? "") as string,
     };
+  });
+
+export const getActiveWheel = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: wheel } = await context.supabase
+      .from("mystery_wheels" as any)
+      .select("*")
+      .eq("active", true)
+      .eq("scope", "global")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!wheel) return { wheel: null, segments: [] as any[] };
+    const { data: segs } = await context.supabase
+      .from("mystery_wheel_segments" as any)
+      .select("*")
+      .eq("wheel_id", (wheel as any).id)
+      .eq("active", true)
+      .order("sort_order");
+    return { wheel, segments: segs ?? [] };
   });
 
 export const claimMysteryReward = createServerFn({ method: "POST" })
