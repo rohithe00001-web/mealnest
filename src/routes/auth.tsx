@@ -199,11 +199,40 @@ function AuthPage() {
             </button>
           </p>
 
+          {blockedMsg && (
+            <div className="mt-4 rounded-xl border border-red-500/40 bg-red-500/5 p-3 text-xs text-red-700">
+              <div className="font-semibold mb-1">Sign-up blocked</div>
+              <div>{blockedMsg}</div>
+              <button type="button" onClick={() => setOverrideOpen(true)} className="mt-2 underline">
+                Request override
+              </button>
+            </div>
+          )}
+
           <p className="mt-4 text-center text-xs text-muted-foreground">
             <Link to="/" className="hover:text-foreground">← Back to home</Link>
           </p>
         </div>
       </main>
+
+      <Dialog open={overrideOpen} onOpenChange={setOverrideOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Request additional account on this device</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">Tell us why you need an additional account on this device (e.g. shared family device, replacement device). An admin will review.</p>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"/>
+            <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} placeholder="Reason (min 10 chars)" rows={4}
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"/>
+            <input value={overrideContact} onChange={(e) => setOverrideContact(e.target.value)} placeholder="Contact (optional)"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"/>
+            <button onClick={onSubmitOverride} disabled={overrideReason.length < 10 || !email}
+              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground disabled:opacity-50">
+              Submit request
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
