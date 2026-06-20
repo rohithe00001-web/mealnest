@@ -81,26 +81,54 @@ function AuthPage() {
     }
   }
 
+  async function linkDeviceSafe() {
+    try {
+      const fp = await getDeviceFingerprint();
+      await linkFn({ data: { fingerprint: fp, role } });
+    } catch { /* non-blocking */ }
+  }
+
   async function onEmailSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setBlockedMsg(null);
     try {
       if (mode === "signup") {
+        const fp = await getDeviceFingerprint();
+        const check = await checkFn({ data: { fingerprint: fp, role, userAgent: navigator.userAgent, platform: navigator.platform } });
+        if (!check.allowed) {
+          setBlockedMsg(check.reason);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
           options: { data: { full_name: fullName, role }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
         toast.success("Account created");
+        await linkDeviceSafe();
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        await linkDeviceSafe();
       }
       navigate({ to: dest });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function onSubmitOverride() {
+    try {
+      const fp = await getDeviceFingerprint();
+      await overrideFn({ data: { fingerprint: fp, email, reason: overrideReason, contact: overrideContact } });
+      toast.success("Override request submitted. Our team will review and contact you.");
+      setOverrideOpen(false);
+      setOverrideReason(""); setOverrideContact("");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not submit request");
     }
   }
 
