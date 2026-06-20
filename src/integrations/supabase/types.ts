@@ -738,6 +738,316 @@ export type Database = {
           },
         ]
       }
+      device_accounts: {
+        Row: {
+          approval_status: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          device_id: string
+          id: string
+          is_primary: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          device_id: string
+          id?: string
+          is_primary?: boolean
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          approval_status?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_primary?: boolean
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_accounts_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          device_id: string | null
+          id: string
+          ip: string | null
+          success: boolean
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          device_id?: string | null
+          id?: string
+          ip?: string | null
+          success?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          device_id?: string | null
+          id?: string
+          ip?: string | null
+          success?: boolean
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_audit_log_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_fraud_events: {
+        Row: {
+          created_at: string
+          details: Json | null
+          device_id: string | null
+          id: string
+          kind: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          device_id?: string | null
+          id?: string
+          kind: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          device_id?: string | null
+          id?: string
+          kind?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_fraud_events_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_override_requests: {
+        Row: {
+          contact: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          device_id: string | null
+          fingerprint: string
+          id: string
+          reason: string
+          requesting_email: string
+          status: string
+        }
+        Insert: {
+          contact?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          device_id?: string | null
+          fingerprint: string
+          id?: string
+          reason: string
+          requesting_email: string
+          status?: string
+        }
+        Update: {
+          contact?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          device_id?: string | null
+          fingerprint?: string
+          id?: string
+          reason?: string
+          requesting_email?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_override_requests_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_sessions: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          ip: string | null
+          last_active_at: string
+          revoked_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          ip?: string | null
+          last_active_at?: string
+          revoked_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          ip?: string | null
+          last_active_at?: string
+          revoked_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_sessions_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      device_transfer_requests: {
+        Row: {
+          created_at: string
+          expires_at: string
+          from_device_id: string | null
+          id: string
+          otp_hash: string
+          status: string
+          to_device_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          from_device_id?: string | null
+          id?: string
+          otp_hash: string
+          status?: string
+          to_device_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          from_device_id?: string | null
+          id?: string
+          otp_hash?: string
+          status?: string
+          to_device_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_transfer_requests_from_device_id_fkey"
+            columns: ["from_device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "device_transfer_requests_to_device_id_fkey"
+            columns: ["to_device_id"]
+            isOneToOne: false
+            referencedRelation: "devices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devices: {
+        Row: {
+          blacklisted: boolean
+          created_at: string
+          fingerprint: string
+          first_seen_at: string
+          id: string
+          last_ip: string | null
+          last_seen_at: string
+          name: string | null
+          notes: string | null
+          platform: string | null
+          risk_level: string
+          risk_score: number
+          status: string
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          blacklisted?: boolean
+          created_at?: string
+          fingerprint: string
+          first_seen_at?: string
+          id?: string
+          last_ip?: string | null
+          last_seen_at?: string
+          name?: string | null
+          notes?: string | null
+          platform?: string | null
+          risk_level?: string
+          risk_score?: number
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          blacklisted?: boolean
+          created_at?: string
+          fingerprint?: string
+          first_seen_at?: string
+          id?: string
+          last_ip?: string | null
+          last_seen_at?: string
+          name?: string | null
+          notes?: string | null
+          platform?: string | null
+          risk_level?: string
+          risk_score?: number
+          status?: string
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       dishes: {
         Row: {
           category_id: string | null
@@ -2188,6 +2498,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_decide_override: {
+        Args: { _admin: string; _approve: boolean; _id: string }
+        Returns: undefined
+      }
       admin_get_seller: {
         Args: { _seller_id: string }
         Returns: {
@@ -2236,6 +2550,14 @@ export type Database = {
           success: boolean
         }[]
       }
+      check_device_signup: {
+        Args: { _fingerprint: string; _role: string }
+        Returns: {
+          allowed: boolean
+          device_id: string
+          reason: string
+        }[]
+      }
       claim_mystery_reward: {
         Args: { _id: string; _user: string }
         Returns: {
@@ -2245,6 +2567,10 @@ export type Database = {
           reason: string
           success: boolean
         }[]
+      }
+      complete_device_transfer: {
+        Args: { _otp: string; _to_device: string; _user: string }
+        Returns: boolean
       }
       ensure_loyalty_account: { Args: { _user: string }; Returns: undefined }
       get_my_seller_record: {
@@ -2296,6 +2622,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      link_device_account: {
+        Args: {
+          _device: string
+          _role: Database["public"]["Enums"]["app_role"]
+          _user: string
+        }
+        Returns: undefined
+      }
       log_rewards_audit: {
         Args: {
           _action: string
@@ -2307,6 +2641,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      recompute_device_risk: { Args: { _device: string }; Returns: undefined }
       record_abuse: {
         Args: {
           _details: Json
@@ -2342,6 +2677,24 @@ export type Database = {
           success: boolean
         }[]
       }
+      register_device: {
+        Args: {
+          _fingerprint: string
+          _ip: string
+          _platform: string
+          _ua: string
+        }
+        Returns: string
+      }
+      request_device_override: {
+        Args: {
+          _contact: string
+          _email: string
+          _fingerprint: string
+          _reason: string
+        }
+        Returns: string
+      }
       spin_wheel: {
         Args: { _user: string }
         Returns: {
@@ -2361,6 +2714,10 @@ export type Database = {
           segment_label: string
           wheel_id: string
         }[]
+      }
+      start_device_transfer: {
+        Args: { _to_device: string; _user: string }
+        Returns: string
       }
       validate_coupon: {
         Args: {
