@@ -18,12 +18,12 @@ async function getMySeller(supabase: any, userId: string, requireApproved = true
 export const getSellerMe = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data } = await context.supabase
-      .from("sellers")
-      .select("*")
-      .eq("user_id", context.userId)
-      .maybeSingle();
-    return data;
+    // Use SECURITY DEFINER RPC so the owner can read their own sensitive
+    // columns (bank_details, document URLs, phone, email) even though
+    // column-level SELECT on those is revoked from anon/authenticated.
+    const { data, error } = await context.supabase.rpc("get_my_seller_record" as any);
+    if (error) throw new Error(error.message);
+    return Array.isArray(data) ? (data[0] ?? null) : (data ?? null);
   });
 
 export const getSellerStats = createServerFn({ method: "GET" })
