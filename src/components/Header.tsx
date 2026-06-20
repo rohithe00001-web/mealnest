@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck, Heart, MapPin, Store, Sparkles } from "lucide-react";
+import { ShoppingBag, Search, User as UserIcon, LogOut, ClipboardList, ChefHat, ShieldCheck, Heart, MapPin, Store, Sparkles, Smartphone } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth";
@@ -114,6 +114,9 @@ export function Header() {
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/addresses"><MapPin className="mr-2 h-4 w-4" />Addresses</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/devices"><Smartphone className="mr-2 h-4 w-4" />Trusted devices</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/seller"><Store className="mr-2 h-4 w-4" />Seller dashboard</Link>

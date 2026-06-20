@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { useEffect, useState, type FormEvent } from "react";
 import { Header } from "@/components/Header";
@@ -7,6 +8,9 @@ import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ChefHat } from "lucide-react";
+import { getDeviceFingerprint } from "@/lib/device";
+import { checkDeviceForSignup, linkDeviceToCurrentUser, requestDeviceOverride } from "@/lib/devices.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -47,6 +51,13 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [blockedMsg, setBlockedMsg] = useState<string | null>(null);
+  const [overrideOpen, setOverrideOpen] = useState(false);
+  const [overrideReason, setOverrideReason] = useState("");
+  const [overrideContact, setOverrideContact] = useState("");
+  const checkFn = useServerFn(checkDeviceForSignup);
+  const linkFn = useServerFn(linkDeviceToCurrentUser);
+  const overrideFn = useServerFn(requestDeviceOverride);
 
   const dest = redirect || ROLE_DEST[role];
 
@@ -70,26 +81,54 @@ function AuthPage() {
     }
   }
 
+  async function linkDeviceSafe() {
+    try {
+      const fp = await getDeviceFingerprint();
+      await linkFn({ data: { fingerprint: fp, role } });
+    } catch { /* non-blocking */ }
+  }
+
   async function onEmailSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setBlockedMsg(null);
     try {
       if (mode === "signup") {
+        const fp = await getDeviceFingerprint();
+        const check = await checkFn({ data: { fingerprint: fp, role, userAgent: navigator.userAgent, platform: navigator.platform } });
+        if (!check.allowed) {
+          setBlockedMsg(check.reason);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email, password,
           options: { data: { full_name: fullName, role }, emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
         toast.success("Account created");
+        await linkDeviceSafe();
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        await linkDeviceSafe();
       }
       navigate({ to: dest });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Authentication failed");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function onSubmitOverride() {
+    try {
+      const fp = await getDeviceFingerprint();
+      await overrideFn({ data: { fingerprint: fp, email, reason: overrideReason, contact: overrideContact } });
+      toast.success("Override request submitted. Our team will review and contact you.");
+      setOverrideOpen(false);
+      setOverrideReason(""); setOverrideContact("");
+    } catch (e: any) {
+      toast.error(e?.message || "Could not submit request");
     }
   }
 
@@ -160,11 +199,40 @@ function AuthPage() {
             </button>
           </p>
 
+          {blockedMsg && (
+            <div className="mt-4 rounded-xl border border-red-500/40 bg-red-500/5 p-3 text-xs text-red-700">
+              <div className="font-semibold mb-1">Sign-up blocked</div>
+              <div>{blockedMsg}</div>
+              <button type="button" onClick={() => setOverrideOpen(true)} className="mt-2 underline">
+                Request override
+              </button>
+            </div>
+          )}
+
           <p className="mt-4 text-center text-xs text-muted-foreground">
             <Link to="/" className="hover:text-foreground">← Back to home</Link>
           </p>
         </div>
       </main>
+
+      <Dialog open={overrideOpen} onOpenChange={setOverrideOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Request additional account on this device</DialogTitle></DialogHeader>
+          <div className="space-y-3 text-sm">
+            <p className="text-muted-foreground">Tell us why you need an additional account on this device (e.g. shared family device, replacement device). An admin will review.</p>
+            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"/>
+            <textarea value={overrideReason} onChange={(e) => setOverrideReason(e.target.value)} placeholder="Reason (min 10 chars)" rows={4}
+              className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"/>
+            <input value={overrideContact} onChange={(e) => setOverrideContact(e.target.value)} placeholder="Contact (optional)"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm"/>
+            <button onClick={onSubmitOverride} disabled={overrideReason.length < 10 || !email}
+              className="inline-flex h-10 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground disabled:opacity-50">
+              Submit request
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

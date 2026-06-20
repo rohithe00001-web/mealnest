@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Gift, Users2, Disc, BarChart3, ScrollText } from "lucide-react";
+import { Gift, Users2, Disc, BarChart3, ScrollText, Smartphone } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/rewards")({
   component: RewardsAdminLayout,
@@ -9,6 +9,7 @@ const TABS = [
   { to: "/admin/rewards", label: "Overview", icon: Gift, exact: true },
   { to: "/admin/rewards/referrals", label: "Referral Program", icon: Users2 },
   { to: "/admin/rewards/wheels", label: "Mystery Wheels", icon: Disc },
+  { to: "/admin/rewards/devices", label: "Devices", icon: Smartphone },
   { to: "/admin/rewards/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/admin/rewards/audit", label: "Audit Log", icon: ScrollText },
 ];
