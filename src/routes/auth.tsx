@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { useEffect, useState, type FormEvent } from "react";
 import { Header } from "@/components/Header";
@@ -7,6 +8,9 @@ import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 import { toast } from "sonner";
 import { ChefHat } from "lucide-react";
+import { getDeviceFingerprint } from "@/lib/device";
+import { checkDeviceForSignup, linkDeviceToCurrentUser, requestDeviceOverride } from "@/lib/devices.functions";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const searchSchema = z.object({ redirect: z.string().optional() });
 
@@ -47,6 +51,13 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [blockedMsg, setBlockedMsg] = useState<string | null>(null);
+  const [overrideOpen, setOverrideOpen] = useState(false);
+  const [overrideReason, setOverrideReason] = useState("");
+  const [overrideContact, setOverrideContact] = useState("");
+  const checkFn = useServerFn(checkDeviceForSignup);
+  const linkFn = useServerFn(linkDeviceToCurrentUser);
+  const overrideFn = useServerFn(requestDeviceOverride);
 
   const dest = redirect || ROLE_DEST[role];
 

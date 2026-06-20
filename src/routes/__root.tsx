@@ -15,6 +15,7 @@ import { AuthProvider } from "@/lib/auth";
 import { CartProvider } from "@/lib/cart";
 import { NotificationsProvider } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
+import { ensureDeviceRegistered } from "@/lib/device";
 
 function NotFoundComponent() {
   return (
@@ -103,6 +104,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  useEffect(() => { ensureDeviceRegistered().catch(() => {}); }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
