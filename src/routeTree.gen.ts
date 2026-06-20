@@ -55,6 +55,12 @@ import { Route as AuthenticatedAdminDeliveryRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminCouponsRouteImport } from './routes/_authenticated/admin/coupons'
 import { Route as AuthenticatedAdminCampaignsRouteImport } from './routes/_authenticated/admin/campaigns'
 import { Route as AuthenticatedAdminAbuseRouteImport } from './routes/_authenticated/admin/abuse'
+import { Route as AuthenticatedAdminRewardsRouteRouteImport } from './routes/_authenticated/admin/rewards/route'
+import { Route as AuthenticatedAdminRewardsIndexRouteImport } from './routes/_authenticated/admin/rewards/index'
+import { Route as AuthenticatedAdminRewardsWheelsRouteImport } from './routes/_authenticated/admin/rewards/wheels'
+import { Route as AuthenticatedAdminRewardsReferralsRouteImport } from './routes/_authenticated/admin/rewards/referrals'
+import { Route as AuthenticatedAdminRewardsAuditRouteImport } from './routes/_authenticated/admin/rewards/audit'
+import { Route as AuthenticatedAdminRewardsAnalyticsRouteImport } from './routes/_authenticated/admin/rewards/analytics'
 
 const TrustRoute = TrustRouteImport.update({
   id: '/trust',
@@ -308,6 +314,42 @@ const AuthenticatedAdminAbuseRoute = AuthenticatedAdminAbuseRouteImport.update({
   path: '/abuse',
   getParentRoute: () => AuthenticatedAdminRouteRoute,
 } as any)
+const AuthenticatedAdminRewardsRouteRoute =
+  AuthenticatedAdminRewardsRouteRouteImport.update({
+    id: '/rewards',
+    path: '/rewards',
+    getParentRoute: () => AuthenticatedAdminRouteRoute,
+  } as any)
+const AuthenticatedAdminRewardsIndexRoute =
+  AuthenticatedAdminRewardsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
+  } as any)
+const AuthenticatedAdminRewardsWheelsRoute =
+  AuthenticatedAdminRewardsWheelsRouteImport.update({
+    id: '/wheels',
+    path: '/wheels',
+    getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
+  } as any)
+const AuthenticatedAdminRewardsReferralsRoute =
+  AuthenticatedAdminRewardsReferralsRouteImport.update({
+    id: '/referrals',
+    path: '/referrals',
+    getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
+  } as any)
+const AuthenticatedAdminRewardsAuditRoute =
+  AuthenticatedAdminRewardsAuditRouteImport.update({
+    id: '/audit',
+    path: '/audit',
+    getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
+  } as any)
+const AuthenticatedAdminRewardsAnalyticsRoute =
+  AuthenticatedAdminRewardsAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -331,6 +373,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/admin/rewards': typeof AuthenticatedAdminRewardsRouteRouteWithChildren
   '/admin/abuse': typeof AuthenticatedAdminAbuseRoute
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/coupons': typeof AuthenticatedAdminCouponsRoute
@@ -355,6 +398,11 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/delivery/': typeof AuthenticatedDeliveryIndexRoute
   '/seller/': typeof AuthenticatedSellerIndexRoute
+  '/admin/rewards/analytics': typeof AuthenticatedAdminRewardsAnalyticsRoute
+  '/admin/rewards/audit': typeof AuthenticatedAdminRewardsAuditRoute
+  '/admin/rewards/referrals': typeof AuthenticatedAdminRewardsReferralsRoute
+  '/admin/rewards/wheels': typeof AuthenticatedAdminRewardsWheelsRoute
+  '/admin/rewards/': typeof AuthenticatedAdminRewardsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -399,6 +447,11 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/delivery': typeof AuthenticatedDeliveryIndexRoute
   '/seller': typeof AuthenticatedSellerIndexRoute
+  '/admin/rewards/analytics': typeof AuthenticatedAdminRewardsAnalyticsRoute
+  '/admin/rewards/audit': typeof AuthenticatedAdminRewardsAuditRoute
+  '/admin/rewards/referrals': typeof AuthenticatedAdminRewardsReferralsRoute
+  '/admin/rewards/wheels': typeof AuthenticatedAdminRewardsWheelsRoute
+  '/admin/rewards': typeof AuthenticatedAdminRewardsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -424,6 +477,7 @@ export interface FileRoutesById {
   '/_authenticated/wishlist': typeof AuthenticatedWishlistRoute
   '/dish/$id': typeof DishIdRoute
   '/meal-plans/$id': typeof MealPlansIdRoute
+  '/_authenticated/admin/rewards': typeof AuthenticatedAdminRewardsRouteRouteWithChildren
   '/_authenticated/admin/abuse': typeof AuthenticatedAdminAbuseRoute
   '/_authenticated/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/_authenticated/admin/coupons': typeof AuthenticatedAdminCouponsRoute
@@ -448,6 +502,11 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/delivery/': typeof AuthenticatedDeliveryIndexRoute
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
+  '/_authenticated/admin/rewards/analytics': typeof AuthenticatedAdminRewardsAnalyticsRoute
+  '/_authenticated/admin/rewards/audit': typeof AuthenticatedAdminRewardsAuditRoute
+  '/_authenticated/admin/rewards/referrals': typeof AuthenticatedAdminRewardsReferralsRoute
+  '/_authenticated/admin/rewards/wheels': typeof AuthenticatedAdminRewardsWheelsRoute
+  '/_authenticated/admin/rewards/': typeof AuthenticatedAdminRewardsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -473,6 +532,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/admin/rewards'
     | '/admin/abuse'
     | '/admin/campaigns'
     | '/admin/coupons'
@@ -497,6 +557,11 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/delivery/'
     | '/seller/'
+    | '/admin/rewards/analytics'
+    | '/admin/rewards/audit'
+    | '/admin/rewards/referrals'
+    | '/admin/rewards/wheels'
+    | '/admin/rewards/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -541,6 +606,11 @@ export interface FileRouteTypes {
     | '/admin'
     | '/delivery'
     | '/seller'
+    | '/admin/rewards/analytics'
+    | '/admin/rewards/audit'
+    | '/admin/rewards/referrals'
+    | '/admin/rewards/wheels'
+    | '/admin/rewards'
   id:
     | '__root__'
     | '/'
@@ -565,6 +635,7 @@ export interface FileRouteTypes {
     | '/_authenticated/wishlist'
     | '/dish/$id'
     | '/meal-plans/$id'
+    | '/_authenticated/admin/rewards'
     | '/_authenticated/admin/abuse'
     | '/_authenticated/admin/campaigns'
     | '/_authenticated/admin/coupons'
@@ -589,6 +660,11 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/delivery/'
     | '/_authenticated/seller/'
+    | '/_authenticated/admin/rewards/analytics'
+    | '/_authenticated/admin/rewards/audit'
+    | '/_authenticated/admin/rewards/referrals'
+    | '/_authenticated/admin/rewards/wheels'
+    | '/_authenticated/admin/rewards/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -930,10 +1006,77 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAbuseRouteImport
       parentRoute: typeof AuthenticatedAdminRouteRoute
     }
+    '/_authenticated/admin/rewards': {
+      id: '/_authenticated/admin/rewards'
+      path: '/rewards'
+      fullPath: '/admin/rewards'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsRouteRouteImport
+      parentRoute: typeof AuthenticatedAdminRouteRoute
+    }
+    '/_authenticated/admin/rewards/': {
+      id: '/_authenticated/admin/rewards/'
+      path: '/'
+      fullPath: '/admin/rewards/'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
+    }
+    '/_authenticated/admin/rewards/wheels': {
+      id: '/_authenticated/admin/rewards/wheels'
+      path: '/wheels'
+      fullPath: '/admin/rewards/wheels'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsWheelsRouteImport
+      parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
+    }
+    '/_authenticated/admin/rewards/referrals': {
+      id: '/_authenticated/admin/rewards/referrals'
+      path: '/referrals'
+      fullPath: '/admin/rewards/referrals'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsReferralsRouteImport
+      parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
+    }
+    '/_authenticated/admin/rewards/audit': {
+      id: '/_authenticated/admin/rewards/audit'
+      path: '/audit'
+      fullPath: '/admin/rewards/audit'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsAuditRouteImport
+      parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
+    }
+    '/_authenticated/admin/rewards/analytics': {
+      id: '/_authenticated/admin/rewards/analytics'
+      path: '/analytics'
+      fullPath: '/admin/rewards/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRewardsRouteRouteChildren {
+  AuthenticatedAdminRewardsAnalyticsRoute: typeof AuthenticatedAdminRewardsAnalyticsRoute
+  AuthenticatedAdminRewardsAuditRoute: typeof AuthenticatedAdminRewardsAuditRoute
+  AuthenticatedAdminRewardsReferralsRoute: typeof AuthenticatedAdminRewardsReferralsRoute
+  AuthenticatedAdminRewardsWheelsRoute: typeof AuthenticatedAdminRewardsWheelsRoute
+  AuthenticatedAdminRewardsIndexRoute: typeof AuthenticatedAdminRewardsIndexRoute
+}
+
+const AuthenticatedAdminRewardsRouteRouteChildren: AuthenticatedAdminRewardsRouteRouteChildren =
+  {
+    AuthenticatedAdminRewardsAnalyticsRoute:
+      AuthenticatedAdminRewardsAnalyticsRoute,
+    AuthenticatedAdminRewardsAuditRoute: AuthenticatedAdminRewardsAuditRoute,
+    AuthenticatedAdminRewardsReferralsRoute:
+      AuthenticatedAdminRewardsReferralsRoute,
+    AuthenticatedAdminRewardsWheelsRoute: AuthenticatedAdminRewardsWheelsRoute,
+    AuthenticatedAdminRewardsIndexRoute: AuthenticatedAdminRewardsIndexRoute,
+  }
+
+const AuthenticatedAdminRewardsRouteRouteWithChildren =
+  AuthenticatedAdminRewardsRouteRoute._addFileChildren(
+    AuthenticatedAdminRewardsRouteRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteRouteChildren {
+  AuthenticatedAdminRewardsRouteRoute: typeof AuthenticatedAdminRewardsRouteRouteWithChildren
   AuthenticatedAdminAbuseRoute: typeof AuthenticatedAdminAbuseRoute
   AuthenticatedAdminCampaignsRoute: typeof AuthenticatedAdminCampaignsRoute
   AuthenticatedAdminCouponsRoute: typeof AuthenticatedAdminCouponsRoute
@@ -948,6 +1091,8 @@ interface AuthenticatedAdminRouteRouteChildren {
 
 const AuthenticatedAdminRouteRouteChildren: AuthenticatedAdminRouteRouteChildren =
   {
+    AuthenticatedAdminRewardsRouteRoute:
+      AuthenticatedAdminRewardsRouteRouteWithChildren,
     AuthenticatedAdminAbuseRoute: AuthenticatedAdminAbuseRoute,
     AuthenticatedAdminCampaignsRoute: AuthenticatedAdminCampaignsRoute,
     AuthenticatedAdminCouponsRoute: AuthenticatedAdminCouponsRoute,
