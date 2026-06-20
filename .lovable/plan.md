@@ -1,82 +1,67 @@
-# MealNest Promotions & Rewards System
+# Rewards & Promotions Admin Management
 
-The existing `coupons` table is minimal (10 columns, 2 policies). We'll extend the schema substantially and ship in 4 phases so each phase is reviewable and testable. Admin + Seller dashboards, customer-facing redemption, and analytics are all in scope.
+Build an admin-configurable system for the Referral Program and Mystery Wheel so all rewards, probabilities, limits, eligibility, fraud rules, and campaign schedules can be edited at runtime — no code changes.
 
-## Phase 1 — Coupon Engine Foundation (core of the request)
-**Schema (migration):**
-- Extend `coupons`: `scope` (`platform`|`seller`|`category`), `seller_id`, `discount_type` (`flat`|`percent`|`free_delivery`|`partial_delivery`), `value`, `max_discount`, `min_order_value`, `usage_limit_total`, `usage_limit_per_user`, `starts_at`, `expires_at`, `applies_to` (`order`|`subscription`|`both`), `subscription_plan_types` (text[]), `category_ids` (uuid[]), `cuisine_tags` (text[]), `geo_pincodes` (text[]), `festival_tag`, `is_active`, `metadata jsonb`.
-- New `coupon_redemptions` (coupon_id, user_id, order_id, subscription_id, discount_amount, redeemed_at).
-- Helper SQL function `public.validate_coupon(_code, _user, _seller, _order_total, _kind)` returning `(valid, discount, reason)`.
-- GRANTs + RLS: admins manage all; sellers manage their own (`seller` scope + their `seller_id`); authenticated users SELECT active coupons; redemptions readable by owner/admin/seller.
+## 1. Database (new migration)
 
-**Server functions (`src/lib/coupons.functions.ts`):**
-- `adminListCoupons`, `adminUpsertCoupon`, `adminToggleCoupon`
-- `sellerListCoupons`, `sellerUpsertCoupon`
-- `previewCoupon` (validate without redeeming)
-- `redeemCoupon` (atomic; checks usage limits, dates, min order, scope)
+New tables (all `public`, with GRANTs + RLS; admin-write via `has_role(uid,'admin')`, read-where-needed for users):
 
-**UI:**
-- `/_authenticated/admin/coupons` — list + create/edit dialog (all discount types, festival tag, plan types, categories, dates, limits).
-- `/_authenticated/seller/coupons` — same but locked to seller scope + kitchen-only flags.
-- Customer: coupon input on cart/checkout and subscription checkout, applies discount via `previewCoupon`.
+- `referral_campaigns` — id, name, active, starts_at, ends_at, referrer_reward_type (`cash|coupon|coins|free_delivery|sub_discount`), referrer_reward_value, referred_reward_type, referred_reward_value, min_order_amount, max_uses_per_referrer, reward_trigger (`first_order|payment|subscription`), expiry_days, fraud flags (device/duplicate/multi/ip/self), created_by, timestamps.
+- `mystery_wheels` — id, name, scope (`global|seller|campaign`), seller_id?, active, starts_at, ends_at, spins_per_day, spins_per_week, spins_per_month, eligibility (login/order/subscription/min_purchase/referral_done), min_purchase_amount, created_by.
+- `mystery_wheel_segments` — id, wheel_id, label, reward_type (`cash_off|percent_off|free_delivery|coins|sub_discount|free_food|jackpot_coupon|better_luck`), reward_value, coupon_template (jsonb: min_order, max_discount, applies_to, expires_days, stackable), probability_weight numeric, active, sort_order, color.
+- `reward_redemption_rules` — id, wheel_id|campaign_id, expires_days, min_order_value, max_usage, stackable, subscription_applicable.
+- `rewards_audit_log` — id, admin_id, action, entity_type, entity_id, previous_value jsonb, new_value jsonb, created_at.
+- `referral_fraud_events` — id, user_id, kind, ip, device_fingerprint, details, created_at.
+- Extend `user_referral_codes` with `device_fingerprint`, `signup_ip` (nullable, captured client-side).
+- Extend `referrals` with `campaign_id`.
+- Extend `spin_wheel_spins` with `wheel_id`, `segment_id`.
 
-## Phase 2 — Rewards: Coins, Referrals, Streaks, Birthdays
-**Schema:**
-- `loyalty_accounts` (user_id, coins_balance, lifetime_coins, current_streak, longest_streak, last_order_date).
-- `loyalty_transactions` (user_id, delta, reason, ref_id, ref_type).
-- `referrals` (referrer_id, referee_id, code, status, reward_given_at).
-- `user_referral_codes` (user_id PK, code unique).
-- Add `dob`, `anniversary` columns to `profiles`.
-- Triggers: on `orders` insert with status `delivered` → award coins (`floor(total/10)`), update streak, fire streak-milestone coupons.
-- Cron (pg_cron): daily birthday/anniversary coupon issuance.
+DB functions:
 
-**Server functions:**
-- `getMyLoyalty`, `redeemCoins` (convert to one-shot coupon), `generateReferralCode`, `applyReferralCode`, `claimStreakReward`.
+- `validate_wheel_probabilities(_wheel uuid)` — sums active segment weights; raises if not ~100.
+- Rewrite `spin_wheel(_user, _wheel)` → reads active wheel, checks eligibility + per-period spin limits, weighted random over `mystery_wheel_segments`, materializes coupon per `coupon_template`, logs `spin_wheel_spins` with segment id.
+- Rewrite `apply_referral_code(_user, _code, _ip, _device)` → resolves active campaign, runs fraud checks (self/dup-device/dup-ip), records `referrals` w/ campaign.
+- New `process_referral_reward(_user, _trigger)` — called by triggers on orders/payments/subscriptions per campaign.reward_trigger.
+- `log_rewards_audit(...)` helper, called by all admin server fns.
 
-**UI:**
-- `/_authenticated/rewards` — coins balance, streak progress, referral code share, milestones, redeem coins → coupon.
+## 2. Server functions (`src/lib/rewards-admin.functions.ts`)
 
-## Phase 3 — Campaigns: Festivals, Happy Hour, Flash Sales, Combos, Family/Corporate
-**Schema:**
-- `promotional_campaigns` (id, scope, seller_id, type [`festival`|`happy_hour`|`flash_sale`|`combo`|`family_plan`|`corporate`|`weather`], name, config jsonb, starts_at, ends_at, audience_limit, audience_used, is_active).
-- `campaign_redemptions` for tracking.
-- Combo rules stored as jsonb (`buy: [...]`, `get: [...]`).
+All gated by `has_role(uid,'admin')`. Each mutating call writes to `rewards_audit_log`.
 
-**Server functions / logic:**
-- `listActiveCampaigns(sellerId?)` — used by browse/cart to surface badges + auto-apply.
-- `applyHappyHour(orderDraft)` — applies time-window discount automatically.
-- `joinFlashSale` — atomic counter via Postgres function.
-- `corporateBulkQuote` — admin endpoint.
+Referral campaigns: `listReferralCampaigns`, `upsertReferralCampaign`, `toggleReferralCampaign`, `deleteReferralCampaign`.
 
-**UI:**
-- Admin: `/admin/campaigns` (festival scheduler with Diwali/Christmas presets).
-- Seller: `/seller/campaigns` (happy hour windows, flash sales with countdown, combo builder).
-- Customer: campaign banners on home + dish/seller pages with live countdown for flash sales.
+Mystery wheels: `listWheels`, `upsertWheel`, `toggleWheel`, `deleteWheel`, `listSegments`, `upsertSegment`, `deleteSegment`, `reorderSegments`, `validateWheelProbabilities`.
 
-## Phase 4 — Gamification, Spin & Win, Mystery Rewards, Sponsorships, Analytics
-**Schema:**
-- `achievements` (key, name, criteria jsonb, reward jsonb), `user_achievements` (user_id, achievement_key, unlocked_at).
-- `spin_wheel_spins` (user_id, spun_at, prize jsonb) — 1/day enforced by unique partial index.
-- `mystery_rewards` triggered every 10 delivered orders (server fn).
-- `seller_sponsorships` (seller_id, type [`new_boost`|`featured`|`top_rated`], starts_at, ends_at, admin_id, badge).
+Analytics: `getReferralAnalytics` (totals, conversions, revenue), `getWheelAnalytics` (spins, top rewards, cost, conversion).
 
-**Server functions:**
-- `spinWheel`, `claimMysteryReward`, `adminGrantSponsorship`, `adminCampaignAnalytics`, `sellerCampaignAnalytics` (usage rate, revenue from coupons via redemptions×order totals, retention, subscription conversion).
+Audit: `getAuditLog(filters)`.
 
-**UI:**
-- Customer: `/rewards` adds Spin & Win wheel + achievements grid + mystery progress.
-- Admin: `/admin/analytics/promotions` (top campaigns, ROI, conversion).
-- Seller: analytics tab in `/seller/coupons`.
-- Browse page: featured badges from `seller_sponsorships`.
+## 3. Admin UI (new routes under `_authenticated/admin/`)
 
-## Technical notes
-- All discount math runs server-side in `validate_coupon` + `redeemCoupon` to prevent client tampering.
-- Coupon application order at checkout: campaign auto-discounts → coupon code → coin redemption → free-delivery flag. Atomic transaction.
-- Weather-based offers use a config flag on campaigns; an optional cron pulls a weather API (deferred; admin can manually toggle for v1).
-- Realtime not required; checkout re-fetches on apply.
-- Audit log: reuse existing audit pattern for admin actions on coupons/campaigns/sponsorships.
+- `admin/rewards/route.tsx` — tabbed layout: Referrals, Wheels, Loyalty, Analytics, Audit.
+- `admin/rewards/index.tsx` — overview cards.
+- `admin/rewards/referrals.tsx` — list + drawer editor with all fields (reward types, triggers, limits, fraud toggles, schedule).
+- `admin/rewards/wheels.tsx` — wheel list, create wheel, segment editor with live probability bar (sum + validation), color picker, weighted preview spin.
+- `admin/rewards/loyalty.tsx` — existing achievements + coin tier config.
+- `admin/rewards/analytics.tsx` — charts for referral + wheel.
+- `admin/rewards/audit.tsx` — paginated audit log with diff view.
+- Add nav entry in admin sidebar.
 
-## What I'd like to confirm
-1. Ship **Phase 1 now** and then continue with 2 → 3 → 4 in subsequent turns? (Recommended — each phase is already large.)
-2. Currency: ₹ (INR) throughout — confirm.
-3. Weather API: skip auto-trigger for now (admin manual toggle), or wire one up later?
+## 4. Client wiring
+
+- `SpinWheel.tsx` — fetch active wheel + segments from server, render dynamic segments, respect per-period limits.
+- Referral apply call passes captured device fingerprint (lightweight `navigator`-based hash) and lets server read IP from request header.
+- Existing `gamification.functions.ts` `spinWheel` switches to new dynamic path.
+
+## 5. Safety
+
+- DB trigger on `mystery_wheel_segments` recomputes active probability sum; reject save if not 100 (±0.5 tolerance) via server-side validation before activation.
+- Reward value caps configurable per campaign; server clamps.
+- Idempotent claims via unique `(user_id, spin_id)` and existing `reward_claim_attempts` rate limiting reused.
+- All admin endpoints require `has_role 'admin'`; UI route gated.
+
+## Out of scope (this pass)
+
+- Email/SMS notifications for new campaigns.
+- A/B experimentation framework.
+- Real device-fingerprinting library beyond simple UA+canvas hash.
