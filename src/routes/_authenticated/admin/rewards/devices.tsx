@@ -128,21 +128,23 @@ function AdminDevices() {
       <Dialog open={!!selectedId} onOpenChange={(o) => !o && setSelectedId(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Device details</DialogTitle></DialogHeader>
-          {det?.device && (
+          {det?.device && (() => {
+            const dev: any = det.device;
+            return (
             <div className="space-y-4 text-sm">
               <div className="rounded-xl border border-border p-3">
-                <div className="font-mono text-xs break-all">{det.device.fingerprint}</div>
-                <div className="mt-1 text-xs text-muted-foreground">{det.device.user_agent}</div>
+                <div className="font-mono text-xs break-all">{dev.fingerprint}</div>
+                <div className="mt-1 text-xs text-muted-foreground">{dev.user_agent}</div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-xs ${RISK_COLORS[det.device.risk_level] ?? ""}`}>Risk: {det.device.risk_level} ({det.device.risk_score})</span>
-                  {det.device.blacklisted && <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-600">Blacklisted</span>}
+                  <span className={`rounded-full px-2 py-0.5 text-xs ${RISK_COLORS[dev.risk_level] ?? ""}`}>Risk: {dev.risk_level} ({dev.risk_score})</span>
+                  {dev.blacklisted && <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-600">Blacklisted</span>}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <Button size="sm" variant={det.device.blacklisted ? "outline" : "destructive"}
-                    onClick={() => blackM.mutate({ id: det.device.id, blacklisted: !det.device.blacklisted })}>
-                    {det.device.blacklisted ? <><ShieldOff className="mr-1 h-3 w-3"/>Unblacklist</> : <><Ban className="mr-1 h-3 w-3"/>Blacklist</>}
+                  <Button size="sm" variant={dev.blacklisted ? "outline" : "destructive"}
+                    onClick={() => blackM.mutate({ id: dev.id, blacklisted: !dev.blacklisted })}>
+                    {dev.blacklisted ? <><ShieldOff className="mr-1 h-3 w-3"/>Unblacklist</> : <><Ban className="mr-1 h-3 w-3"/>Blacklist</>}
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => removeM.mutate(det.device.id)}>
+                  <Button size="sm" variant="outline" onClick={() => removeM.mutate(dev.id)}>
                     <Shield className="mr-1 h-3 w-3"/>Remove restrictions
                   </Button>
                 </div>
@@ -184,7 +186,8 @@ function AdminDevices() {
                 </div>
               </div>
             </div>
-          )}
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>

@@ -25,6 +25,7 @@ import { Route as AuthenticatedWishlistRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedMySubscriptionsRouteImport } from './routes/_authenticated/my-subscriptions'
+import { Route as AuthenticatedDevicesRouteImport } from './routes/_authenticated/devices'
 import { Route as AuthenticatedDeliveryRouteImport } from './routes/_authenticated/delivery'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedBecomeSellerRouteImport } from './routes/_authenticated/become-seller'
@@ -59,6 +60,7 @@ import { Route as AuthenticatedAdminRewardsRouteRouteImport } from './routes/_au
 import { Route as AuthenticatedAdminRewardsIndexRouteImport } from './routes/_authenticated/admin/rewards/index'
 import { Route as AuthenticatedAdminRewardsWheelsRouteImport } from './routes/_authenticated/admin/rewards/wheels'
 import { Route as AuthenticatedAdminRewardsReferralsRouteImport } from './routes/_authenticated/admin/rewards/referrals'
+import { Route as AuthenticatedAdminRewardsDevicesRouteImport } from './routes/_authenticated/admin/rewards/devices'
 import { Route as AuthenticatedAdminRewardsAuditRouteImport } from './routes/_authenticated/admin/rewards/audit'
 import { Route as AuthenticatedAdminRewardsAnalyticsRouteImport } from './routes/_authenticated/admin/rewards/analytics'
 
@@ -142,6 +144,11 @@ const AuthenticatedMySubscriptionsRoute =
     path: '/my-subscriptions',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDevicesRoute = AuthenticatedDevicesRouteImport.update({
+  id: '/devices',
+  path: '/devices',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDeliveryRoute = AuthenticatedDeliveryRouteImport.update({
   id: '/delivery',
   path: '/delivery',
@@ -338,6 +345,12 @@ const AuthenticatedAdminRewardsReferralsRoute =
     path: '/referrals',
     getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
   } as any)
+const AuthenticatedAdminRewardsDevicesRoute =
+  AuthenticatedAdminRewardsDevicesRouteImport.update({
+    id: '/devices',
+    path: '/devices',
+    getParentRoute: () => AuthenticatedAdminRewardsRouteRoute,
+  } as any)
 const AuthenticatedAdminRewardsAuditRoute =
   AuthenticatedAdminRewardsAuditRouteImport.update({
     id: '/audit',
@@ -367,6 +380,7 @@ export interface FileRoutesByFullPath {
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/delivery': typeof AuthenticatedDeliveryRouteWithChildren
+  '/devices': typeof AuthenticatedDevicesRoute
   '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/rewards': typeof AuthenticatedRewardsRoute
@@ -400,6 +414,7 @@ export interface FileRoutesByFullPath {
   '/seller/': typeof AuthenticatedSellerIndexRoute
   '/admin/rewards/analytics': typeof AuthenticatedAdminRewardsAnalyticsRoute
   '/admin/rewards/audit': typeof AuthenticatedAdminRewardsAuditRoute
+  '/admin/rewards/devices': typeof AuthenticatedAdminRewardsDevicesRoute
   '/admin/rewards/referrals': typeof AuthenticatedAdminRewardsReferralsRoute
   '/admin/rewards/wheels': typeof AuthenticatedAdminRewardsWheelsRoute
   '/admin/rewards/': typeof AuthenticatedAdminRewardsIndexRoute
@@ -417,6 +432,7 @@ export interface FileRoutesByTo {
   '/addresses': typeof AuthenticatedAddressesRoute
   '/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
+  '/devices': typeof AuthenticatedDevicesRoute
   '/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/rewards': typeof AuthenticatedRewardsRoute
@@ -449,6 +465,7 @@ export interface FileRoutesByTo {
   '/seller': typeof AuthenticatedSellerIndexRoute
   '/admin/rewards/analytics': typeof AuthenticatedAdminRewardsAnalyticsRoute
   '/admin/rewards/audit': typeof AuthenticatedAdminRewardsAuditRoute
+  '/admin/rewards/devices': typeof AuthenticatedAdminRewardsDevicesRoute
   '/admin/rewards/referrals': typeof AuthenticatedAdminRewardsReferralsRoute
   '/admin/rewards/wheels': typeof AuthenticatedAdminRewardsWheelsRoute
   '/admin/rewards': typeof AuthenticatedAdminRewardsIndexRoute
@@ -471,6 +488,7 @@ export interface FileRoutesById {
   '/_authenticated/become-seller': typeof AuthenticatedBecomeSellerRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/delivery': typeof AuthenticatedDeliveryRouteWithChildren
+  '/_authenticated/devices': typeof AuthenticatedDevicesRoute
   '/_authenticated/my-subscriptions': typeof AuthenticatedMySubscriptionsRouteWithChildren
   '/_authenticated/orders': typeof AuthenticatedOrdersRouteWithChildren
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
@@ -504,6 +522,7 @@ export interface FileRoutesById {
   '/_authenticated/seller/': typeof AuthenticatedSellerIndexRoute
   '/_authenticated/admin/rewards/analytics': typeof AuthenticatedAdminRewardsAnalyticsRoute
   '/_authenticated/admin/rewards/audit': typeof AuthenticatedAdminRewardsAuditRoute
+  '/_authenticated/admin/rewards/devices': typeof AuthenticatedAdminRewardsDevicesRoute
   '/_authenticated/admin/rewards/referrals': typeof AuthenticatedAdminRewardsReferralsRoute
   '/_authenticated/admin/rewards/wheels': typeof AuthenticatedAdminRewardsWheelsRoute
   '/_authenticated/admin/rewards/': typeof AuthenticatedAdminRewardsIndexRoute
@@ -526,6 +545,7 @@ export interface FileRouteTypes {
     | '/become-seller'
     | '/checkout'
     | '/delivery'
+    | '/devices'
     | '/my-subscriptions'
     | '/orders'
     | '/rewards'
@@ -559,6 +579,7 @@ export interface FileRouteTypes {
     | '/seller/'
     | '/admin/rewards/analytics'
     | '/admin/rewards/audit'
+    | '/admin/rewards/devices'
     | '/admin/rewards/referrals'
     | '/admin/rewards/wheels'
     | '/admin/rewards/'
@@ -576,6 +597,7 @@ export interface FileRouteTypes {
     | '/addresses'
     | '/become-seller'
     | '/checkout'
+    | '/devices'
     | '/my-subscriptions'
     | '/orders'
     | '/rewards'
@@ -608,6 +630,7 @@ export interface FileRouteTypes {
     | '/seller'
     | '/admin/rewards/analytics'
     | '/admin/rewards/audit'
+    | '/admin/rewards/devices'
     | '/admin/rewards/referrals'
     | '/admin/rewards/wheels'
     | '/admin/rewards'
@@ -629,6 +652,7 @@ export interface FileRouteTypes {
     | '/_authenticated/become-seller'
     | '/_authenticated/checkout'
     | '/_authenticated/delivery'
+    | '/_authenticated/devices'
     | '/_authenticated/my-subscriptions'
     | '/_authenticated/orders'
     | '/_authenticated/rewards'
@@ -662,6 +686,7 @@ export interface FileRouteTypes {
     | '/_authenticated/seller/'
     | '/_authenticated/admin/rewards/analytics'
     | '/_authenticated/admin/rewards/audit'
+    | '/_authenticated/admin/rewards/devices'
     | '/_authenticated/admin/rewards/referrals'
     | '/_authenticated/admin/rewards/wheels'
     | '/_authenticated/admin/rewards/'
@@ -794,6 +819,13 @@ declare module '@tanstack/react-router' {
       path: '/my-subscriptions'
       fullPath: '/my-subscriptions'
       preLoaderRoute: typeof AuthenticatedMySubscriptionsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/devices': {
+      id: '/_authenticated/devices'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof AuthenticatedDevicesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/delivery': {
@@ -1034,6 +1066,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRewardsReferralsRouteImport
       parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
     }
+    '/_authenticated/admin/rewards/devices': {
+      id: '/_authenticated/admin/rewards/devices'
+      path: '/devices'
+      fullPath: '/admin/rewards/devices'
+      preLoaderRoute: typeof AuthenticatedAdminRewardsDevicesRouteImport
+      parentRoute: typeof AuthenticatedAdminRewardsRouteRoute
+    }
     '/_authenticated/admin/rewards/audit': {
       id: '/_authenticated/admin/rewards/audit'
       path: '/audit'
@@ -1054,6 +1093,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRewardsRouteRouteChildren {
   AuthenticatedAdminRewardsAnalyticsRoute: typeof AuthenticatedAdminRewardsAnalyticsRoute
   AuthenticatedAdminRewardsAuditRoute: typeof AuthenticatedAdminRewardsAuditRoute
+  AuthenticatedAdminRewardsDevicesRoute: typeof AuthenticatedAdminRewardsDevicesRoute
   AuthenticatedAdminRewardsReferralsRoute: typeof AuthenticatedAdminRewardsReferralsRoute
   AuthenticatedAdminRewardsWheelsRoute: typeof AuthenticatedAdminRewardsWheelsRoute
   AuthenticatedAdminRewardsIndexRoute: typeof AuthenticatedAdminRewardsIndexRoute
@@ -1064,6 +1104,8 @@ const AuthenticatedAdminRewardsRouteRouteChildren: AuthenticatedAdminRewardsRout
     AuthenticatedAdminRewardsAnalyticsRoute:
       AuthenticatedAdminRewardsAnalyticsRoute,
     AuthenticatedAdminRewardsAuditRoute: AuthenticatedAdminRewardsAuditRoute,
+    AuthenticatedAdminRewardsDevicesRoute:
+      AuthenticatedAdminRewardsDevicesRoute,
     AuthenticatedAdminRewardsReferralsRoute:
       AuthenticatedAdminRewardsReferralsRoute,
     AuthenticatedAdminRewardsWheelsRoute: AuthenticatedAdminRewardsWheelsRoute,
@@ -1188,6 +1230,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedBecomeSellerRoute: typeof AuthenticatedBecomeSellerRoute
   AuthenticatedCheckoutRoute: typeof AuthenticatedCheckoutRoute
   AuthenticatedDeliveryRoute: typeof AuthenticatedDeliveryRouteWithChildren
+  AuthenticatedDevicesRoute: typeof AuthenticatedDevicesRoute
   AuthenticatedMySubscriptionsRoute: typeof AuthenticatedMySubscriptionsRouteWithChildren
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRouteWithChildren
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
@@ -1201,6 +1244,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedBecomeSellerRoute: AuthenticatedBecomeSellerRoute,
   AuthenticatedCheckoutRoute: AuthenticatedCheckoutRoute,
   AuthenticatedDeliveryRoute: AuthenticatedDeliveryRouteWithChildren,
+  AuthenticatedDevicesRoute: AuthenticatedDevicesRoute,
   AuthenticatedMySubscriptionsRoute:
     AuthenticatedMySubscriptionsRouteWithChildren,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRouteWithChildren,

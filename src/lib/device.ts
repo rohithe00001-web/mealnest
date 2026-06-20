@@ -91,12 +91,12 @@ export async function ensureDeviceRegistered(): Promise<string | null> {
   if (typeof window === "undefined") return null;
   try {
     const fp = await getDeviceFingerprint();
-    const { data, error } = await supabase.rpc("register_device", {
+    const { data, error } = await supabase.rpc("register_device" as any, {
       _fingerprint: fp,
       _ua: navigator.userAgent,
       _platform: navigator.platform,
       _ip: null,
-    });
+    } as any);
     if (error) return null;
     const id = data as unknown as string;
     if (id) setCachedDeviceId(id);
