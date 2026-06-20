@@ -926,6 +926,142 @@ export type Database = {
         }
         Relationships: []
       }
+      mystery_wheel_segments: {
+        Row: {
+          active: boolean
+          applies_to: string
+          color: string
+          coupon_expires_days: number
+          coupon_max_discount: number | null
+          coupon_min_order: number
+          coupon_stackable: boolean
+          created_at: string
+          id: string
+          label: string
+          probability_weight: number
+          reward_type: string
+          reward_value: number
+          sort_order: number
+          wheel_id: string
+        }
+        Insert: {
+          active?: boolean
+          applies_to?: string
+          color?: string
+          coupon_expires_days?: number
+          coupon_max_discount?: number | null
+          coupon_min_order?: number
+          coupon_stackable?: boolean
+          created_at?: string
+          id?: string
+          label: string
+          probability_weight?: number
+          reward_type: string
+          reward_value?: number
+          sort_order?: number
+          wheel_id: string
+        }
+        Update: {
+          active?: boolean
+          applies_to?: string
+          color?: string
+          coupon_expires_days?: number
+          coupon_max_discount?: number | null
+          coupon_min_order?: number
+          coupon_stackable?: boolean
+          created_at?: string
+          id?: string
+          label?: string
+          probability_weight?: number
+          reward_type?: string
+          reward_value?: number
+          sort_order?: number
+          wheel_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mystery_wheel_segments_wheel_id_fkey"
+            columns: ["wheel_id"]
+            isOneToOne: false
+            referencedRelation: "mystery_wheels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mystery_wheels: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          id: string
+          min_purchase_amount: number
+          name: string
+          require_login: boolean
+          require_order: boolean
+          require_referral: boolean
+          require_subscription: boolean
+          scope: string
+          seller_id: string | null
+          spins_per_day: number
+          spins_per_month: number
+          spins_per_week: number
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          min_purchase_amount?: number
+          name: string
+          require_login?: boolean
+          require_order?: boolean
+          require_referral?: boolean
+          require_subscription?: boolean
+          scope?: string
+          seller_id?: string | null
+          spins_per_day?: number
+          spins_per_month?: number
+          spins_per_week?: number
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: string
+          min_purchase_amount?: number
+          name?: string
+          require_login?: boolean
+          require_order?: boolean
+          require_referral?: boolean
+          require_subscription?: boolean
+          scope?: string
+          seller_id?: string | null
+          spins_per_day?: number
+          spins_per_month?: number
+          spins_per_week?: number
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mystery_wheels_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           dish_id: string
@@ -1209,38 +1345,160 @@ export type Database = {
           },
         ]
       }
+      referral_campaigns: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          expiry_days: number
+          fraud_device_check: boolean
+          fraud_duplicate_account: boolean
+          fraud_ip_validation: boolean
+          fraud_multi_referral: boolean
+          fraud_self_block: boolean
+          id: string
+          max_uses_per_referrer: number
+          min_order_amount: number
+          name: string
+          referred_reward_type: string
+          referred_reward_value: number
+          referrer_reward_type: string
+          referrer_reward_value: number
+          reward_trigger: string
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          expiry_days?: number
+          fraud_device_check?: boolean
+          fraud_duplicate_account?: boolean
+          fraud_ip_validation?: boolean
+          fraud_multi_referral?: boolean
+          fraud_self_block?: boolean
+          id?: string
+          max_uses_per_referrer?: number
+          min_order_amount?: number
+          name: string
+          referred_reward_type?: string
+          referred_reward_value?: number
+          referrer_reward_type?: string
+          referrer_reward_value?: number
+          reward_trigger?: string
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          expiry_days?: number
+          fraud_device_check?: boolean
+          fraud_duplicate_account?: boolean
+          fraud_ip_validation?: boolean
+          fraud_multi_referral?: boolean
+          fraud_self_block?: boolean
+          id?: string
+          max_uses_per_referrer?: number
+          min_order_amount?: number
+          name?: string
+          referred_reward_type?: string
+          referred_reward_value?: number
+          referrer_reward_type?: string
+          referrer_reward_value?: number
+          reward_trigger?: string
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_fraud_events: {
+        Row: {
+          created_at: string
+          details: Json | null
+          device_fingerprint: string | null
+          id: string
+          ip: string | null
+          kind: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          device_fingerprint?: string | null
+          id?: string
+          ip?: string | null
+          kind: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          device_fingerprint?: string | null
+          id?: string
+          ip?: string | null
+          kind?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       referrals: {
         Row: {
+          campaign_id: string | null
           code: string
           created_at: string
+          device_fingerprint: string | null
           id: string
           referred_id: string
           referrer_id: string
           reward_coins: number
           rewarded_at: string | null
+          signup_ip: string | null
           status: string
         }
         Insert: {
+          campaign_id?: string | null
           code: string
           created_at?: string
+          device_fingerprint?: string | null
           id?: string
           referred_id: string
           referrer_id: string
           reward_coins?: number
           rewarded_at?: string | null
+          signup_ip?: string | null
           status?: string
         }
         Update: {
+          campaign_id?: string | null
           code?: string
           created_at?: string
+          device_fingerprint?: string | null
           id?: string
           referred_id?: string
           referrer_id?: string
           reward_coins?: number
           rewarded_at?: string | null
+          signup_ip?: string | null
           status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "referrals_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "referral_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
@@ -1327,6 +1585,39 @@ export type Database = {
           success?: boolean
           target_id?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      rewards_audit_log: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          previous_value: Json | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          previous_value?: Json | null
         }
         Relationships: []
       }
@@ -1456,8 +1747,10 @@ export type Database = {
           id: string
           prize_kind: string
           prize_value: number
+          segment_id: string | null
           spin_date: string
           user_id: string
+          wheel_id: string | null
         }
         Insert: {
           coupon_code?: string | null
@@ -1465,8 +1758,10 @@ export type Database = {
           id?: string
           prize_kind: string
           prize_value?: number
+          segment_id?: string | null
           spin_date?: string
           user_id: string
+          wheel_id?: string | null
         }
         Update: {
           coupon_code?: string | null
@@ -1474,10 +1769,27 @@ export type Database = {
           id?: string
           prize_kind?: string
           prize_value?: number
+          segment_id?: string | null
           spin_date?: string
           user_id?: string
+          wheel_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "spin_wheel_spins_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "mystery_wheel_segments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spin_wheel_spins_wheel_id_fkey"
+            columns: ["wheel_id"]
+            isOneToOne: false
+            referencedRelation: "mystery_wheels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscription_deliveries: {
         Row: {
@@ -1791,18 +2103,24 @@ export type Database = {
         Row: {
           code: string
           created_at: string
+          device_fingerprint: string | null
+          signup_ip: string | null
           user_id: string
           uses_count: number
         }
         Insert: {
           code: string
           created_at?: string
+          device_fingerprint?: string | null
+          signup_ip?: string | null
           user_id: string
           uses_count?: number
         }
         Update: {
           code?: string
           created_at?: string
+          device_fingerprint?: string | null
+          signup_ip?: string | null
           user_id?: string
           uses_count?: number
         }
@@ -1911,6 +2229,13 @@ export type Database = {
           success: boolean
         }[]
       }
+      apply_referral_code_v2: {
+        Args: { _code: string; _device?: string; _ip?: string; _user: string }
+        Returns: {
+          reason: string
+          success: boolean
+        }[]
+      }
       claim_mystery_reward: {
         Args: { _id: string; _user: string }
         Returns: {
@@ -1971,6 +2296,17 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_rewards_audit: {
+        Args: {
+          _action: string
+          _admin: string
+          _entity_id: string
+          _entity_type: string
+          _new: Json
+          _previous: Json
+        }
+        Returns: undefined
+      }
       record_abuse: {
         Args: {
           _details: Json
@@ -2015,6 +2351,17 @@ export type Database = {
           reason: string
         }[]
       }
+      spin_wheel_v2: {
+        Args: { _user: string; _wheel?: string }
+        Returns: {
+          coupon_code: string
+          prize_kind: string
+          prize_value: number
+          reason: string
+          segment_label: string
+          wheel_id: string
+        }[]
+      }
       validate_coupon: {
         Args: {
           _code: string
@@ -2028,6 +2375,14 @@ export type Database = {
           discount: number
           discount_type: string
           reason: string
+          valid: boolean
+        }[]
+      }
+      validate_wheel_probabilities: {
+        Args: { _wheel: string }
+        Returns: {
+          reason: string
+          total: number
           valid: boolean
         }[]
       }
