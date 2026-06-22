@@ -45,6 +45,7 @@ function CheckoutPage() {
   const verifyRzpFn = useServerFn(verifyRazorpayPayment);
   const listAddressesFn = useServerFn(listAddresses);
   const previewFn = useServerFn(previewCoupon);
+  const listCouponsFn = useServerFn(listApplicableCoupons);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
