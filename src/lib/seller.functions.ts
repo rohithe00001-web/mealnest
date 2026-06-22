@@ -285,3 +285,51 @@ export const getSellerAnalytics = createServerFn({ method: "GET" })
       topDishes,
     };
   });
+
+// ============ BRANDING ============
+
+const BrandingInput = z.object({
+  logoPath: z.string().max(400).nullable().optional(),
+  bannerPath: z.string().max(400).nullable().optional(),
+  galleryPaths: z.array(z.string().max(400)).max(20).optional(),
+  description: z.string().max(1200).optional().or(z.literal("")),
+  story: z.string().max(2400).optional().or(z.literal("")),
+  cuisines: z.array(z.string().max(40)).max(12).optional(),
+  specialties: z.array(z.string().max(60)).max(12).optional(),
+});
+
+async function signedSellerUrl(supabase: any, path: string | null | undefined) {
+  if (!path) return null;
+  const { data } = await supabase.storage
+    .from("seller-branding")
+    .createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+  return data?.signedUrl ?? null;
+}
+
+export const getSellerBrandingUploadInfo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const me = await getMySeller(context.supabase, context.userId, false);
+    return { sellerId: me.id, bucket: "seller-branding" };
+  });
+
+export const updateSellerBranding = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => BrandingInput.parse(d))
+  .handler(async ({ context, data }) => {
+    const me = await getMySeller(context.supabase, context.userId, false);
+    const patch: any = {};
+    if (data.logoPath !== undefined) patch.logo_url = await signedSellerUrl(context.supabase, data.logoPath);
+    if (data.bannerPath !== undefined) patch.banner_url = await signedSellerUrl(context.supabase, data.bannerPath);
+    if (data.galleryPaths !== undefined) {
+      const urls = await Promise.all(data.galleryPaths.map((p) => signedSellerUrl(context.supabase, p)));
+      patch.gallery = urls.filter(Boolean);
+    }
+    if (data.description !== undefined) patch.description = data.description || null;
+    if (data.story !== undefined) patch.story = data.story || null;
+    if (data.cuisines !== undefined) patch.cuisines = data.cuisines;
+    if (data.specialties !== undefined) patch.specialties = data.specialties;
+    const { error } = await context.supabase.from("sellers").update(patch).eq("id", me.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
