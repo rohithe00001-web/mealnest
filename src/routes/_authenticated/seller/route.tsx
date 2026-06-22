@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft, BarChart3, Calendar, Repeat, Truck, Ticket, Sparkles } from "lucide-react";
+import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft, BarChart3, Calendar, Repeat, Truck, Ticket, Sparkles, Palette } from "lucide-react";
 import { Header } from "@/components/Header";
 import { getSellerMe, updateSellerOpen } from "@/lib/seller.functions";
 
@@ -11,6 +11,7 @@ export const Route = createFileRoute("/_authenticated/seller")({
 
 const NAV = [
   { to: "/seller", label: "Dashboard", icon: LayoutDashboard, exact: true },
+  { to: "/seller/branding", label: "Storefront", icon: Palette },
   { to: "/seller/dishes", label: "Dishes", icon: UtensilsCrossed },
   { to: "/seller/orders", label: "Orders", icon: ShoppingBag },
   { to: "/seller/meal-plans", label: "Meal Plans", icon: Calendar },

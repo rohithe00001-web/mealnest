@@ -31,11 +31,14 @@ type Form = {
   categoryId: string;
   imagePath: string;
   imagePreview: string;
+  badge: "" | "best_seller" | "chef_special" | "recommended" | "new";
+  isFeatured: boolean;
 };
 
 const empty: Form = {
   name: "", description: "", ingredients: "", price: "", prepTimeMin: "30",
   stock: "20", isVeg: true, isAvailable: true, categoryId: "", imagePath: "", imagePreview: "",
+  badge: "", isFeatured: false,
 };
 
 function SellerDishes() {
@@ -59,6 +62,8 @@ function SellerDishes() {
             price: Number(f.price), prepTimeMin: Number(f.prepTimeMin), stock: Number(f.stock),
             isVeg: f.isVeg, isAvailable: f.isAvailable, categoryId: f.categoryId,
             imagePath: f.imagePath,
+            badge: f.badge || null,
+            isFeatured: f.isFeatured,
           },
         },
       }),

@@ -141,6 +141,8 @@ const DishInput = z.object({
   isAvailable: z.boolean(),
   categoryId: z.string().uuid().optional().or(z.literal("")),
   imagePath: z.string().max(400).optional().or(z.literal("")),
+  badge: z.enum(["best_seller", "chef_special", "recommended", "new"]).nullable().optional(),
+  isFeatured: z.boolean().optional(),
 });
 
 async function signedUrlFor(supabase: any, path: string | null | undefined) {
@@ -168,6 +170,8 @@ export const upsertDish = createServerFn({ method: "POST" })
       is_veg: data.data.isVeg,
       is_available: data.data.isAvailable,
       category_id: data.data.categoryId || null,
+      badge: data.data.badge ?? null,
+      is_featured: data.data.isFeatured ?? false,
     };
     if (data.data.imagePath !== undefined) payload.image_url = imageUrl;
 

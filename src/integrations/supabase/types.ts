@@ -1050,6 +1050,7 @@ export type Database = {
       }
       dishes: {
         Row: {
+          badge: Database["public"]["Enums"]["dish_badge"] | null
           category_id: string | null
           created_at: string
           description: string | null
@@ -1058,6 +1059,7 @@ export type Database = {
           image_url: string | null
           ingredients: string | null
           is_available: boolean
+          is_featured: boolean
           is_veg: boolean
           name: string
           prep_time_min: number
@@ -1069,6 +1071,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          badge?: Database["public"]["Enums"]["dish_badge"] | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -1077,6 +1080,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: string | null
           is_available?: boolean
+          is_featured?: boolean
           is_veg?: boolean
           name: string
           prep_time_min?: number
@@ -1088,6 +1092,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          badge?: Database["public"]["Enums"]["dish_badge"] | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -1096,6 +1101,7 @@ export type Database = {
           image_url?: string | null
           ingredients?: string | null
           is_available?: boolean
+          is_featured?: boolean
           is_veg?: boolean
           name?: string
           prep_time_min?: number
@@ -1976,75 +1982,99 @@ export type Database = {
         Row: {
           address_line: string
           bank_details: Json | null
+          banner_url: string | null
           business_hours: Json | null
           city: string
           cover_image_url: string | null
           created_at: string
+          cuisines: string[]
           delivery_radius_km: number
           description: string | null
           email: string | null
           food_license_url: string | null
+          gallery: Json
           id: string
           id_proof_url: string | null
           is_open: boolean
           kitchen_name: string
           latitude: number | null
+          logo_url: string | null
           longitude: number | null
           phone: string
           pincode: string | null
+          prep_time_min_avg: number
           rating_avg: number
           rating_count: number
+          slug: string | null
+          specialties: string[]
           status: Database["public"]["Enums"]["seller_status"]
+          story: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           address_line: string
           bank_details?: Json | null
+          banner_url?: string | null
           business_hours?: Json | null
           city: string
           cover_image_url?: string | null
           created_at?: string
+          cuisines?: string[]
           delivery_radius_km?: number
           description?: string | null
           email?: string | null
           food_license_url?: string | null
+          gallery?: Json
           id?: string
           id_proof_url?: string | null
           is_open?: boolean
           kitchen_name: string
           latitude?: number | null
+          logo_url?: string | null
           longitude?: number | null
           phone: string
           pincode?: string | null
+          prep_time_min_avg?: number
           rating_avg?: number
           rating_count?: number
+          slug?: string | null
+          specialties?: string[]
           status?: Database["public"]["Enums"]["seller_status"]
+          story?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           address_line?: string
           bank_details?: Json | null
+          banner_url?: string | null
           business_hours?: Json | null
           city?: string
           cover_image_url?: string | null
           created_at?: string
+          cuisines?: string[]
           delivery_radius_km?: number
           description?: string | null
           email?: string | null
           food_license_url?: string | null
+          gallery?: Json
           id?: string
           id_proof_url?: string | null
           is_open?: boolean
           kitchen_name?: string
           latitude?: number | null
+          logo_url?: string | null
           longitude?: number | null
           phone?: string
           pincode?: string | null
+          prep_time_min_avg?: number
           rating_avg?: number
           rating_count?: number
+          slug?: string | null
+          specialties?: string[]
           status?: Database["public"]["Enums"]["seller_status"]
+          story?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -2507,25 +2537,33 @@ export type Database = {
         Returns: {
           address_line: string
           bank_details: Json | null
+          banner_url: string | null
           business_hours: Json | null
           city: string
           cover_image_url: string | null
           created_at: string
+          cuisines: string[]
           delivery_radius_km: number
           description: string | null
           email: string | null
           food_license_url: string | null
+          gallery: Json
           id: string
           id_proof_url: string | null
           is_open: boolean
           kitchen_name: string
           latitude: number | null
+          logo_url: string | null
           longitude: number | null
           phone: string
           pincode: string | null
+          prep_time_min_avg: number
           rating_avg: number
           rating_count: number
+          slug: string | null
+          specialties: string[]
           status: Database["public"]["Enums"]["seller_status"]
+          story: string | null
           updated_at: string
           user_id: string
         }[]
@@ -2578,25 +2616,33 @@ export type Database = {
         Returns: {
           address_line: string
           bank_details: Json | null
+          banner_url: string | null
           business_hours: Json | null
           city: string
           cover_image_url: string | null
           created_at: string
+          cuisines: string[]
           delivery_radius_km: number
           description: string | null
           email: string | null
           food_license_url: string | null
+          gallery: Json
           id: string
           id_proof_url: string | null
           is_open: boolean
           kitchen_name: string
           latitude: number | null
+          logo_url: string | null
           longitude: number | null
           phone: string
           pincode: string | null
+          prep_time_min_avg: number
           rating_avg: number
           rating_count: number
+          slug: string | null
+          specialties: string[]
           status: Database["public"]["Enums"]["seller_status"]
+          story: string | null
           updated_at: string
           user_id: string
         }[]
@@ -2758,6 +2804,7 @@ export type Database = {
         | "delivered"
         | "failed"
         | "cancelled"
+      dish_badge: "best_seller" | "chef_special" | "recommended" | "new"
       order_status:
         | "placed"
         | "accepted"
@@ -2927,6 +2974,7 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
+      dish_badge: ["best_seller", "chef_special", "recommended", "new"],
       order_status: [
         "placed",
         "accepted",

@@ -97,18 +97,58 @@ export const dishByIdQuery = (id: string) =>
   });
 
 export const sellersQuery = queryOptions({
-  queryKey: ["sellers"],
+  queryKey: ["sellers", "marketplace"],
   queryFn: async () => {
     const { data, error } = await supabase
       .from("sellers")
-      .select("id, kitchen_name, description, city, rating_avg, rating_count, cover_image_url")
+      .select(
+        "id, slug, kitchen_name, description, city, rating_avg, rating_count, cover_image_url, logo_url, banner_url, cuisines, specialties, is_open, prep_time_min_avg",
+      )
       .eq("status", "approved")
       .order("rating_avg", { ascending: false })
-      .limit(20);
+      .limit(60);
     if (error) throw error;
     return data ?? [];
   },
+  staleTime: 1000 * 60,
 });
+
+export const sellerStoreQuery = (idOrSlug: string) =>
+  queryOptions({
+    queryKey: ["seller-store", idOrSlug],
+    queryFn: async () => {
+      const isUuid = /^[0-9a-f]{8}-/i.test(idOrSlug);
+      const { data: seller, error } = await supabase
+        .from("sellers")
+        .select(
+          "id, slug, kitchen_name, description, story, city, address_line, rating_avg, rating_count, cover_image_url, logo_url, banner_url, gallery, cuisines, specialties, is_open, prep_time_min_avg, business_hours",
+        )
+        .eq("status", "approved")
+        .eq(isUuid ? "id" : "slug", idOrSlug)
+        .maybeSingle();
+      if (error) throw error;
+      if (!seller) return { seller: null, dishes: [], totalOrders: 0 };
+
+      const [{ data: dishes }, { count: totalOrders }] = await Promise.all([
+        supabase
+          .from("dishes")
+          .select(
+            "id, name, description, price, prep_time_min, image_url, is_veg, rating_avg, rating_count, seller_id, category_id, badge, is_featured, categories(slug, name)",
+          )
+          .eq("seller_id", seller.id)
+          .eq("is_available", true)
+          .order("is_featured", { ascending: false })
+          .order("rating_avg", { ascending: false })
+          .limit(200),
+        supabase
+          .from("orders")
+          .select("id", { count: "exact", head: true })
+          .eq("seller_id", seller.id)
+          .eq("status", "delivered"),
+      ]);
+      return { seller, dishes: dishes ?? [], totalOrders: totalOrders ?? 0 };
+    },
+  });
 
 export const myOrdersQuery = queryOptions({
   queryKey: ["orders", "mine"],
