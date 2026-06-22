@@ -206,7 +206,21 @@ function SellerDishes() {
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={editing.isAvailable} onChange={(e) => setEditing({ ...editing, isAvailable: e.target.checked })} /> Available
               </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" checked={editing.isFeatured} onChange={(e) => setEditing({ ...editing, isFeatured: e.target.checked })} /> Featured
+              </label>
             </div>
+            <label className="block">
+              <span className="text-xs font-medium text-muted-foreground">Badge</span>
+              <select value={editing.badge} onChange={(e) => setEditing({ ...editing, badge: e.target.value as Form["badge"] })}
+                className="mt-1 h-11 w-full rounded-xl border border-input bg-background px-3 text-sm">
+                <option value="">— None —</option>
+                <option value="best_seller">Best Seller</option>
+                <option value="chef_special">Chef Special</option>
+                <option value="recommended">Recommended</option>
+                <option value="new">New</option>
+              </select>
+            </label>
             <button type="submit" disabled={saveMut.isPending || uploading}
               className="mt-2 inline-flex h-11 w-full items-center justify-center rounded-full bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
               {saveMut.isPending ? "Saving…" : "Save dish"}
