@@ -89,13 +89,15 @@ function CheckoutPage() {
   }
   const total = Math.max(0, subtotal + deliveryFee - couponDiscount);
 
-  async function applyCoupon() {
-    if (!couponCode.trim()) return;
+  async function applyCoupon(codeArg?: string) {
+    const code = (codeArg ?? couponCode).trim();
+    if (!code) return;
     setCouponBusy(true);
     try {
-      const res = await previewFn({ data: { code: couponCode.trim(), sellerId: items[0]?.sellerId, orderTotal: subtotal, kind: "order" } });
+      const res = await previewFn({ data: { code, sellerId: items[0]?.sellerId, orderTotal: subtotal, kind: "order" } });
       if (!res.valid) { toast.error(res.reason || "Invalid"); setCouponState(null); return; }
-      setCouponState({ code: couponCode.trim().toUpperCase(), discount: res.discount, type: res.discountType ?? "flat" });
+      setCouponState({ code: code.toUpperCase(), discount: res.discount, type: res.discountType ?? "flat" });
+      setCouponCode(code.toUpperCase());
       toast.success("Coupon applied");
     } catch (e: any) { toast.error(e.message); }
     finally { setCouponBusy(false); }
