@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DishCard } from "@/components/DishCard";
 import { CampaignBanners } from "@/components/CampaignBanners";
+import { SellerCard } from "@/components/SellerCard";
 import { categoriesQuery, dishesQuery, sellersQuery } from "@/lib/queries";
 import { ArrowRight, MapPin, Sun, Utensils, Moon, Cookie, Coffee, Cake } from "lucide-react";
 import heroImg from "@/assets/hero-thali.jpg";
@@ -39,16 +40,16 @@ function HomePage() {
       <main className="flex-1">
         <Hero />
         <CampaignBanners />
-        <HowItWorks />
+        <Suspense fallback={<SectionSkeleton />}>
+          <Kitchens />
+        </Suspense>
         <Suspense fallback={<SectionSkeleton />}>
           <Categories />
         </Suspense>
         <Suspense fallback={<SectionSkeleton />}>
           <PopularDishes />
         </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <Kitchens />
-        </Suspense>
+        <HowItWorks />
       </main>
       <Footer />
     </div>
@@ -163,19 +164,59 @@ function PopularDishes() {
 
 function Kitchens() {
   const { data: sellers } = useSuspenseQuery(sellersQuery);
+  const [tab, setTab] = useState<"all" | "open" | "top" | "new">("all");
+  const filtered = sellers
+    .filter((s: any) => {
+      if (tab === "open") return s.is_open;
+      if (tab === "top") return Number(s.rating_avg ?? 0) >= 4;
+      return true;
+    })
+    .slice(0, tab === "new" ? 12 : 60)
+    .sort((a: any, b: any) => {
+      if (tab === "new") return 0;
+      if (tab === "top") return Number(b.rating_avg ?? 0) - Number(a.rating_avg ?? 0);
+      return 0;
+    });
+
+  const tabs: { key: typeof tab; label: string }[] = [
+    { key: "all", label: "All kitchens" },
+    { key: "open", label: "Open now" },
+    { key: "top", label: "Top rated" },
+    { key: "new", label: "Recently added" },
+  ];
+
   return (
     <section id="kitchens" className="container-page py-10 scroll-mt-20">
-      <h2 className="font-display text-2xl font-semibold sm:text-3xl">Featured kitchens</h2>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 className="font-display text-2xl font-semibold sm:text-3xl">Kitchens near you</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Browse home cooks by their storefront.</p>
+        </div>
+        <div className="flex gap-1 overflow-x-auto rounded-full border border-border bg-surface p-1">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                tab === t.key
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
       {sellers.length === 0 ? (
-        <p className="mt-4 text-sm text-muted-foreground">No kitchens yet — be the first to <Link to="/become-seller" className="text-primary underline">open one</Link>.</p>
+        <p className="mt-6 text-sm text-muted-foreground">
+          No kitchens yet — be the first to{" "}
+          <Link to="/become-seller" className="text-primary underline">open one</Link>.
+        </p>
       ) : (
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sellers.map((s) => (
-            <div key={s.id} className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="font-display text-lg font-semibold">{s.kitchen_name}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">{s.city}</p>
-              {s.description && <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{s.description}</p>}
-            </div>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((s: any) => (
+            <SellerCard key={s.id} seller={s} />
           ))}
         </div>
       )}
