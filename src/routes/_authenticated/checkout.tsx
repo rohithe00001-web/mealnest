@@ -9,7 +9,7 @@ import { inr } from "@/lib/format";
 import { placeOrder } from "@/lib/orders.functions";
 import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/razorpay.functions";
 import { listAddresses } from "@/lib/customer.functions";
-import { previewCoupon } from "@/lib/coupons.functions";
+import { previewCoupon, listApplicableCoupons } from "@/lib/coupons.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
@@ -45,6 +45,7 @@ function CheckoutPage() {
   const verifyRzpFn = useServerFn(verifyRazorpayPayment);
   const listAddressesFn = useServerFn(listAddresses);
   const previewFn = useServerFn(previewCoupon);
+  const listCouponsFn = useServerFn(listApplicableCoupons);
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
@@ -53,6 +54,13 @@ function CheckoutPage() {
   const [couponBusy, setCouponBusy] = useState(false);
   const [form, setForm] = useState({
     label: "Home", addressLine: "", city: "", pincode: "", phone: "", instructions: "",
+  });
+
+  const sellerId = items[0]?.sellerId;
+  const { data: applicable } = useQuery({
+    queryKey: ["applicable-coupons", sellerId, subtotal],
+    queryFn: () => listCouponsFn({ data: { sellerId, orderTotal: subtotal, kind: "order" } }),
+    enabled: !!sellerId && subtotal > 0,
   });
 
   const { data: addresses } = useQuery({
@@ -81,13 +89,15 @@ function CheckoutPage() {
   }
   const total = Math.max(0, subtotal + deliveryFee - couponDiscount);
 
-  async function applyCoupon() {
-    if (!couponCode.trim()) return;
+  async function applyCoupon(codeArg?: string) {
+    const code = (codeArg ?? couponCode).trim();
+    if (!code) return;
     setCouponBusy(true);
     try {
-      const res = await previewFn({ data: { code: couponCode.trim(), sellerId: items[0]?.sellerId, orderTotal: subtotal, kind: "order" } });
+      const res = await previewFn({ data: { code, sellerId: items[0]?.sellerId, orderTotal: subtotal, kind: "order" } });
       if (!res.valid) { toast.error(res.reason || "Invalid"); setCouponState(null); return; }
-      setCouponState({ code: couponCode.trim().toUpperCase(), discount: res.discount, type: res.discountType ?? "flat" });
+      setCouponState({ code: code.toUpperCase(), discount: res.discount, type: res.discountType ?? "flat" });
+      setCouponCode(code.toUpperCase());
       toast.success("Coupon applied");
     } catch (e: any) { toast.error(e.message); }
     finally { setCouponBusy(false); }
@@ -309,6 +319,47 @@ function CheckoutPage() {
                 </li>
               ))}
             </ul>
+            {!couponState && applicable && (applicable.best || applicable.seller.length + applicable.platform.length + applicable.subscription.length > 0) && (
+              <div className="mt-4 space-y-3 border-t border-border pt-3">
+                {applicable.best && (
+                  <div className="rounded-xl border border-accent/40 bg-accent/10 p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-accent">Best for you</p>
+                        <p className="mt-0.5 font-mono text-sm font-semibold">{applicable.best.code}</p>
+                        {applicable.best.description && <p className="text-xs text-muted-foreground">{applicable.best.description}</p>}
+                        <p className="mt-1 text-xs font-medium text-accent">You save {inr(applicable.best.netValue)}</p>
+                      </div>
+                      <button type="button" onClick={() => applyCoupon(applicable.best!.code)} disabled={couponBusy} className="h-8 shrink-0 rounded-full bg-accent px-3 text-xs font-medium text-accent-foreground disabled:opacity-50">Apply</button>
+                    </div>
+                  </div>
+                )}
+                {(["seller", "platform", "subscription"] as const).map((group) => {
+                  const list = applicable[group];
+                  if (!list || list.length === 0) return null;
+                  const label = group === "seller" ? "From this kitchen" : group === "subscription" ? "Subscription offers" : "Platform offers";
+                  return (
+                    <details key={group} className="rounded-xl border border-border bg-background/40">
+                      <summary className="cursor-pointer list-none px-3 py-2 text-xs font-medium text-muted-foreground">
+                        {label} <span className="text-foreground/60">({list.length})</span>
+                      </summary>
+                      <ul className="divide-y divide-border">
+                        {list.map((c) => (
+                          <li key={c.id} className="flex items-center justify-between gap-2 px-3 py-2">
+                            <div className="min-w-0">
+                              <p className="font-mono text-xs font-semibold">{c.code}</p>
+                              {c.description && <p className="truncate text-[11px] text-muted-foreground">{c.description}</p>}
+                              <p className="text-[11px] text-accent">−{inr(c.netValue)}</p>
+                            </div>
+                            <button type="button" onClick={() => applyCoupon(c.code)} disabled={couponBusy} className="h-7 shrink-0 rounded-full border border-primary px-3 text-[11px] font-medium text-primary disabled:opacity-50">Apply</button>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  );
+                })}
+              </div>
+            )}
             <div className="mt-4 space-y-2 border-t border-border pt-3">
               <p className="text-xs font-medium text-muted-foreground">Coupon code</p>
               {couponState ? (
@@ -319,7 +370,7 @@ function CheckoutPage() {
               ) : (
                 <div className="flex gap-2">
                   <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="Enter code" className="h-10 flex-1 rounded-xl border border-input bg-background px-3 text-sm" />
-                  <button type="button" onClick={applyCoupon} disabled={couponBusy} className="h-10 rounded-full border border-primary px-4 text-sm font-medium text-primary disabled:opacity-50">{couponBusy ? "…" : "Apply"}</button>
+                  <button type="button" onClick={() => applyCoupon()} disabled={couponBusy} className="h-10 rounded-full border border-primary px-4 text-sm font-medium text-primary disabled:opacity-50">{couponBusy ? "…" : "Apply"}</button>
                 </div>
               )}
             </div>

@@ -201,3 +201,89 @@ export const adminCouponAnalytics = createServerFn({ method: "GET" })
     const totalRevenue = (redemptions ?? []).reduce((s, r) => s + Number(r.order_total), 0);
     return { coupons: coupons ?? [], redemptions: redemptions ?? [], totalDiscount, totalRevenue };
   });
+
+/**
+ * Returns coupons applicable to the user's current cart, grouped by scope,
+ * with computed discount values + a "best" recommendation.
+ */
+export const listApplicableCoupons = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: unknown) =>
+    z.object({
+      sellerId: z.string().uuid().optional().nullable(),
+      orderTotal: z.number().nonnegative(),
+      kind: z.enum(["order", "subscription"]).default("order"),
+    }).parse(i)
+  )
+  .handler(async ({ data, context }) => {
+    const nowIso = new Date().toISOString();
+    let query = context.supabase
+      .from("coupons")
+      .select("*")
+      .eq("active", true)
+      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+      .or(`starts_at.is.null,starts_at.lte.${nowIso}`);
+
+    // Scope filter: platform-wide OR seller-specific to this seller
+    if (data.sellerId) {
+      query = query.or(`scope.eq.platform,and(scope.eq.seller,seller_id.eq.${data.sellerId})`);
+    } else {
+      query = query.eq("scope", "platform");
+    }
+
+    const { data: rows, error } = await query.limit(50);
+    if (error) throw new Error(error.message);
+
+    const evaluated = await Promise.all(
+      (rows ?? []).map(async (c: any) => {
+        const { data: vRows } = await context.supabase.rpc("validate_coupon", {
+          _code: c.code,
+          _user: context.userId,
+          _seller: (data.sellerId ?? null) as any,
+          _order_total: data.orderTotal,
+          _kind: data.kind,
+        });
+        const v: any = Array.isArray(vRows) ? vRows[0] : vRows;
+        return {
+          id: c.id,
+          code: c.code,
+          description: c.description,
+          scope: c.scope,
+          seller_id: c.seller_id,
+          discount_type: c.discount_type,
+          discount_flat: c.discount_flat,
+          discount_percent: c.discount_percent,
+          max_discount: c.max_discount,
+          min_order: c.min_order,
+          applies_to: c.applies_to,
+          expires_at: c.expires_at,
+          new_customers_only: c.new_customers_only,
+          valid: !!v?.valid,
+          reason: (v?.reason ?? "") as string,
+          discount: Number(v?.discount ?? 0),
+          // Approximate net value for ranking (free_delivery worth ~29)
+          netValue:
+            v?.valid
+              ? c.discount_type === "free_delivery"
+                ? 29
+                : c.discount_type === "partial_delivery"
+                  ? Number(c.discount_flat ?? 0)
+                  : Number(v?.discount ?? 0)
+              : 0,
+        };
+      })
+    );
+
+    const valid = evaluated.filter((c) => c.valid).sort((a, b) => b.netValue - a.netValue);
+    const ineligible = evaluated.filter((c) => !c.valid);
+    const best = valid[0] ?? null;
+
+    return {
+      best,
+      seller: valid.filter((c) => c.scope === "seller"),
+      platform: valid.filter((c) => c.scope === "platform" && c.applies_to !== "subscription"),
+      subscription: valid.filter((c) => c.applies_to === "subscription" || c.applies_to === "both"),
+      ineligible,
+    };
+  });
+
