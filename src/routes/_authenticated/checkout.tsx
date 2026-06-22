@@ -9,7 +9,7 @@ import { inr } from "@/lib/format";
 import { placeOrder } from "@/lib/orders.functions";
 import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/razorpay.functions";
 import { listAddresses } from "@/lib/customer.functions";
-import { previewCoupon } from "@/lib/coupons.functions";
+import { previewCoupon, listApplicableCoupons } from "@/lib/coupons.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
