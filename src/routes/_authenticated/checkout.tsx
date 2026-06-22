@@ -329,7 +329,7 @@ function CheckoutPage() {
               ) : (
                 <div className="flex gap-2">
                   <input value={couponCode} onChange={(e) => setCouponCode(e.target.value.toUpperCase())} placeholder="Enter code" className="h-10 flex-1 rounded-xl border border-input bg-background px-3 text-sm" />
-                  <button type="button" onClick={applyCoupon} disabled={couponBusy} className="h-10 rounded-full border border-primary px-4 text-sm font-medium text-primary disabled:opacity-50">{couponBusy ? "…" : "Apply"}</button>
+                  <button type="button" onClick={() => applyCoupon()} disabled={couponBusy} className="h-10 rounded-full border border-primary px-4 text-sm font-medium text-primary disabled:opacity-50">{couponBusy ? "…" : "Apply"}</button>
                 </div>
               )}
             </div>
