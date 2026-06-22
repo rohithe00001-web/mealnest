@@ -132,6 +132,7 @@ function SellerDishes() {
                         prepTimeMin: String(d.prep_time_min), stock: String(d.stock),
                         isVeg: d.is_veg, isAvailable: d.is_available,
                         categoryId: d.category_id ?? "", imagePath: "", imagePreview: d.image_url ?? "",
+                        badge: (d.badge ?? "") as Form["badge"], isFeatured: !!d.is_featured,
                       })
                     }
                     className="rounded-md p-2 hover:bg-muted"
