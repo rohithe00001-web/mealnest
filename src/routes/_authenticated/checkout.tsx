@@ -56,6 +56,13 @@ function CheckoutPage() {
     label: "Home", addressLine: "", city: "", pincode: "", phone: "", instructions: "",
   });
 
+  const sellerId = items[0]?.sellerId;
+  const { data: applicable } = useQuery({
+    queryKey: ["applicable-coupons", sellerId, subtotal],
+    queryFn: () => listCouponsFn({ data: { sellerId, orderTotal: subtotal, kind: "order" } }),
+    enabled: !!sellerId && subtotal > 0,
+  });
+
   const { data: addresses } = useQuery({
     queryKey: ["addresses"],
     queryFn: () => listAddressesFn(),
