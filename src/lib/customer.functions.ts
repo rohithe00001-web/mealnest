@@ -9,6 +9,8 @@ const AddressInput = z.object({
   city: z.string().min(1).max(80),
   pincode: z.string().max(20).optional().or(z.literal("")),
   isDefault: z.boolean().optional(),
+  lat: z.number().nullable().optional(),
+  lng: z.number().nullable().optional(),
 });
 
 export const listAddresses = createServerFn({ method: "GET" })
@@ -36,6 +38,8 @@ export const upsertAddress = createServerFn({ method: "POST" })
       city: data.data.city,
       pincode: data.data.pincode || null,
       is_default: !!data.data.isDefault,
+      latitude: data.data.lat ?? null,
+      longitude: data.data.lng ?? null,
     };
     if (data.data.isDefault) {
       await context.supabase.from("addresses").update({ is_default: false }).eq("user_id", context.userId);
