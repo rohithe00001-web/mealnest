@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { AddressPicker } from "@/components/AddressPicker";
 import { useCart } from "@/lib/cart";
 import { inr } from "@/lib/format";
 import { placeOrder } from "@/lib/orders.functions";
@@ -54,6 +55,7 @@ function CheckoutPage() {
   const [couponBusy, setCouponBusy] = useState(false);
   const [form, setForm] = useState({
     label: "Home", addressLine: "", city: "", pincode: "", phone: "", instructions: "",
+    lat: null as number | null, lng: null as number | null, formatted: "",
   });
 
   const sellerId = items[0]?.sellerId;
@@ -124,11 +126,15 @@ function CheckoutPage() {
       return {
         label: a.label, addressLine: a.address_line, city: a.city,
         pincode: a.pincode || undefined, phone: form.phone,
+        lat: a.latitude != null ? Number(a.latitude) : undefined,
+        lng: a.longitude != null ? Number(a.longitude) : undefined,
       };
     }
     return {
       label: form.label, addressLine: form.addressLine, city: form.city,
       pincode: form.pincode || undefined, phone: form.phone,
+      lat: form.lat ?? undefined, lng: form.lng ?? undefined,
+      formatted: form.formatted || undefined,
     };
   }
 
