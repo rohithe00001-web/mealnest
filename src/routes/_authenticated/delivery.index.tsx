@@ -3,8 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Truck, Package, CheckCircle2, MapPin, Phone, KeyRound, Radio } from "lucide-react";
+import { Truck, Package, CheckCircle2, MapPin, Phone, KeyRound, Radio, Navigation } from "lucide-react";
 import { Header } from "@/components/Header";
+import { LiveMap } from "@/components/LiveMap";
 import { agentListMyAssignments, agentUpdateAssignment, agentUpdateLocation } from "@/lib/delivery.functions";
 import { inr } from "@/lib/format";
 
@@ -129,6 +130,23 @@ function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) =
         <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
           <Phone className="h-4 w-4" /> <a href={`tel:${addr.phone}`} className="hover:underline">{addr.phone}</a>
         </p>
+      )}
+      {addr.lat != null && addr.lng != null && (
+        <div className="mt-3 space-y-2">
+          <LiveMap
+            destination={{ lat: Number(addr.lat), lng: Number(addr.lng), label: "Customer" }}
+            agent={a.current_lat != null && a.current_lng != null ? { lat: Number(a.current_lat), lng: Number(a.current_lng), label: "You" } : null}
+            height={200}
+          />
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${addr.lat},${addr.lng}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Navigation className="h-3.5 w-3.5" /> Open in Maps
+          </a>
+        </div>
       )}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {a.status === "assigned" && (
