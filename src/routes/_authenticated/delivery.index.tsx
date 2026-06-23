@@ -108,7 +108,7 @@ function Stat({ label, value, icon: Icon }: any) {
 
 function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) => void; pending: boolean }) {
   const [otp, setOtp] = useState("");
-  const addr = (a.orders?.delivery_address ?? {}) as Record<string, string>;
+  const addr = (a.orders?.delivery_address ?? {}) as Record<string, any>;
   const isOrder = !!a.order_id;
   return (
     <div className="rounded-xl border border-border bg-surface p-4">
