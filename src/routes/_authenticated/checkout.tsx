@@ -274,16 +274,30 @@ function CheckoutPage() {
                   </div>
                 </div>
               ) : (
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <Field label="Label" value={form.label} onChange={(v) => setForm({ ...form, label: v })} />
-                  <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required />
-                  <div className="sm:col-span-2">
-                    <Field label="Address" value={form.addressLine} onChange={(v) => setForm({ ...form, addressLine: v })} required />
-                  </div>
-                  <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} required />
-                  <Field label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} />
-                  <div className="sm:col-span-2">
-                    <Field label="Delivery instructions (optional)" value={form.instructions} onChange={(v) => setForm({ ...form, instructions: v })} />
+                <div className="mt-4 space-y-3">
+                  <AddressPicker
+                    value={{ lat: form.lat, lng: form.lng }}
+                    onChange={(p) =>
+                      setForm((f) => ({
+                        ...f,
+                        lat: p.lat, lng: p.lng, formatted: p.formatted,
+                        addressLine: f.addressLine || p.addressLine,
+                        city: f.city || p.city,
+                        pincode: f.pincode || p.pincode,
+                      }))
+                    }
+                  />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Field label="Label" value={form.label} onChange={(v) => setForm({ ...form, label: v })} />
+                    <Field label="Phone" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required />
+                    <div className="sm:col-span-2">
+                      <Field label="Address" value={form.addressLine} onChange={(v) => setForm({ ...form, addressLine: v })} required />
+                    </div>
+                    <Field label="City" value={form.city} onChange={(v) => setForm({ ...form, city: v })} required />
+                    <Field label="Pincode" value={form.pincode} onChange={(v) => setForm({ ...form, pincode: v })} />
+                    <div className="sm:col-span-2">
+                      <Field label="Delivery instructions (optional)" value={form.instructions} onChange={(v) => setForm({ ...form, instructions: v })} />
+                    </div>
                   </div>
                 </div>
               )}
