@@ -6,13 +6,14 @@ import { Plus, Trash2, Star, Pencil, X } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { listAddresses, upsertAddress, deleteAddress } from "@/lib/customer.functions";
+import { AddressPicker } from "@/components/AddressPicker";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/addresses")({
   component: AddressesPage,
 });
 
-const empty = { label: "Home", addressLine: "", city: "", pincode: "", isDefault: false };
+const empty = { label: "Home", addressLine: "", city: "", pincode: "", isDefault: false, lat: null as number | null, lng: null as number | null };
 
 function AddressesPage() {
   const listFn = useServerFn(listAddresses);
@@ -90,6 +91,8 @@ function AddressesPage() {
                             city: a.city,
                             pincode: a.pincode ?? "",
                             isDefault: a.is_default,
+                            lat: a.latitude != null ? Number(a.latitude) : null,
+                            lng: a.longitude != null ? Number(a.longitude) : null,
                           },
                         })
                       }
@@ -113,13 +116,13 @@ function AddressesPage() {
         )}
 
         {editing && (
-          <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 backdrop-blur-sm p-4">
+          <div className="fixed inset-0 z-50 grid place-items-center bg-background/70 backdrop-blur-sm p-4 overflow-y-auto">
             <form
               onSubmit={(e: FormEvent) => {
                 e.preventDefault();
                 saveMut.mutate({ id: editing.id, data: editing.form });
               }}
-              className="w-full max-w-md rounded-2xl border border-border bg-card p-6 space-y-3"
+              className="my-8 w-full max-w-lg rounded-2xl border border-border bg-card p-6 space-y-3"
             >
               <div className="flex items-center justify-between">
                 <h2 className="font-display text-xl font-semibold">
@@ -129,6 +132,22 @@ function AddressesPage() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
+              <AddressPicker
+                value={{ lat: editing.form.lat, lng: editing.form.lng }}
+                onChange={(p) =>
+                  setEditing({
+                    ...editing,
+                    form: {
+                      ...editing.form,
+                      lat: p.lat,
+                      lng: p.lng,
+                      addressLine: editing.form.addressLine || p.addressLine,
+                      city: editing.form.city || p.city,
+                      pincode: editing.form.pincode || p.pincode,
+                    },
+                  })
+                }
+              />
               <Field label="Label" value={editing.form.label} onChange={(v) => setEditing({ ...editing, form: { ...editing.form, label: v } })} />
               <Field label="Address" value={editing.form.addressLine} onChange={(v) => setEditing({ ...editing, form: { ...editing.form, addressLine: v } })} required />
               <div className="grid grid-cols-2 gap-3">
