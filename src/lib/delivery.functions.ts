@@ -55,7 +55,7 @@ export const getMyAgentProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("delivery_agents")
-      .select("*, sellers(kitchen_name)")
+      .select(`${AGENT_SAFE_COLS}, sellers(kitchen_name)`)
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
     return data ?? [];
