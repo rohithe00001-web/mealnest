@@ -22,11 +22,8 @@ export function DesktopSideNav() {
       aria-label="Sidebar"
       className="hidden lg:flex fixed left-0 top-0 bottom-0 z-40 w-16 flex-col items-center border-r border-border/70 bg-background/95 backdrop-blur py-4"
     >
-      <Link to="/" className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft" aria-label="MealNest home">
-        <svg viewBox="0 0 64 64" className="h-5 w-5" fill="none" aria-hidden="true">
-          <path d="M14 26 L32 12 L50 26" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M12 40c0-6 9-10 20-10s20 4 20 10c0 3-2 5-5 5H17c-3 0-5-2-5-5z" fill="currentColor" opacity=".95"/>
-        </svg>
+      <Link to="/" className="block" aria-label="MealNest home">
+        <LogoMark className="h-10 w-10" />
       </Link>
       <ul className="mt-6 flex flex-1 flex-col gap-1">
         {items.map((it) => {
