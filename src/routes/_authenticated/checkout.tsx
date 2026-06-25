@@ -82,8 +82,13 @@ function CheckoutPage() {
 
   // Pre-load Razorpay script so the modal opens instantly when the user clicks Pay.
   useEffect(() => {
-    loadRazorpay();
-  }, []);
+    if (onlinePaymentsEnabled) loadRazorpay();
+  }, [onlinePaymentsEnabled]);
+
+  // Force COD when online payments are disabled by Admin.
+  useEffect(() => {
+    if (!onlinePaymentsEnabled && paymentMethod !== "cod") setPaymentMethod("cod");
+  }, [onlinePaymentsEnabled, paymentMethod]);
 
   let deliveryFee = subtotal >= 500 || subtotal === 0 ? 0 : 29;
   let couponDiscount = 0;
