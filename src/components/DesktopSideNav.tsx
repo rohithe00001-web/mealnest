@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, Search, ShoppingBag, CalendarDays, User as UserIcon, Heart, Sparkles, MapPin } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { cn } from "@/lib/utils";
+import { LogoMark } from "@/components/Logo";
 
 const items = [
   { to: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
