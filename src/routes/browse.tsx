@@ -6,8 +6,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DishCard } from "@/components/DishCard";
 import { categoriesQuery, dishesQuery } from "@/lib/queries";
-import { useEffect, useState } from "react";
-import { Search, SlidersHorizontal, X, Star } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Search, SlidersHorizontal, X, Star, Mic, MicOff, TrendingUp, Clock as ClockIcon } from "lucide-react";
 
 const searchSchema = z.object({
   category: fallback(z.string(), "").default(""),
@@ -38,6 +38,28 @@ function BrowsePage() {
   const navigate = useNavigate({ from: "/browse" });
   const [search, setSearch] = useState(s.q);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [recents, setRecents] = useState<string[]>([]);
+  const recRef = useRef<any>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("mn:recent-searches");
+      if (raw) setRecents(JSON.parse(raw).slice(0, 8));
+    } catch {/* noop */}
+  }, []);
+
+  const commitRecent = (q: string) => {
+    const v = q.trim();
+    if (!v) return;
+    setRecents((prev) => {
+      const next = [v, ...prev.filter((x) => x.toLowerCase() !== v.toLowerCase())].slice(0, 8);
+      try { localStorage.setItem("mn:recent-searches", JSON.stringify(next)); } catch {/* noop */}
+      return next;
+    });
+  };
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -45,6 +67,43 @@ function BrowsePage() {
     }, 250);
     return () => clearTimeout(t);
   }, [search]);
+
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setFocused(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, []);
+
+  const startVoice = () => {
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SR) {
+      alert("Voice search isn't supported on this browser.");
+      return;
+    }
+    try {
+      const r = new SR();
+      recRef.current = r;
+      r.lang = navigator.language || "en-IN";
+      r.interimResults = false;
+      r.maxAlternatives = 1;
+      r.onstart = () => setListening(true);
+      r.onerror = () => setListening(false);
+      r.onend = () => setListening(false);
+      r.onresult = (ev: any) => {
+        const text = ev.results?.[0]?.[0]?.transcript ?? "";
+        if (text) {
+          setSearch(text);
+          commitRecent(text);
+        }
+      };
+      r.start();
+    } catch {
+      setListening(false);
+    }
+  };
+  const stopVoice = () => { try { recRef.current?.stop(); } catch {/* noop */} setListening(false); };
 
   const { data: cats } = useSuspenseQuery(categoriesQuery);
   const { data: dishes = [], isLoading } = useQuery(
