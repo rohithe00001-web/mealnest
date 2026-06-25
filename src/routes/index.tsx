@@ -1,13 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DishCard } from "@/components/DishCard";
 import { CampaignBanners } from "@/components/CampaignBanners";
 import { SellerCard } from "@/components/SellerCard";
 import { categoriesQuery, dishesQuery, sellersQuery } from "@/lib/queries";
-import { ArrowRight, MapPin, Sun, Utensils, Moon, Cookie, Coffee, Cake } from "lucide-react";
+import { ArrowRight, MapPin, Sun, Utensils, Moon, Cookie, Coffee, Cake, Search as SearchIcon, ChevronRight } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import heroImg from "@/assets/hero-thali.jpg";
 
 const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -38,6 +39,7 @@ function HomePage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
+        <MobileGreeting />
         <Hero />
         <CampaignBanners />
         <Suspense fallback={<SectionSkeleton />}>
@@ -53,6 +55,51 @@ function HomePage() {
       </main>
       <Footer />
     </div>
+  );
+}
+
+function MobileGreeting() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [greeting, setGreeting] = useState("Hello");
+  const [location, setLocation] = useState<string>("Set delivery address");
+
+  useEffect(() => {
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : h < 21 ? "Good evening" : "Good night");
+    try {
+      const saved = localStorage.getItem("mn:last-address-label");
+      if (saved) setLocation(saved);
+    } catch {/* noop */}
+  }, []);
+
+  const name = (user?.user_metadata?.full_name as string)?.split(" ")?.[0] || user?.email?.split("@")[0] || "there";
+
+  return (
+    <section className="lg:hidden px-4 pt-4 pb-2 bg-gradient-to-b from-primary/5 to-transparent">
+      <Link to="/addresses" className="flex items-center gap-2 text-left active:opacity-70">
+        <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/10 text-primary">
+          <MapPin className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Deliver to</p>
+          <p className="truncate text-sm font-medium inline-flex items-center gap-1">
+            {location} <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{greeting}</p>
+          <p className="truncate text-sm font-semibold capitalize">{name} 👋</p>
+        </div>
+      </Link>
+      <button
+        onClick={() => navigate({ to: "/browse" })}
+        className="mt-3 flex w-full items-center gap-2 rounded-full border border-border bg-card px-4 py-3 text-left text-sm text-muted-foreground shadow-soft active:scale-[0.98] transition-transform"
+      >
+        <SearchIcon className="h-4 w-4" />
+        Search dishes, kitchens, cuisines…
+      </button>
+    </section>
   );
 }
 
