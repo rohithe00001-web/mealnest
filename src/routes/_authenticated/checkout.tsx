@@ -48,9 +48,11 @@ function CheckoutPage() {
   const listAddressesFn = useServerFn(listAddresses);
   const previewFn = useServerFn(previewCoupon);
   const listCouponsFn = useServerFn(listApplicableCoupons);
+  const { data: paymentMode } = usePaymentMode();
+  const onlinePaymentsEnabled = paymentMode?.onlinePaymentsEnabled ?? false;
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("cod");
   const [couponCode, setCouponCode] = useState("");
   const [couponState, setCouponState] = useState<{ code: string; discount: number; type: string } | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
