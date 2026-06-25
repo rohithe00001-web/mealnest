@@ -115,7 +115,7 @@ function RootComponent() {
       <AuthProvider>
         <NotificationsProvider>
           <CartProvider>
-            <div className="lg:pl-16 pb-20 lg:pb-0" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 5rem)" }}>
+            <div className="lg:pl-16 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] lg:pb-0">
               <Outlet />
             </div>
             <AppChrome />
