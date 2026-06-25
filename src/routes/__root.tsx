@@ -17,6 +17,7 @@ import { NotificationsProvider } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
 import { ensureDeviceRegistered } from "@/lib/device";
 import { AppChrome } from "@/components/AppChrome";
+import { useRouterState } from "@tanstack/react-router";
 
 function NotFoundComponent() {
   return (
@@ -115,14 +116,24 @@ function RootComponent() {
       <AuthProvider>
         <NotificationsProvider>
           <CartProvider>
-            <div className="lg:pl-16 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] lg:pb-0">
-              <Outlet />
-            </div>
+            <ShellOutlet />
             <AppChrome />
             <Toaster richColors position="top-center" />
           </CartProvider>
         </NotificationsProvider>
       </AuthProvider>
     </QueryClientProvider>
+  );
+}
+
+const CHROME_HIDE = ["/admin", "/seller", "/delivery", "/auth", "/reset-password"];
+function ShellOutlet() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const hide = CHROME_HIDE.some((p) => pathname.startsWith(p));
+  if (hide) return <Outlet />;
+  return (
+    <div className="lg:pl-16 pb-[calc(env(safe-area-inset-bottom,0px)+5rem)] lg:pb-0">
+      <Outlet />
+    </div>
   );
 }
