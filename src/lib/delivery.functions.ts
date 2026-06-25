@@ -276,17 +276,21 @@ export const agentListMyAssignments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data: agents } = await context.supabase
-      .from("delivery_agents").select("id, status, seller_id, sellers(kitchen_name, phone)")
+      .from("delivery_agents").select("id, status, seller_id, sellers(kitchen_name)")
       .eq("user_id", context.userId).eq("status", "approved");
     if (!agents || agents.length === 0) return { agent: null, assignments: [] };
     const agentIds = agents.map((a: any) => a.id);
+    // Seller phone is restricted PII — fetch via SECURITY DEFINER helper scoped to this agent.
+    const { data: contactRows } = await context.supabase.rpc("get_agent_seller_contact", { _agent_id: agents[0].id });
+    const contact = Array.isArray(contactRows) ? contactRows[0] : contactRows;
+    const agentWithContact = { ...agents[0], sellers: { ...(agents[0] as any).sellers, phone: contact?.phone ?? null } };
     const { data: assignments } = await context.supabase
       .from("delivery_assignments")
       .select("*, orders(order_number, total, delivery_address), subscription_deliveries(scheduled_date, meals)")
       .in("agent_id", agentIds)
       .order("assigned_at", { ascending: false })
       .limit(50);
-    return { agent: agents[0], assignments: assignments ?? [] };
+    return { agent: agentWithContact, assignments: assignments ?? [] };
   });
 
 export const agentUpdateAssignment = createServerFn({ method: "POST" })
