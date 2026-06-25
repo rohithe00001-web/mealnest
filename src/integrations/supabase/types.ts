@@ -2611,6 +2611,25 @@ export type Database = {
         Returns: boolean
       }
       ensure_loyalty_account: { Args: { _user: string }; Returns: undefined }
+      get_agent_seller_contact: {
+        Args: { _agent_id: string }
+        Returns: {
+          kitchen_name: string
+          phone: string
+          seller_id: string
+        }[]
+      }
+      get_agent_sensitive: {
+        Args: { _agent_id: string }
+        Returns: {
+          aadhaar_number: string
+          id: string
+          id_doc_url: string
+          license_doc_url: string
+          license_number: string
+          vehicle_doc_url: string
+        }[]
+      }
       get_my_seller_record: {
         Args: never
         Returns: {
@@ -2675,6 +2694,25 @@ export type Database = {
           _user: string
         }
         Returns: undefined
+      }
+      list_active_coupons_safe: {
+        Args: { _seller_id: string }
+        Returns: {
+          applies_to: string
+          code: string
+          description: string
+          discount_flat: number
+          discount_percent: number
+          discount_type: string
+          expires_at: string
+          festival_tag: string
+          id: string
+          max_discount: number
+          min_order: number
+          scope: string
+          seller_id: string
+          starts_at: string
+        }[]
       }
       log_rewards_audit: {
         Args: {
