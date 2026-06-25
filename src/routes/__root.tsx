@@ -16,6 +16,7 @@ import { CartProvider } from "@/lib/cart";
 import { NotificationsProvider } from "@/lib/notifications";
 import { Toaster } from "@/components/ui/sonner";
 import { ensureDeviceRegistered } from "@/lib/device";
+import { AppChrome } from "@/components/AppChrome";
 
 function NotFoundComponent() {
   return (
@@ -114,7 +115,10 @@ function RootComponent() {
       <AuthProvider>
         <NotificationsProvider>
           <CartProvider>
-            <Outlet />
+            <div className="lg:pl-16 pb-20 lg:pb-0" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 5rem)" }}>
+              <Outlet />
+            </div>
+            <AppChrome />
             <Toaster richColors position="top-center" />
           </CartProvider>
         </NotificationsProvider>
