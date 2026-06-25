@@ -152,7 +152,7 @@ function CheckoutPage() {
     try {
       const deliveryAddress = buildDeliveryAddress();
 
-      if (paymentMethod === "cod") {
+      if (paymentMethod === "cod" || !onlinePaymentsEnabled) {
         const res = await placeOrderFn({
           data: {
             sellerId: items[0].sellerId,
