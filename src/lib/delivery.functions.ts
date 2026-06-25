@@ -2,6 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Sensitive columns (aadhaar_number, license_number, *_doc_url) are revoked
+// from the authenticated role. Always select this explicit list instead of *.
+const AGENT_SAFE_COLS = "id, user_id, seller_id, full_name, phone, email, vehicle_type, vehicle_number, background_check_passed, status, seller_approved_at, admin_approved_at, rejected_reason, rating_avg, delivery_count, active, created_at, updated_at";
+
 async function getMySellerId(supabase: any, userId: string) {
   const { data } = await supabase.from("sellers").select("id, status").eq("user_id", userId).maybeSingle();
   if (!data) throw new Error("No seller profile");
