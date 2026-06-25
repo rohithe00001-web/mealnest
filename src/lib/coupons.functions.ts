@@ -216,22 +216,11 @@ export const listApplicableCoupons = createServerFn({ method: "POST" })
     }).parse(i)
   )
   .handler(async ({ data, context }) => {
-    const nowIso = new Date().toISOString();
-    let query = context.supabase
-      .from("coupons")
-      .select("*")
-      .eq("active", true)
-      .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
-      .or(`starts_at.is.null,starts_at.lte.${nowIso}`);
-
-    // Scope filter: platform-wide OR seller-specific to this seller
-    if (data.sellerId) {
-      query = query.or(`scope.eq.platform,and(scope.eq.seller,seller_id.eq.${data.sellerId})`);
-    } else {
-      query = query.eq("scope", "platform");
-    }
-
-    const { data: rows, error } = await query.limit(50);
+    // Use SECURITY DEFINER RPC that only returns customer-safe columns
+    // (no usage_count, geo_pincodes, metadata, created_by, etc.).
+    const { data: rows, error } = await context.supabase.rpc("list_active_coupons_safe", {
+      _seller_id: (data.sellerId ?? null) as any,
+    });
     if (error) throw new Error(error.message);
 
     const evaluated = await Promise.all(

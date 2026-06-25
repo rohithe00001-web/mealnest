@@ -2,6 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+// Sensitive columns (aadhaar_number, license_number, *_doc_url) are revoked
+// from the authenticated role. Always select this explicit list instead of *.
+const AGENT_SAFE_COLS = "id, user_id, seller_id, full_name, phone, email, vehicle_type, vehicle_number, background_check_passed, status, seller_approved_at, admin_approved_at, rejected_reason, rating_avg, delivery_count, active, created_at, updated_at";
+
 async function getMySellerId(supabase: any, userId: string) {
   const { data } = await supabase.from("sellers").select("id, status").eq("user_id", userId).maybeSingle();
   if (!data) throw new Error("No seller profile");
@@ -51,7 +55,7 @@ export const getMyAgentProfile = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data } = await context.supabase
       .from("delivery_agents")
-      .select("*, sellers(kitchen_name)")
+      .select(`${AGENT_SAFE_COLS}, sellers(kitchen_name)`)
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
     return data ?? [];
@@ -63,7 +67,7 @@ export const listSellerAgents = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const sellerId = await getMySellerId(context.supabase, context.userId);
     const { data, error } = await context.supabase
-      .from("delivery_agents").select("*").eq("seller_id", sellerId)
+      .from("delivery_agents").select(AGENT_SAFE_COLS).eq("seller_id", sellerId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
@@ -134,7 +138,7 @@ export const adminListAgents = createServerFn({ method: "GET" })
   .inputValidator((d) => z.object({ status: z.enum(["pending_seller","pending_admin","approved","rejected","suspended"]).optional() }).parse(d ?? {}))
   .handler(async ({ data, context }) => {
     await requireAdmin(context.supabase, context.userId);
-    let q = context.supabase.from("delivery_agents").select("*, sellers(kitchen_name)").order("created_at", { ascending: false });
+    let q = context.supabase.from("delivery_agents").select(`${AGENT_SAFE_COLS}, sellers(kitchen_name)`).order("created_at", { ascending: false });
     if (data.status) q = q.eq("status", data.status);
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
@@ -272,17 +276,21 @@ export const agentListMyAssignments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data: agents } = await context.supabase
-      .from("delivery_agents").select("id, status, seller_id, sellers(kitchen_name, phone)")
+      .from("delivery_agents").select("id, status, seller_id, sellers(kitchen_name)")
       .eq("user_id", context.userId).eq("status", "approved");
     if (!agents || agents.length === 0) return { agent: null, assignments: [] };
     const agentIds = agents.map((a: any) => a.id);
+    // Seller phone is restricted PII — fetch via SECURITY DEFINER helper scoped to this agent.
+    const { data: contactRows } = await context.supabase.rpc("get_agent_seller_contact", { _agent_id: agents[0].id });
+    const contact = Array.isArray(contactRows) ? contactRows[0] : contactRows;
+    const agentWithContact = { ...agents[0], sellers: { ...(agents[0] as any).sellers, phone: contact?.phone ?? null } };
     const { data: assignments } = await context.supabase
       .from("delivery_assignments")
       .select("*, orders(order_number, total, delivery_address), subscription_deliveries(scheduled_date, meals)")
       .in("agent_id", agentIds)
       .order("assigned_at", { ascending: false })
       .limit(50);
-    return { agent: agents[0], assignments: assignments ?? [] };
+    return { agent: agentWithContact, assignments: assignments ?? [] };
   });
 
 export const agentUpdateAssignment = createServerFn({ method: "POST" })

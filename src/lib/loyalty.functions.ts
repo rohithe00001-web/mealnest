@@ -15,8 +15,8 @@ export const getMyLoyalty = createServerFn({ method: "GET" })
     const [{ data: account }, { data: txns }, { data: refCode }, { data: referrals }] = await Promise.all([
       supabase.from("loyalty_accounts").select("*").eq("user_id", userId).maybeSingle(),
       supabase.from("loyalty_transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(25),
-      supabase.from("user_referral_codes").select("*").eq("user_id", userId).maybeSingle(),
-      supabase.from("referrals").select("*").eq("referrer_id", userId).order("created_at", { ascending: false }),
+      supabase.from("user_referral_codes").select("user_id, code, uses_count, created_at").eq("user_id", userId).maybeSingle(),
+      supabase.from("referrals").select("id, referrer_id, referred_id, code, status, reward_coins, campaign_id, rewarded_at, created_at").eq("referrer_id", userId).order("created_at", { ascending: false }),
     ]);
     return {
       account: account ?? { coins_balance: 0, lifetime_coins: 0, current_streak: 0, longest_streak: 0, total_orders: 0, last_order_date: null },
