@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft, Calendar, Truck, Ticket, Sparkles, BarChart3, ShieldAlert, Gift } from "lucide-react";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
+import { RoleMobileNav, RoleMobileNavSpacer } from "@/components/RoleMobileNav";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -73,8 +74,8 @@ function AdminLayout() {
           </div>
         </div>
         <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-          <aside className="lg:sticky lg:top-20 lg:self-start">
-            <nav className="flex flex-row gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-2 lg:flex-col">
+          <aside className="hidden lg:block lg:sticky lg:top-20 lg:self-start">
+            <nav className="flex flex-col gap-1 rounded-xl border border-border bg-surface p-2">
               {NAV.map((item) => {
                 const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
                 const Icon = item.icon;
@@ -97,9 +98,11 @@ function AdminLayout() {
           </aside>
           <section className="min-w-0">
             <Outlet />
+            <RoleMobileNavSpacer />
           </section>
         </div>
       </div>
+      <RoleMobileNav items={NAV} label="Admin menu" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { LayoutDashboard, UtensilsCrossed, ShoppingBag, Power, ArrowLeft, BarChart3, Calendar, Repeat, Truck, Ticket, Sparkles, Palette } from "lucide-react";
 import { Header } from "@/components/Header";
+import { RoleMobileNav, RoleMobileNavSpacer } from "@/components/RoleMobileNav";
 import { getSellerMe, updateSellerOpen } from "@/lib/seller.functions";
 
 export const Route = createFileRoute("/_authenticated/seller")({
@@ -99,8 +100,8 @@ function SellerLayout() {
           </button>
         </div>
         <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-          <aside className="lg:sticky lg:top-20 lg:self-start">
-            <nav className="flex flex-row gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-2 lg:flex-col">
+          <aside className="hidden lg:block lg:sticky lg:top-20 lg:self-start">
+            <nav className="flex flex-col gap-1 rounded-xl border border-border bg-surface p-2">
               {NAV.map((item) => {
                 const active = item.exact ? pathname === item.to : pathname.startsWith(item.to);
                 const Icon = item.icon;
@@ -123,9 +124,11 @@ function SellerLayout() {
           </aside>
           <section className="min-w-0">
             <Outlet />
+            <RoleMobileNavSpacer />
           </section>
         </div>
       </div>
+      <RoleMobileNav items={NAV} label="Seller menu" />
     </div>
   );
 }
