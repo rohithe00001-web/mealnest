@@ -300,10 +300,10 @@ export const skipDelivery = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({ delivery_id: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    const { error } = await context.supabase
-      .from("subscription_deliveries")
-      .update({ status: "skipped" })
-      .eq("id", data.delivery_id);
+    const { error } = await context.supabase.rpc(
+      "skip_my_subscription_delivery" as any,
+      { _delivery_id: data.delivery_id },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
