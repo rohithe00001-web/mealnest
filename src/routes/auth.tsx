@@ -150,7 +150,7 @@ function AuthPage() {
       <main className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-md rounded-3xl bg-card p-8 shadow-[var(--shadow-card)]">
           <div className="flex flex-col items-center text-center">
-            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary text-primary-foreground"><ChefHat className="h-6 w-6" /></span>
+            <img src="/icons/icon-192.png" alt="MealNest" width={64} height={64} className="h-16 w-16 rounded-2xl object-contain" />
             <h1 className="mt-4 font-display text-3xl font-semibold">Welcome to MealNest</h1>
             <p className="mt-1 text-sm text-muted-foreground">Sign in or create your account</p>
           </div>
