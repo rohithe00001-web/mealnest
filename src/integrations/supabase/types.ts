@@ -1533,6 +1533,27 @@ export type Database = {
           },
         ]
       }
+      platform_settings: {
+        Row: {
+          id: boolean
+          online_payments_enabled: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          online_payments_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          online_payments_enabled?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           anniversary: string | null
@@ -2672,6 +2693,7 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      get_online_payments_enabled: { Args: never; Returns: boolean }
       get_public_profile: {
         Args: { _user_id: string }
         Returns: {
@@ -2778,6 +2800,10 @@ export type Database = {
           _reason: string
         }
         Returns: string
+      }
+      set_online_payments_enabled: {
+        Args: { _enabled: boolean }
+        Returns: boolean
       }
       spin_wheel: {
         Args: { _user: string }
