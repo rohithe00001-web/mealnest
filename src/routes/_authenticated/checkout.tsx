@@ -11,6 +11,7 @@ import { placeOrder } from "@/lib/orders.functions";
 import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/razorpay.functions";
 import { listAddresses } from "@/lib/customer.functions";
 import { previewCoupon, listApplicableCoupons } from "@/lib/coupons.functions";
+import { usePaymentMode } from "@/hooks/use-payment-mode";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
