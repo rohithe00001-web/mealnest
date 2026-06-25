@@ -219,7 +219,7 @@ export const listApplicableCoupons = createServerFn({ method: "POST" })
     // Use SECURITY DEFINER RPC that only returns customer-safe columns
     // (no usage_count, geo_pincodes, metadata, created_by, etc.).
     const { data: rows, error } = await context.supabase.rpc("list_active_coupons_safe", {
-      _seller_id: data.sellerId ?? null,
+      _seller_id: (data.sellerId ?? null) as any,
     });
     if (error) throw new Error(error.message);
 
