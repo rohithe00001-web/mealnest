@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
-import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft, Calendar, Truck, Ticket, Sparkles, BarChart3, ShieldAlert, Gift } from "lucide-react";
+import { LayoutDashboard, Store, ShoppingBag, Users, ArrowLeft, Calendar, Truck, Ticket, Sparkles, BarChart3, ShieldAlert, Gift, Wallet } from "lucide-react";
 import { checkIsAdmin } from "@/lib/admin.functions";
 import { Header } from "@/components/Header";
 import { RoleMobileNav, RoleMobileNavSpacer } from "@/components/RoleMobileNav";
@@ -20,6 +20,7 @@ const NAV: { to: string; label: string; icon: typeof LayoutDashboard; exact?: bo
   { to: "/admin/campaigns", label: "Campaigns", icon: Sparkles },
   { to: "/admin/promotions", label: "Promo analytics", icon: BarChart3 },
   { to: "/admin/rewards", label: "Rewards", icon: Gift },
+  { to: "/admin/payments", label: "Payments", icon: Wallet },
   { to: "/admin/abuse", label: "Abuse reports", icon: ShieldAlert },
   { to: "/admin/users", label: "Users", icon: Users },
 ];
