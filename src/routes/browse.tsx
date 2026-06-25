@@ -6,7 +6,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { DishCard } from "@/components/DishCard";
 import { categoriesQuery, dishesQuery } from "@/lib/queries";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, SlidersHorizontal, X, Star, Mic, MicOff, TrendingUp, Clock as ClockIcon } from "lucide-react";
 
 const searchSchema = z.object({
