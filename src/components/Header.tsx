@@ -44,12 +44,7 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="container-page flex h-16 items-center gap-3 sm:gap-6">
         <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="MealNest home">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-soft">
-            <svg viewBox="0 0 64 64" className="h-5 w-5" fill="none" aria-hidden="true">
-              <path d="M14 26 L32 12 L50 26" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 40c0-6 9-10 20-10s20 4 20 10c0 3-2 5-5 5H17c-3 0-5-2-5-5z" fill="currentColor" opacity=".95"/>
-            </svg>
-          </span>
+          <LogoMark className="h-9 w-9" />
           <span className="text-xl font-display font-semibold tracking-tight">MealNest</span>
         </Link>
 
