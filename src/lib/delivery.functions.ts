@@ -286,7 +286,7 @@ export const agentListMyAssignments = createServerFn({ method: "GET" })
     const agentWithContact = { ...agents[0], sellers: { ...(agents[0] as any).sellers, phone: contact?.phone ?? null } };
     const { data: assignments } = await context.supabase
       .from("delivery_assignments")
-      .select("*, orders(order_number, total, delivery_address), subscription_deliveries(scheduled_date, meals)")
+      .select("id, seller_id, agent_id, order_id, subscription_delivery_id, customer_id, status, assigned_at, picked_up_at, delivered_at, failed_reason, current_lat, current_lng, last_location_at, notes, orders(order_number, total, delivery_address), subscription_deliveries(scheduled_date, meals)")
       .in("agent_id", agentIds)
       .order("assigned_at", { ascending: false })
       .limit(50);
@@ -304,7 +304,7 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: a } = await context.supabase
       .from("delivery_assignments")
-      .select("*, delivery_agents!inner(user_id)")
+      .select("id, seller_id, agent_id, order_id, subscription_delivery_id, customer_id, status, delivery_agents!inner(user_id)")
       .eq("id", data.assignment_id).maybeSingle();
     if (!a || (a as any).delivery_agents.user_id !== context.userId) throw new Error("Not your assignment");
 
@@ -312,10 +312,10 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
     if (data.action === "pickup") {
       patch.status = "picked_up"; patch.picked_up_at = new Date().toISOString();
     } else if (data.action === "deliver") {
-      if (!data.otp || data.otp !== a.otp) throw new Error("Wrong OTP");
+      if (!data.otp) throw new Error("OTP required");
+      const { data: ok } = await context.supabase.rpc("validate_assignment_otp" as any, { _assignment_id: data.assignment_id, _otp: data.otp });
+      if (!ok) throw new Error("Wrong OTP");
       patch.status = "delivered"; patch.delivered_at = new Date().toISOString();
-      // bump count
-      await context.supabase.rpc; // noop placeholder
     } else if (data.action === "fail") {
       patch.status = "failed"; patch.failed_reason = data.reason ?? "";
     }
@@ -365,9 +365,15 @@ export const customerGetAssignment = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: a } = await context.supabase
       .from("delivery_assignments")
-      .select("id, status, otp, current_lat, current_lng, last_location_at, assigned_at, picked_up_at, delivered_at, delivery_agents(full_name, phone, rating_avg)")
+      .select("id, status, current_lat, current_lng, last_location_at, assigned_at, picked_up_at, delivered_at, delivery_agents(full_name, phone, rating_avg)")
       .eq("order_id", data.order_id).eq("customer_id", context.userId).maybeSingle();
-    return a;
+    if (!a) return null;
+    let otp: string | null = null;
+    if (a.status === "picked_up" || a.status === "assigned") {
+      const { data: otpVal } = await context.supabase.rpc("get_my_assignment_otp" as any, { _assignment_id: a.id });
+      otp = (otpVal as unknown as string) ?? null;
+    }
+    return { ...a, otp };
   });
 
 // Seller: assignments by order id (current state)
@@ -378,7 +384,7 @@ export const sellerGetOrderAssignment = createServerFn({ method: "POST" })
     const sellerId = await getMySellerId(context.supabase, context.userId);
     const { data: a } = await context.supabase
       .from("delivery_assignments")
-      .select("id, status, agent_id, otp, delivery_agents(full_name, phone)")
+      .select("id, status, agent_id, delivery_agents(full_name, phone)")
       .eq("order_id", data.order_id).eq("seller_id", sellerId).maybeSingle();
     return a;
   });

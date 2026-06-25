@@ -2651,6 +2651,10 @@ export type Database = {
           vehicle_doc_url: string
         }[]
       }
+      get_my_assignment_otp: {
+        Args: { _assignment_id: string }
+        Returns: string
+      }
       get_my_seller_record: {
         Args: never
         Returns: {
@@ -2828,6 +2832,10 @@ export type Database = {
       start_device_transfer: {
         Args: { _to_device: string; _user: string }
         Returns: string
+      }
+      validate_assignment_otp: {
+        Args: { _assignment_id: string; _otp: string }
+        Returns: boolean
       }
       validate_coupon: {
         Args: {
