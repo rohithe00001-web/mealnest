@@ -11,6 +11,7 @@ import { placeOrder } from "@/lib/orders.functions";
 import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/razorpay.functions";
 import { listAddresses } from "@/lib/customer.functions";
 import { previewCoupon, listApplicableCoupons } from "@/lib/coupons.functions";
+import { usePaymentMode } from "@/hooks/use-payment-mode";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
@@ -47,9 +48,11 @@ function CheckoutPage() {
   const listAddressesFn = useServerFn(listAddresses);
   const previewFn = useServerFn(previewCoupon);
   const listCouponsFn = useServerFn(listApplicableCoupons);
+  const { data: paymentMode } = usePaymentMode();
+  const onlinePaymentsEnabled = paymentMode?.onlinePaymentsEnabled ?? false;
   const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | "new">("new");
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("cod");
   const [couponCode, setCouponCode] = useState("");
   const [couponState, setCouponState] = useState<{ code: string; discount: number; type: string } | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
@@ -79,8 +82,13 @@ function CheckoutPage() {
 
   // Pre-load Razorpay script so the modal opens instantly when the user clicks Pay.
   useEffect(() => {
-    loadRazorpay();
-  }, []);
+    if (onlinePaymentsEnabled) loadRazorpay();
+  }, [onlinePaymentsEnabled]);
+
+  // Force COD when online payments are disabled by Admin.
+  useEffect(() => {
+    if (!onlinePaymentsEnabled && paymentMethod !== "cod") setPaymentMethod("cod");
+  }, [onlinePaymentsEnabled, paymentMethod]);
 
   let deliveryFee = subtotal >= 500 || subtotal === 0 ? 0 : 29;
   let couponDiscount = 0;
@@ -144,7 +152,7 @@ function CheckoutPage() {
     try {
       const deliveryAddress = buildDeliveryAddress();
 
-      if (paymentMethod === "cod") {
+      if (paymentMethod === "cod" || !onlinePaymentsEnabled) {
         const res = await placeOrderFn({
           data: {
             sellerId: items[0].sellerId,
@@ -304,30 +312,47 @@ function CheckoutPage() {
             </section>
             <section className="rounded-2xl border border-border bg-card p-6">
               <h2 className="font-display text-xl font-semibold">Payment</h2>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("razorpay")}
-                  className={`text-left rounded-xl border p-4 transition-colors ${
-                    paymentMethod === "razorpay" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
-                  }`}
-                >
-                  <div className="text-sm font-semibold">Pay online</div>
-                  <p className="mt-1 text-xs text-muted-foreground">Cards, UPI, wallets &amp; netbanking — secured by Razorpay.</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("cod")}
-                  className={`text-left rounded-xl border p-4 transition-colors ${
-                    paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
-                  }`}
-                >
-                  <div className="text-sm font-semibold">Cash on Delivery</div>
-                  <p className="mt-1 text-xs text-muted-foreground">Pay the cook when your food arrives.</p>
-                </button>
-              </div>
+              {onlinePaymentsEnabled ? (
+                <div className="mt-4 grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("razorpay")}
+                    className={`text-left rounded-xl border p-4 transition-colors ${
+                      paymentMethod === "razorpay" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">Pay online</div>
+                    <p className="mt-1 text-xs text-muted-foreground">Cards, UPI, wallets &amp; netbanking — secured by Razorpay.</p>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("cod")}
+                    className={`text-left rounded-xl border p-4 transition-colors ${
+                      paymentMethod === "cod" ? "border-primary bg-primary/5" : "border-border hover:border-foreground/30"
+                    }`}
+                  >
+                    <div className="text-sm font-semibold">Cash on Delivery</div>
+                    <p className="mt-1 text-xs text-muted-foreground">Pay the cook when your food arrives.</p>
+                  </button>
+                </div>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-xl border-2 border-primary bg-primary/5 p-4">
+                    <div className="flex items-center gap-2 text-sm font-semibold">
+                      <span>✅ Cash on Delivery</span>
+                      <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary-foreground">Selected</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">Pay the delivery agent in cash when your food arrives.</p>
+                  </div>
+                  <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                    Online payments (UPI, cards, net banking, wallets) are temporarily unavailable. Please use Cash on Delivery (COD). We will enable online payment options soon.
+                  </div>
+                </div>
+              )}
             </section>
           </div>
+
+
 
           <aside className="h-fit rounded-2xl border border-border bg-card p-6">
             <h3 className="font-display text-xl font-semibold">Summary</h3>
