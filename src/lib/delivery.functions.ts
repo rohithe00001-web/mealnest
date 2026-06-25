@@ -67,7 +67,7 @@ export const listSellerAgents = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const sellerId = await getMySellerId(context.supabase, context.userId);
     const { data, error } = await context.supabase
-      .from("delivery_agents").select("*").eq("seller_id", sellerId)
+      .from("delivery_agents").select(AGENT_SAFE_COLS).eq("seller_id", sellerId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
