@@ -2809,6 +2809,10 @@ export type Database = {
         Args: { _enabled: boolean }
         Returns: boolean
       }
+      skip_my_subscription_delivery: {
+        Args: { _delivery_id: string }
+        Returns: boolean
+      }
       spin_wheel: {
         Args: { _user: string }
         Returns: {
