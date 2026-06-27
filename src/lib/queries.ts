@@ -87,7 +87,7 @@ export const dishByIdQuery = (id: string) =>
       const { data, error } = await supabase
         .from("dishes")
         .select(
-          "*, categories(slug, name), sellers(id, kitchen_name, city, rating_avg, rating_count, address_line)",
+          "*, categories(slug, name), sellers(id, kitchen_name, city, rating_avg, rating_count, address_line, is_open)",
         )
         .eq("id", id)
         .maybeSingle();
