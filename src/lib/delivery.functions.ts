@@ -29,26 +29,69 @@ export const registerDeliveryAgent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
     seller_id: z.string().uuid(),
+    // personal
     full_name: z.string().min(2).max(80),
+    photo_url: z.string().optional().or(z.literal("")),
+    date_of_birth: z.string().optional().or(z.literal("")),
+    gender: z.string().max(20).optional().or(z.literal("")),
     phone: z.string().min(7).max(20),
     email: z.string().email().optional().or(z.literal("")),
-    vehicle_type: z.string().max(40).optional(),
-    vehicle_number: z.string().max(40).optional(),
-    aadhaar_number: z.string().max(20).optional(),
-    license_number: z.string().max(40).optional(),
-    id_doc_url: z.string().optional(),
-    license_doc_url: z.string().optional(),
-    vehicle_doc_url: z.string().optional(),
+    residential_address: z.string().max(500).optional().or(z.literal("")),
+    // identity
+    aadhaar_number: z.string().max(20).optional().or(z.literal("")),
+    license_number: z.string().max(40).optional().or(z.literal("")),
+    id_doc_url: z.string().optional().or(z.literal("")),
+    license_doc_url: z.string().optional().or(z.literal("")),
+    // vehicle
+    vehicle_type: z.string().max(40).optional().or(z.literal("")),
+    vehicle_number: z.string().max(40).optional().or(z.literal("")),
+    vehicle_doc_url: z.string().optional().or(z.literal("")),
+    rc_doc_url: z.string().optional().or(z.literal("")),
+    insurance_doc_url: z.string().optional().or(z.literal("")),
+    // banking
+    bank_account_name: z.string().max(120).optional().or(z.literal("")),
+    bank_name: z.string().max(120).optional().or(z.literal("")),
+    bank_account_number: z.string().max(40).optional().or(z.literal("")),
+    bank_ifsc: z.string().max(20).optional().or(z.literal("")),
+    upi_id: z.string().max(80).optional().or(z.literal("")),
+    // preferences
+    preferred_areas: z.array(z.string()).optional(),
+    working_days: z.array(z.string()).optional(),
+    working_hours_start: z.string().max(10).optional().or(z.literal("")),
+    working_hours_end: z.string().max(10).optional().or(z.literal("")),
+    available_slots: z.array(z.string()).optional(),
   }).parse(d))
   .handler(async ({ data, context }) => {
+    // Coerce empty strings -> null so date/text columns don't reject them
+    const clean: any = {};
+    for (const [k, v] of Object.entries(data)) clean[k] = v === "" ? null : v;
     const { data: row, error } = await context.supabase
       .from("delivery_agents")
-      .insert({ ...data, user_id: context.userId, status: "pending_seller" })
+      .insert({ ...clean, user_id: context.userId, status: "pending_seller" })
       .select("id").single();
     if (error) throw new Error(error.message);
-    // delivery_agent role is granted by admin on approval, not self-granted
     return { id: row.id };
   });
+
+// Full self-application incl. sensitive cols via SECURITY DEFINER RPC
+export const getMyDeliveryApplication = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase.rpc("get_my_delivery_application");
+    if (error) throw new Error(error.message);
+    return data ?? [];
+  });
+
+// Seller view of one application (full record)
+export const sellerGetApplication = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ agent_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: rows, error } = await context.supabase.rpc("seller_get_application", { _agent_id: data.agent_id });
+    if (error) throw new Error(error.message);
+    return rows?.[0] ?? null;
+  });
+
 
 export const getMyAgentProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -183,9 +226,13 @@ export const listApprovedSellers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
-      .from("sellers").select("id, kitchen_name, city").eq("status", "approved").order("kitchen_name");
+      .from("sellers")
+      .select("id, kitchen_name, city, address_line, logo_url, rating_avg, rating_count, latitude, longitude")
+      .eq("status", "approved")
+      .order("rating_avg", { ascending: false });
     return data ?? [];
   });
+
 
 // ─────────── Phase 2: Order assignment & agent dashboard ───────────
 

@@ -479,76 +479,130 @@ export type Database = {
           aadhaar_number: string | null
           active: boolean
           admin_approved_at: string | null
+          admin_rejected_reason: string | null
+          available_slots: string[] | null
           background_check_passed: boolean
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_name: string | null
           created_at: string
+          date_of_birth: string | null
           delivery_count: number
           email: string | null
           full_name: string
+          gender: string | null
           id: string
           id_doc_url: string | null
+          insurance_doc_url: string | null
           license_doc_url: string | null
           license_number: string | null
           phone: string
+          photo_url: string | null
+          preferred_areas: string[] | null
           rating_avg: number
+          rc_doc_url: string | null
           rejected_reason: string | null
+          residential_address: string | null
           seller_approved_at: string | null
           seller_id: string
+          seller_rejected_reason: string | null
           status: Database["public"]["Enums"]["delivery_agent_status"]
           updated_at: string
+          upi_id: string | null
           user_id: string
           vehicle_doc_url: string | null
           vehicle_number: string | null
           vehicle_type: string | null
+          working_days: string[] | null
+          working_hours_end: string | null
+          working_hours_start: string | null
         }
         Insert: {
           aadhaar_number?: string | null
           active?: boolean
           admin_approved_at?: string | null
+          admin_rejected_reason?: string | null
+          available_slots?: string[] | null
           background_check_passed?: boolean
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_name?: string | null
           created_at?: string
+          date_of_birth?: string | null
           delivery_count?: number
           email?: string | null
           full_name: string
+          gender?: string | null
           id?: string
           id_doc_url?: string | null
+          insurance_doc_url?: string | null
           license_doc_url?: string | null
           license_number?: string | null
           phone: string
+          photo_url?: string | null
+          preferred_areas?: string[] | null
           rating_avg?: number
+          rc_doc_url?: string | null
           rejected_reason?: string | null
+          residential_address?: string | null
           seller_approved_at?: string | null
           seller_id: string
+          seller_rejected_reason?: string | null
           status?: Database["public"]["Enums"]["delivery_agent_status"]
           updated_at?: string
+          upi_id?: string | null
           user_id: string
           vehicle_doc_url?: string | null
           vehicle_number?: string | null
           vehicle_type?: string | null
+          working_days?: string[] | null
+          working_hours_end?: string | null
+          working_hours_start?: string | null
         }
         Update: {
           aadhaar_number?: string | null
           active?: boolean
           admin_approved_at?: string | null
+          admin_rejected_reason?: string | null
+          available_slots?: string[] | null
           background_check_passed?: boolean
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_ifsc?: string | null
+          bank_name?: string | null
           created_at?: string
+          date_of_birth?: string | null
           delivery_count?: number
           email?: string | null
           full_name?: string
+          gender?: string | null
           id?: string
           id_doc_url?: string | null
+          insurance_doc_url?: string | null
           license_doc_url?: string | null
           license_number?: string | null
           phone?: string
+          photo_url?: string | null
+          preferred_areas?: string[] | null
           rating_avg?: number
+          rc_doc_url?: string | null
           rejected_reason?: string | null
+          residential_address?: string | null
           seller_approved_at?: string | null
           seller_id?: string
+          seller_rejected_reason?: string | null
           status?: Database["public"]["Enums"]["delivery_agent_status"]
           updated_at?: string
+          upi_id?: string | null
           user_id?: string
           vehicle_doc_url?: string | null
           vehicle_number?: string | null
           vehicle_type?: string | null
+          working_days?: string[] | null
+          working_hours_end?: string | null
+          working_hours_start?: string | null
         }
         Relationships: [
           {
@@ -2655,6 +2709,58 @@ export type Database = {
         Args: { _assignment_id: string }
         Returns: string
       }
+      get_my_delivery_application: {
+        Args: never
+        Returns: {
+          aadhaar_number: string | null
+          active: boolean
+          admin_approved_at: string | null
+          admin_rejected_reason: string | null
+          available_slots: string[] | null
+          background_check_passed: boolean
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_name: string | null
+          created_at: string
+          date_of_birth: string | null
+          delivery_count: number
+          email: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          id_doc_url: string | null
+          insurance_doc_url: string | null
+          license_doc_url: string | null
+          license_number: string | null
+          phone: string
+          photo_url: string | null
+          preferred_areas: string[] | null
+          rating_avg: number
+          rc_doc_url: string | null
+          rejected_reason: string | null
+          residential_address: string | null
+          seller_approved_at: string | null
+          seller_id: string
+          seller_rejected_reason: string | null
+          status: Database["public"]["Enums"]["delivery_agent_status"]
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+          vehicle_doc_url: string | null
+          vehicle_number: string | null
+          vehicle_type: string | null
+          working_days: string[] | null
+          working_hours_end: string | null
+          working_hours_start: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "delivery_agents"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_seller_record: {
         Args: never
         Returns: {
@@ -2804,6 +2910,58 @@ export type Database = {
           _reason: string
         }
         Returns: string
+      }
+      seller_get_application: {
+        Args: { _agent_id: string }
+        Returns: {
+          aadhaar_number: string | null
+          active: boolean
+          admin_approved_at: string | null
+          admin_rejected_reason: string | null
+          available_slots: string[] | null
+          background_check_passed: boolean
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_ifsc: string | null
+          bank_name: string | null
+          created_at: string
+          date_of_birth: string | null
+          delivery_count: number
+          email: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          id_doc_url: string | null
+          insurance_doc_url: string | null
+          license_doc_url: string | null
+          license_number: string | null
+          phone: string
+          photo_url: string | null
+          preferred_areas: string[] | null
+          rating_avg: number
+          rc_doc_url: string | null
+          rejected_reason: string | null
+          residential_address: string | null
+          seller_approved_at: string | null
+          seller_id: string
+          seller_rejected_reason: string | null
+          status: Database["public"]["Enums"]["delivery_agent_status"]
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+          vehicle_doc_url: string | null
+          vehicle_number: string | null
+          vehicle_type: string | null
+          working_days: string[] | null
+          working_hours_end: string | null
+          working_hours_start: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "delivery_agents"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       set_online_payments_enabled: {
         Args: { _enabled: boolean }
