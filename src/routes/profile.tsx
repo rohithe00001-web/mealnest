@@ -4,10 +4,12 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   ClipboardList, Heart, MapPin, Smartphone, Sparkles, Store, ChefHat,
   ShieldCheck, LogOut, ChevronRight, Settings, HelpCircle, CalendarDays, User as UserIcon,
+  Bike, Repeat,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsAdmin } from "@/lib/admin.functions";
+import { getMyDeliveryApplication } from "@/lib/delivery.functions";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
