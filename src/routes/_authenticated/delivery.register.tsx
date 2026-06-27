@@ -373,7 +373,7 @@ function Field({ label, value, onChange, type = "text", full = false }: { label:
   );
 }
 
-function SelectField({ label, value, onChange, options }: any) {
+function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: string[] }) {
   return (
     <label className="grid gap-1 text-sm">
       <span className="font-medium">{label}</span>
