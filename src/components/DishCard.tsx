@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Clock, Star, Plus } from "lucide-react";
+import { Clock, Star, Plus, Lock } from "lucide-react";
 import { inr } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
