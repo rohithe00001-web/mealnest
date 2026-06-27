@@ -34,13 +34,22 @@ function ProfilePage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const checkAdmin = useServerFn(checkIsAdmin);
+  const myApplicationFn = useServerFn(getMyDeliveryApplication);
   const { data: adminData } = useQuery({
     queryKey: ["me", "is-admin", user?.id ?? "anon"],
     queryFn: () => checkAdmin(),
     enabled: !!user,
     staleTime: 60_000,
   });
+  const { data: applications = [] } = useQuery({
+    queryKey: ["me", "delivery-application", user?.id ?? "anon"],
+    queryFn: () => myApplicationFn(),
+    enabled: !!user,
+    staleTime: 30_000,
+  });
   const isAdmin = !!adminData?.isAdmin;
+  const latestApplication = (applications as any[])[0];
+  const isApprovedAgent = latestApplication?.status === "approved";
 
   const signOut = async () => {
     await queryClient.cancelQueries();
