@@ -226,9 +226,13 @@ export const listApprovedSellers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data } = await context.supabase
-      .from("sellers").select("id, kitchen_name, city").eq("status", "approved").order("kitchen_name");
+      .from("sellers")
+      .select("id, kitchen_name, city, address_line, logo_url, rating_avg, rating_count, latitude, longitude")
+      .eq("status", "approved")
+      .order("rating_avg", { ascending: false });
     return data ?? [];
   });
+
 
 // ─────────── Phase 2: Order assignment & agent dashboard ───────────
 
