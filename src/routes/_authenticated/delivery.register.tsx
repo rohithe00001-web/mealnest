@@ -363,7 +363,7 @@ function Grid({ children, className = "" }: any) {
   return <div className={`grid gap-4 sm:grid-cols-2 ${className}`}>{children}</div>;
 }
 
-function Field({ label, value, onChange, type = "text", full = false }: any) {
+function Field({ label, value, onChange, type = "text", full = false }: { label: string; value: any; onChange: (v: string) => void; type?: string; full?: boolean }) {
   return (
     <label className={`grid gap-1 text-sm ${full ? "sm:col-span-2" : ""}`}>
       <span className="font-medium">{label}</span>
