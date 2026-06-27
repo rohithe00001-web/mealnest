@@ -179,6 +179,49 @@ function ProfilePage() {
         </ul>
       </section>
 
+      {/* Delivery Partner */}
+      <section className="mt-6">
+        <h2 className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Delivery Partner</h2>
+        <ul className="mt-2 divide-y divide-border rounded-2xl border border-border bg-card overflow-hidden">
+          {isApprovedAgent && (
+            <li>
+              <Link to="/delivery" className="flex items-center gap-3 p-4 transition-colors hover:bg-muted">
+                <span className="grid h-9 w-9 place-items-center rounded-lg bg-success/10 text-success">
+                  <Repeat className="h-4 w-4" />
+                </span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Switch to Delivery Dashboard</p>
+                  <p className="text-[11px] text-muted-foreground">Same account · pick up assignments and track earnings</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </Link>
+            </li>
+          )}
+          <li>
+            <Link to="/delivery/register" className="flex items-center gap-3 p-4 transition-colors hover:bg-muted">
+              <span className="grid h-9 w-9 place-items-center rounded-lg bg-primary/10 text-primary">
+                <Bike className="h-4 w-4" />
+              </span>
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  {latestApplication ? "Delivery Partner application" : "Become a Delivery Partner"}
+                </p>
+                {latestApplication ? (
+                  <p className="text-[11px] text-muted-foreground">
+                    Status: <span className="font-medium">{latestApplication.status.replace(/_/g, " ")}</span>
+                  </p>
+                ) : (
+                  <p className="text-[11px] text-muted-foreground">Earn flexibly delivering home‑cooked meals</p>
+                )}
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </li>
+        </ul>
+      </section>
+
+
+
       {/* Help / sign out */}
       <section className="mt-6">
         <h2 className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">More</h2>
