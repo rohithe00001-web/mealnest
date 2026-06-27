@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Clock, Star, Plus } from "lucide-react";
+import { Clock, Star, Plus, Lock } from "lucide-react";
 import { inr } from "@/lib/format";
 import { useCart } from "@/lib/cart";
 import { toast } from "sonner";
@@ -16,13 +16,15 @@ export interface DishCardData {
   rating_avg?: number | string | null;
   rating_count?: number | null;
   seller_id: string;
-  sellers?: { kitchen_name?: string | null; city?: string | null } | null;
+  sellers?: { kitchen_name?: string | null; city?: string | null; is_open?: boolean | null } | null;
 }
 
-export function DishCard({ dish }: { dish: DishCardData }) {
+export function DishCard({ dish, isOpen }: { dish: DishCardData; isOpen?: boolean }) {
   const { add } = useCart();
   const price = Number(dish.price);
   const rating = Number(dish.rating_avg ?? 0);
+  const open = isOpen ?? dish.sellers?.is_open;
+  const closed = open === false;
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
@@ -79,16 +81,26 @@ export function DishCard({ dish }: { dish: DishCardData }) {
               </span>
             ) : null}
           </div>
-          <button
-            onClick={() => {
-              add({ dishId: dish.id, sellerId: dish.seller_id, name: dish.name, price, imageUrl: dish.image_url ?? null });
-              toast.success(`Added ${dish.name} to cart`);
-            }}
-            className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add
-          </button>
+          {closed ? (
+            <span
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-muted px-3 text-xs font-medium text-muted-foreground"
+              title="Kitchen is currently closed"
+            >
+              <Lock className="h-3.5 w-3.5" />
+              Closed
+            </span>
+          ) : (
+            <button
+              onClick={() => {
+                add({ dishId: dish.id, sellerId: dish.seller_id, name: dish.name, price, imageUrl: dish.image_url ?? null });
+                toast.success(`Added ${dish.name} to cart`);
+              }}
+              className="inline-flex h-9 items-center gap-1 rounded-full bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add
+            </button>
+          )}
         </div>
       </div>
     </article>

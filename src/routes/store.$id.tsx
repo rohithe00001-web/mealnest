@@ -217,7 +217,7 @@ function StorePage() {
                       </span>
                     );
                   })()}
-                  <DishCard dish={d} />
+                  <DishCard dish={d} isOpen={seller.is_open ?? undefined} />
                 </div>
               ))}
             </div>
@@ -278,7 +278,7 @@ function StorePage() {
                       </span>
                     );
                   })()}
-                  <DishCard dish={d} />
+                  <DishCard dish={d} isOpen={seller.is_open ?? undefined} />
                 </div>
               ))}
             </div>

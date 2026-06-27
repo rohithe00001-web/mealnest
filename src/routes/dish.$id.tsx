@@ -91,15 +91,24 @@ function DishPage() {
                 )}
                 <div className="mt-8 flex items-center justify-between rounded-2xl border border-border bg-card p-5">
                   <span className="font-display text-3xl font-semibold">{inr(dish.price)}</span>
-                  <button
-                    onClick={() => {
-                      add({ dishId: dish.id, sellerId: dish.seller_id, name: dish.name, price: Number(dish.price), imageUrl: dish.image_url });
-                      toast.success("Added to cart");
-                    }}
-                    className="h-12 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                  >
-                    Add to cart
-                  </button>
+                  {(dish as any).sellers?.is_open === false ? (
+                    <div className="text-right">
+                      <span className="inline-flex h-12 items-center rounded-full bg-muted px-6 text-sm font-medium text-muted-foreground">
+                        Kitchen closed
+                      </span>
+                      <p className="mt-1 text-xs text-muted-foreground">This kitchen isn't accepting orders right now.</p>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        add({ dishId: dish.id, sellerId: dish.seller_id, name: dish.name, price: Number(dish.price), imageUrl: dish.image_url });
+                        toast.success("Added to cart");
+                      }}
+                      className="h-12 rounded-full bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                    >
+                      Add to cart
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
