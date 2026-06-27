@@ -16,13 +16,15 @@ export interface DishCardData {
   rating_avg?: number | string | null;
   rating_count?: number | null;
   seller_id: string;
-  sellers?: { kitchen_name?: string | null; city?: string | null } | null;
+  sellers?: { kitchen_name?: string | null; city?: string | null; is_open?: boolean | null } | null;
 }
 
-export function DishCard({ dish }: { dish: DishCardData }) {
+export function DishCard({ dish, isOpen }: { dish: DishCardData; isOpen?: boolean }) {
   const { add } = useCart();
   const price = Number(dish.price);
   const rating = Number(dish.rating_avg ?? 0);
+  const open = isOpen ?? dish.sellers?.is_open;
+  const closed = open === false;
 
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl bg-card shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5">
