@@ -200,9 +200,10 @@ function OrderDetailPage() {
                 )}
                 {assignment.status === "picked_up" && (
                   <p className="mt-3 rounded-lg bg-primary/10 p-3 text-xs text-primary">
-                    Share this OTP with the agent on delivery: <span className="text-base font-bold tracking-widest">{assignment.otp}</span>
+                    Your delivery partner has picked up your order and is on the way.
                   </p>
                 )}
+
                 {(assignment as any).current_lat && (assignment as any).current_lng && (
                   <div className="mt-3">
                     <LiveMap agent={{ lat: Number((assignment as any).current_lat), lng: Number((assignment as any).current_lng), label: "Agent" }} height={220} />
