@@ -630,7 +630,6 @@ export type Database = {
           last_location_at: string | null
           notes: string | null
           order_id: string | null
-          otp: string
           picked_up_at: string | null
           seller_id: string
           status: Database["public"]["Enums"]["delivery_assignment_status"]
@@ -652,7 +651,6 @@ export type Database = {
           last_location_at?: string | null
           notes?: string | null
           order_id?: string | null
-          otp?: string
           picked_up_at?: string | null
           seller_id: string
           status?: Database["public"]["Enums"]["delivery_assignment_status"]
@@ -674,7 +672,6 @@ export type Database = {
           last_location_at?: string | null
           notes?: string | null
           order_id?: string | null
-          otp?: string
           picked_up_at?: string | null
           seller_id?: string
           status?: Database["public"]["Enums"]["delivery_assignment_status"]
@@ -2705,10 +2702,6 @@ export type Database = {
           vehicle_doc_url: string
         }[]
       }
-      get_my_assignment_otp: {
-        Args: { _assignment_id: string }
-        Returns: string
-      }
       get_my_delivery_application: {
         Args: never
         Returns: {
@@ -2995,10 +2988,6 @@ export type Database = {
         Args: { _to_device: string; _user: string }
         Returns: string
       }
-      validate_assignment_otp: {
-        Args: { _assignment_id: string; _otp: string }
-        Returns: boolean
-      }
       validate_coupon: {
         Args: {
           _code: string
@@ -3034,6 +3023,7 @@ export type Database = {
         | "suspended"
       delivery_assignment_status:
         | "assigned"
+        | "arrived_at_seller"
         | "picked_up"
         | "delivered"
         | "failed"
@@ -3203,6 +3193,7 @@ export const Constants = {
       ],
       delivery_assignment_status: [
         "assigned",
+        "arrived_at_seller",
         "picked_up",
         "delivered",
         "failed",
