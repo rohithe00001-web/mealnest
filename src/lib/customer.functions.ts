@@ -181,6 +181,7 @@ export const getOrderDetail = createServerFn({ method: "GET" })
       .from("orders")
       .select("*, order_items(*), sellers(id, kitchen_name, city, phone)")
       .eq("id", data.orderId)
+      .eq("customer_id", context.userId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     return order;
