@@ -21,11 +21,12 @@ function AgentDashboard() {
   const { data, isLoading } = useQuery({ queryKey: ["agent", "assignments"], queryFn: () => listFn() });
   const invalidate = () => qc.invalidateQueries({ queryKey: ["agent", "assignments"] });
   const mut = useMutation({
-    mutationFn: (v: { assignment_id: string; action: "pickup" | "deliver" | "fail"; otp?: string; reason?: string }) =>
+    mutationFn: (v: { assignment_id: string; action: "arrive" | "pickup" | "deliver" | "fail"; reason?: string }) =>
       updateFn({ data: v }),
     onSuccess: () => { toast.success("Updated"); invalidate(); },
     onError: (e: any) => toast.error(e.message),
   });
+
 
   if (isLoading) {
     return (
