@@ -153,9 +153,13 @@ export const sellerStoreQuery = (idOrSlug: string) =>
 export const myOrdersQuery = queryOptions({
   queryKey: ["orders", "mine"],
   queryFn: async () => {
+    const { data: auth } = await supabase.auth.getUser();
+    const uid = auth.user?.id;
+    if (!uid) return [];
     const { data, error } = await supabase
       .from("orders")
       .select("*, order_items(*), sellers(kitchen_name, city)")
+      .eq("customer_id", uid)
       .order("created_at", { ascending: false });
     if (error) throw error;
     return data ?? [];
