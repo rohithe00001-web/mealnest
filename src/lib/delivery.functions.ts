@@ -344,8 +344,7 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({
     assignment_id: z.string().uuid(),
-    action: z.enum(["pickup", "deliver", "fail"]),
-    otp: z.string().optional(),
+    action: z.enum(["arrive", "pickup", "deliver", "fail"]),
     reason: z.string().optional(),
   }).parse(d))
   .handler(async ({ data, context }) => {
@@ -355,13 +354,18 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
       .eq("id", data.assignment_id).maybeSingle();
     if (!a || (a as any).delivery_agents.user_id !== context.userId) throw new Error("Not your assignment");
 
+    // Enforce sequential status transitions
+    const order = ["assigned", "arrived_at_seller", "picked_up", "delivered"];
+    const curIdx = order.indexOf(a.status as string);
     const patch: any = {};
-    if (data.action === "pickup") {
+    if (data.action === "arrive") {
+      if (a.status !== "assigned") throw new Error("Cannot mark arrived from current status");
+      patch.status = "arrived_at_seller";
+    } else if (data.action === "pickup") {
+      if (curIdx < 0 || curIdx > 1) throw new Error("Cannot mark picked up from current status");
       patch.status = "picked_up"; patch.picked_up_at = new Date().toISOString();
     } else if (data.action === "deliver") {
-      if (!data.otp) throw new Error("OTP required");
-      const { data: ok } = await context.supabase.rpc("validate_assignment_otp" as any, { _assignment_id: data.assignment_id, _otp: data.otp });
-      if (!ok) throw new Error("Wrong OTP");
+      if (a.status !== "picked_up") throw new Error("Mark as picked up first");
       patch.status = "delivered"; patch.delivered_at = new Date().toISOString();
     } else if (data.action === "fail") {
       patch.status = "failed"; patch.failed_reason = data.reason ?? "";
@@ -369,8 +373,10 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
     const { error } = await context.supabase.from("delivery_assignments").update(patch).eq("id", data.assignment_id);
     if (error) throw new Error(error.message);
 
+    if (data.action === "pickup" && a.order_id) {
+      await context.supabase.from("orders").update({ status: "out_for_delivery" }).eq("id", a.order_id);
+    }
     if (data.action === "deliver") {
-      // Sync the parent order/delivery, and bump counter
       if (a.order_id) {
         await context.supabase.from("orders").update({ status: "delivered", payment_status: "paid" }).eq("id", a.order_id);
       }
@@ -387,6 +393,7 @@ export const agentUpdateAssignment = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
 
 export const agentUpdateLocation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
