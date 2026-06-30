@@ -109,7 +109,6 @@ function Stat({ label, value, icon: Icon }: any) {
 }
 
 function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) => void; pending: boolean }) {
-  const [otp, setOtp] = useState("");
   const addr = (a.orders?.delivery_address ?? {}) as Record<string, any>;
   const isOrder = !!a.order_id;
   return (
@@ -121,7 +120,7 @@ function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) =
           </p>
           {isOrder && <p className="text-sm text-muted-foreground">{inr(Number(a.orders?.total ?? 0))}</p>}
         </div>
-        <span className="rounded-full bg-warning/10 px-2 py-0.5 text-xs text-warning capitalize">{a.status.replace("_", " ")}</span>
+        <span className="rounded-full bg-warning/10 px-2 py-0.5 text-xs text-warning capitalize">{a.status.replace(/_/g, " ")}</span>
       </div>
       {isOrder && addr.addressLine && (
         <p className="mt-2 flex items-start gap-2 text-sm text-muted-foreground">
@@ -152,23 +151,22 @@ function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) =
       )}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {a.status === "assigned" && (
+          <button disabled={pending} onClick={() => onAction({ assignment_id: a.id, action: "arrive" })}
+            className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-50">
+            <MapPinned className="h-3.5 w-3.5" /> Arrived at pickup
+          </button>
+        )}
+        {a.status === "arrived_at_seller" && (
           <button disabled={pending} onClick={() => onAction({ assignment_id: a.id, action: "pickup" })}
             className="rounded-full bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-50">
             Mark picked up
           </button>
         )}
         {a.status === "picked_up" && (
-          <>
-            <div className="flex items-center gap-2 rounded-full border border-border px-3 py-1">
-              <KeyRound className="h-3.5 w-3.5 text-muted-foreground" />
-              <input value={otp} onChange={(e) => setOtp(e.target.value)} maxLength={4} placeholder="OTP"
-                className="w-16 bg-transparent text-xs outline-none" />
-            </div>
-            <button disabled={pending || otp.length !== 4} onClick={() => onAction({ assignment_id: a.id, action: "deliver", otp })}
-              className="rounded-full bg-success px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
-              Confirm delivery
-            </button>
-          </>
+          <button disabled={pending} onClick={() => onAction({ assignment_id: a.id, action: "deliver" })}
+            className="inline-flex items-center gap-1 rounded-full bg-success px-3 py-1.5 text-xs font-medium text-white disabled:opacity-50">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Mark as delivered
+          </button>
         )}
         <button disabled={pending} onClick={() => {
           const reason = prompt("Reason for failure?") || "";
@@ -179,6 +177,7 @@ function AssignmentCard({ a, onAction, pending }: { a: any; onAction: (v: any) =
         </button>
       </div>
     </div>
+
   );
 }
 
