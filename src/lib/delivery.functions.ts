@@ -422,13 +422,9 @@ export const customerGetAssignment = createServerFn({ method: "POST" })
       .select("id, status, current_lat, current_lng, last_location_at, assigned_at, picked_up_at, delivered_at, delivery_agents(full_name, phone, rating_avg)")
       .eq("order_id", data.order_id).eq("customer_id", context.userId).maybeSingle();
     if (!a) return null;
-    let otp: string | null = null;
-    if (a.status === "picked_up" || a.status === "assigned") {
-      const { data: otpVal } = await context.supabase.rpc("get_my_assignment_otp" as any, { _assignment_id: a.id });
-      otp = (otpVal as unknown as string) ?? null;
-    }
-    return { ...a, otp };
+    return a;
   });
+
 
 // Seller: assignments by order id (current state)
 export const sellerGetOrderAssignment = createServerFn({ method: "POST" })
